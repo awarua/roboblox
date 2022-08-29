@@ -1,6 +1,42 @@
-let ROWS = 3;
-let COLS = 3;
+let ROWS = 7;
+let COLS = 10;
 const MARGIN = 0;
+
+const SHOW_FRONT = 0;
+const SHOW_BACK = 1;
+const SHOW_3D = 2;
+const SHOW_SETTINGS = 3;
+const SHOW_FILES = 4;
+
+const SCREEN_IDS = {
+  [SHOW_FRONT]: {
+    id: '#front-row',
+    btnId: '#btn-show-front',
+    isHidden: true,
+  },
+  [SHOW_BACK]: {
+    id: '#back-row',
+    btnId: '#btn-show-back',
+    isHidden: true,
+  },
+  [SHOW_3D]: {
+    id: '#3d-row',
+    btnId: '#btn-show-3d',
+    isHidden: true,
+  },
+  [SHOW_SETTINGS]: {
+    id: '#settings-row',
+    btnId: '#btn-show-settings',
+    isHidden: true,
+  },
+  [SHOW_FILES]: {
+    id: '#files-row',
+    btnId: '#btn-show-files',
+    isHidden: true,
+  },
+}
+
+let visibleScreen = SHOW_FRONT;
 
 // let nextTileToSave = 0;
 // let btnSaveNextTile;
@@ -12,8 +48,7 @@ let selectedCnv = null
 
 let bricks = [];
 
-
-let masterTileSize = 100
+let masterTileSize = 80
 let tileSize = masterTileSize;
 
 let tileParams;
@@ -29,38 +64,27 @@ let btnClearBoard;
 let btnView3D;
 let btnExit3D;
 let selJSON;
-let btnSaveJSON ;
- let btnMakeJSON;
+let btnSaveJSON;
+let btnMakeJSON;
 let rowsTxt;
 let colsTxt;
 let btnReset;
 
 let easycam;
-
 let camState;
 
 let viewer = {
-
   display: false,
   page: null
-
 }
 
-
 function setup() {
-  console.log('p5 setup')
-
   const frontPar = select('#canvas-holder-front');
-
   frontCanvas = createCanvas(tileSize * COLS, tileSize * ROWS);
-
-  viewer.page = createGraphics(900, 400, WEBGL)
-
-
-  camSetup();
-
   frontCanvas.parent(frontPar);
 
+  viewer.page = createGraphics(900, 400, WEBGL)
+  camSetup();
 
   tileParams = new TileParameters()
 
@@ -68,13 +92,12 @@ function setup() {
   tiles = new Array(256);
   for (let i = 0; i < 256; i++) {
     tiles[i] = new Tile(i, tileSize);
-    // tiles[i].display(0, 0);
   }
 
   // Just once - at setup, loop over all the tiles and figure out which are compatibile
-  for (let i = 0; i < tiles.length; i++) {
-    for (let j = 0; j < tiles.length; j++) {
-      tiles[i].checkCompatability(tiles[j]);
+  for (let ta of tiles) {
+    for (let tb of tiles) {
+      ta.checkCompatability(tb);
     }
   }
 
@@ -83,11 +106,9 @@ function setup() {
   for (let c = 0; c < COLS; c++) {
     board[c] = new Array(ROWS);
     for (let r = 0; r < ROWS; r++) {
-      board[c][r] = -1;
+      board[c][r] = 0;
     }
   }
-
-
 
   clearGrid();
 
@@ -97,15 +118,27 @@ function setup() {
     setTileBack(tileNum)
     return false;
   });
+
+  // Set up the buttons that toggle screens
+  for (let i of [SHOW_FRONT, SHOW_BACK, SHOW_3D, SHOW_SETTINGS, SHOW_FILES]){
+    let id = SCREEN_IDS[i].id;
+    let btnId = SCREEN_IDS[i].btnId;
+    console.log('id', id, 'btnId', btnId);
+    let btn = select(btnId);
+    console.log('btn', btn);
+    btn.mouseClicked(() => {
+      // console.log('i', i, 'id', id);
+      select(id).toggleClass('hidden');
+    });
+  }
   
-    selJSON = createSelect();
+  selJSON = createSelect();
   selJSON.parent('#selJSON-holder');
   selJSON.option('Front');
   selJSON.option('Back');
   selJSON.selected('Front');
-selJSON.changed(selJSONEvent);
+  selJSON.changed(selJSONEvent);
   
-
   btnFillBoard = createButton('Fill Boards 2');
   btnFillBoard.parent('#btnFillBoard-holder')
   btnFillBoard.elt.addEventListener("click", fillBoard);
@@ -126,60 +159,56 @@ selJSON.changed(selJSONEvent);
   btnExit3D.parent('#btnExit3D-holder')
   btnExit3D.elt.addEventListener("click", exit3D);
 
-btnSaveJSON = createButton('Save JSON');
+  btnSaveJSON = createButton('Save JSON');
   btnSaveJSON.parent('#btnSaveJSON-holder');
   btnSaveJSON.elt.addEventListener("click", saveJSONBoard);
 
-   btnMakeJSON = createButton('Make JSON');
+  btnMakeJSON = createButton('Make JSON');
   btnMakeJSON.parent('#btnMakeJSON-holder');
   btnMakeJSON.elt.addEventListener("click", makeJSON);
   
   rowSlider = createSlider(1, 100, 3);
-    rowSlider.parent(select('#sldRows-holder'));
-    rowSlider.mouseMoved(sldRowsChanged);
-    //rowSlider.mouseClicked(fnFalse);
-   rowsTxt = select("#txtRows-holder");
-     rowsTxt.html(rowSlider.value());
+  rowSlider.parent(select('#sldRows-holder'));
+  rowSlider.mouseMoved(sldRowsChanged);
+  //rowSlider.mouseClicked(fnFalse);
+  rowsTxt = select("#txtRows-holder");
+  rowsTxt.html(rowSlider.value());
   
   colsSlider = createSlider(1, 100, 3);
-    colsSlider.parent(select('#sldCols-holder'));
-    colsSlider.mouseMoved(sldColsChanged);
-    //rowSlider.mouseClicked(fnFalse);
-   colsTxt = select("#txtCols-holder");
-     colsTxt.html(colsSlider.value());
-  
+  colsSlider.parent(select('#sldCols-holder'));
+  colsSlider.mouseMoved(sldColsChanged);
+  //rowSlider.mouseClicked(fnFalse);
+  colsTxt = select("#txtCols-holder");
+  colsTxt.html(colsSlider.value());
   
   //"btnReset-holder"
   
-
   btnReset = createButton('Reset Grid');
   btnReset.parent('#btnReset-holder')
   btnReset.elt.addEventListener("click", reGrid);
   
-  
   // change the JSON button text 
   selJSONEvent()
 
+  // let btnLoadJSON = createButton('Load JSON');
+  // btnLoadJSON.parent('#btnLoadJSON-holder');
+  // btnLoadJSON.elt.addEventListener("click", loadJSON2);
 
-  //   let btnLoadJSON = createButton('Load JSON');
-  //   btnLoadJSON.parent('#btnLoadJSON-holder');
-  //   btnLoadJSON.elt.addEventListener("click", loadJSON2);
-
-  //   let btnSaveSVG = createButton('Download SVG');
-  //   btnSaveSVG.parent('#btnSaveSVG-holder');
-  //   btnSaveSVG.elt.addEventListener("click", saveSVG);
+  // let btnSaveSVG = createButton('Download SVG');
+  // btnSaveSVG.parent('#btnSaveSVG-holder');
+  // btnSaveSVG.elt.addEventListener("click", saveSVG);
 
   // btnSaveNextTile = createButton('Save Tile: ' + nextTileToSave);
   // btnSaveNextTile.parent('#btnSaveTileJSON-holder');
   // btnSaveNextTile.elt.addEventListener("click", saveTileJSON);
 
 
-  //  slideRotate = createSlider(0, 360, 180);
-  //     slideRotate.parent(select('#rotate-holder'));
-  //     slideRotate.mouseMoved(rotateDisplay);
-  // //slideRotate.mouseClicked(fnFalse);
-  //     // this.txtPull = select('#txtPull-holder');
-  //     // this.txtPull.html(this.pull);
+  // slideRotate = createSlider(0, 360, 180);
+  // slideRotate.parent(select('#rotate-holder'));
+  // slideRotate.mouseMoved(rotateDisplay);
+  // // slideRotate.mouseClicked(fnFalse);
+  // // this.txtPull = select('#txtPull-holder');
+  // // this.txtPull.html(this.pull);
 
   for (let i = 0; i < 256; i++) {
     tiles[i].display(-tileSize, -tileSize);
@@ -187,26 +216,25 @@ btnSaveJSON = createButton('Save JSON');
 
 }
 
-
-
-
 /**
  * Main draw loop
  */
-
 function draw() {
-
   if (viewer.display == false) {
     draw2D()
-
-
   } else {
     draw3D()
     viewer.page.reset()
   }
 
+  selectCnv()
+}
 
-selectCnv()
+/**
+ * Show the currently visible screen
+ */
+function showScreen(){
+
 }
 
 /**
@@ -214,9 +242,7 @@ selectCnv()
  */
 function drawGrid() {
   push();
-
-
-  //translate((-tileSize*ROWS)/2,(-tileSize*COLS)/2)
+  
   stroke(100);
   for (let c = 0; c < COLS + 1; c++) {
     line(c * tileSize, 0, c * tileSize, ROWS * tileSize);
@@ -225,8 +251,6 @@ function drawGrid() {
     line(0, r * tileSize, COLS * tileSize, r * tileSize);
   }
   pop();
-
-
 }
 
 /////////////////////////////////////////////////

@@ -37,163 +37,181 @@
 
 </head>
 
-<body ontouchstart="">
+<body>
   <main role="main" class="container">
-    
-  <div class="row">
-    <div id="front-div" class="col-6">
-      <h4 id="front-canvas-title"> Front Pattern </h4>
-    <div  id="canvas-holder-front"></div>
-    </div>
-    <div id="back-div" class="col-6">
-        <h4 id= "back-canvas-title"> Back Pattern </h4>
-       
-  <div  id="canvas-holder-back"></div>
-    </div>
+    <div class="row">
+      <button class="col-1" id="btn-show-front">Front</button>
+      <button class="col-1" id="btn-show-back">Back</button>
+      <button class="col-1" id="btn-show-3d">3D View</button>
+      <button class="col-1" id="btn-show-settings">Settings</button>
+      <button class="col-1" id="btn-show-files">Files</button>
     </div>
 
-    <div class="container" class="mt1rem">
-      <div class="row">
-        <div class="col-9">
-          <h4>Tiles</h4>
-          <div id="allowedTiles-holder"></div>
-        </div>
-        <div class="col-3 btn-div">
-          <div id="btnClearTile-holder"></div>
-          <div id="btnClearBoard-holder"></div>
-          <div id="btnFillBoard-holder"></div>
-           <div id="btnView3D-holder"></div>
-          <div id="btnExit3D-holder"></div>
-          <div id="btnSaveTileJSON-holder"></div>
-        </div>
+    <div class="row hidden" id="front-row">
+      <h4 id="front-canvas-title">Front Pattern </h4>
+      <div id="front-div">
+        <div  id="canvas-holder-front"></div>
       </div>
     </div>
 
-    <div class="container shape-div">
-      <div class="row">
-        <div class="col-9">
-          
-          <h4>Shape</h4>
-          
-          <div id="controls-holder">
-            <table>
-              <tr>
-                <td class="first-col">
-                  <strong>Rotation:</strong>
-                  <span id="txtRotation-holder"></span>
-                </td>
-                <td>
-                  <span id="sldRotation-holder"></span>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <strong>Mag:</strong>
-                  <span id="txtMag-holder"></span>
-                </td>
-                <td>
-                  <span id="sldMag-holder"></span>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <strong>Pull:</strong>
-                  <span id="txtPull-holder"></span>
-                </td>
-                <td>
-                  <span id="sldPull-holder"></span>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <strong>Side Pull:</strong>
-                  <span id="txtSidePull-holder"></span>
-                </td>
-                <td>
-                  <span id="sldSidePull-holder"></span>
-                </td>
-              </tr>
-            </table>
-          </div>
-        </div>
-        <div class="col-3">
-          <h4>Current</h4>
-          <div id="currentTileSVG-holder"></div>
-        </div>
+    <div class="row hidden" id="back-row">
+      <h4 id="back-canvas-title">Back Pattern </h4> 
+      <div id="back-div">
+        <div  id="canvas-holder-back"></div>
       </div>
     </div>
 
-    
-  <div class="container grid-div">
-      <div class="row">
-        <div class="col-9">
-          
-          <h4>Grid Setup </h4>
-          <div id="btnReset-holder" class="holder"></div>
-          
-          <div id="gridSetup-holder" >
-            <table>
-              <tr>
-                <td class="first-col">
-                  <strong>Rows:</strong>
-                  <span id="txtRows-holder"></span>
-                </td>
-                <td>
-                  <span id="sldRows-holder"></span>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <strong>Columns:</strong>
-                  <span id="txtCols-holder"></span>
-                </td>
-                <td>
-                  <span id="sldCols-holder"></span>
-                </td>
-              </tr>
-            </table>
-          </div>
-
-       
-    
-   <div class="container mt1rem">
-      <div class="row">
-        <div class="col-9">
- 
-          <h4>JSON</h4>
-          <div id="selJSON-holder" class="mb1rem"></div>
-          <div id="btnSaveJSON-holder" class="mb1rem"></div>
-          <div id="btnMakeJSON-holder" class="mb1rem"></div>
-          
-          
-          <p>Copy/Paste to save / load</p>
-          <textarea id="json-holder"></textarea>
-          <div id="btnLoadJSON-holder" class="mb1rem"></div>
-        </div>
-        
-         
-<!--         <div class="col-sm">
-          
-          <h4>SVG</h4>
-          <div id="btnSaveSVG-holder" class="mb1rem"></div>
-          <p>Save an SVG version to your computer</p>
-          <textarea id="svg-holder"></textarea>
-        </div> -->
+    <div class="row hidden" id="3d-row">
+      <h4 id="3d-canvas-title">3D View</h4>
+      <div id="3d-div">
+        <div id="canvas-holder-3d"></div>
       </div>
     </div>
 
-<!--       
-    <div class="container" class="mt1rem">
+    <div class="row hidden">
+      <h4>Allowed Tiles</h4>
+      <div id="allowedTiles-holder"></div>
+    </div>
+
+    <div class="row hidden">
+      <h4>Current Tile</h4>
+      <div class="col-3">
+        <div id="currentTileSVG-holder"></div>
+      </div>
+    </div>
+
+    <div class="row hidden">
+      <div id="btnClearTile-holder"></div>
+      <div id="btnClearBoard-holder"></div>
+      <div id="btnFillBoard-holder"></div>
+      <div id="btnView3D-holder"></div>
+      <div id="btnExit3D-holder"></div>
+      <div id="btnSaveTileJSON-holder"></div>
+    </div>
+
+    <div class="row hidden" id="settings-row">
+      <h4>Shape Parameters</h4>
+      <div id="controls-holder">
+        <table>
+          <tr>
+            <td class="first-col">
+              <strong>Rotation:</strong>
+              <span id="txtRotation-holder"></span>
+            </td>
+            <td>
+              <span id="sldRotation-holder"></span>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <strong>Mag:</strong>
+              <span id="txtMag-holder"></span>
+            </td>
+            <td>
+              <span id="sldMag-holder"></span>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <strong>Pull:</strong>
+              <span id="txtPull-holder"></span>
+            </td>
+            <td>
+              <span id="sldPull-holder"></span>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <strong>Side Pull:</strong>
+              <span id="txtSidePull-holder"></span>
+            </td>
+            <td>
+              <span id="sldSidePull-holder"></span>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <h4>Grid Setup </h4>
+      <div id="btnReset-holder" class="holder"></div>
+      
+      <div id="gridSetup-holder" >
+        <table>
+          <tr>
+            <td class="first-col">
+              <strong>Rows:</strong>
+              <span id="txtRows-holder"></span>
+            </td>
+            <td>
+              <span id="sldRows-holder"></span>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <strong>Columns:</strong>
+              <span id="txtCols-holder"></span>
+            </td>
+            <td>
+              <span id="sldCols-holder"></span>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="row hidden" id="files-row">
+      <h4>JSON</h4>
+      <div id="selJSON-holder" class="mb1rem"></div>
+      <div id="btnSaveJSON-holder" class="mb1rem"></div>
+      <div id="btnMakeJSON-holder" class="mb1rem"></div>
+      
+      
+      <p>Copy/Paste to save / load</p>
+      <textarea id="json-holder"></textarea>
+      <div id="btnLoadJSON-holder" class="mb1rem"></div>
+
+      <h4>SVG</h4>
+      <div id="btnSaveSVG-holder" class="mb1rem"></div>
+      <p>Save an SVG version to your computer</p>
+      <textarea id="svg-holder"></textarea>
+    </div>
+
+    <div class="row hidden" id="instructions-row">
       <h2>Instructions</h2>
       <ul>
         <li>Click the squares to place a tile</li>
         <li>Adjust the sliders to change how they look</li>
       </ul>
     </div>
-       -->
-      
-      
+
   </main>
+
+    <!--
+    
+    <div class="grid-div">
+
+
+        
+      
+    <div class="container mt1rem">
+        <div class="row">
+          <div class="col-9">
+  
+          </div>
+          
+          
+  <! --         <div class="col-sm">
+            
+          </div> -- >
+        </div>
+      </div>
+
+  <! --       
+      <div class="container" class="mt1rem">
+      </div>
+        -- >
+      
+    -->
 </body>
 
 </html>

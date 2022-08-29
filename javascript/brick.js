@@ -72,9 +72,6 @@ class Brick {
 
 
   loft() {
-
-
-
     viewer.page.push();
     viewer.page.translate(this.center.x, this.center.y);
     viewer.page.scale(this.size, this.size, this.size);
@@ -114,9 +111,6 @@ class Brick {
     viewer.page.pop();
 
   }
-
-
-
 
   findPoints(drawingData, flip) {
 

@@ -13,7 +13,6 @@ function draw2D() {
   //front group of tiles
   push();
 
-
   // Draw a grid to show where the tiles go.
   drawGrid();
 
@@ -23,8 +22,8 @@ function draw2D() {
       // Draw the tile if one has been placed.
       if (board[c][r] >= 0) {
         let n = board[c][r];
-        tiles[n].display(c * tileSize + (tileSize / 2), r * tileSize + (tileSize / 2));
-
+        tiles[n].display(
+          c * tileSize + (tileSize / 2), r * tileSize + (tileSize / 2));
       }
     }
   }
@@ -35,9 +34,12 @@ function draw2D() {
   if (lastClicked) {
     push();
     noFill();
-    stroke(0, 128, 255, 100);
+    // fill(255, 0, 0);
+    stroke(0, 128, 255, 255);
     strokeWeight(2);
-    rect(lastClicked[0] * tileSize, lastClicked[1] * tileSize, tileSize, tileSize);
+    rect(
+      lastClicked[0] * tileSize - 2, lastClicked[1] * tileSize - 2, 
+      tileSize + 4, tileSize + 4);
     pop();
 
     //btnClearTile.elt.disabled = false;

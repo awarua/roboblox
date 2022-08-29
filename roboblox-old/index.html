@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+  <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+  <meta
+    http-equiv="Content-Security-Policy"
+    content="default-src 'self'; script-src 'self'"
+  />
+  <meta
+    http-equiv="X-Content-Security-Policy"
+    content="default-src 'self'; script-src 'self'"
+  />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Roboblox</title>
+
+  <link href="javascript/bootstrap.min.css" rel="stylesheet" >
+  <link rel="stylesheet" href="javascript/main.css">
+
+  <script src="javascript/p5.js"></script>
+  <script src="javascript/p5.dom.js"></script>
+  <script src="javascript/p5.easycam.js"></script>
+  <script src="javascript/drawing_data.js"></script>
+  <script src="javascript/parameters.js"></script>
+  <script src="javascript/tile.js"></script>
+  <script src="javascript/sketch.js"></script>
+  <script src="javascript/backCanvas.js"></script>
+  <script src="javascript/jQuery.js"></script>
+  <script src="javascript/draw2D.js"></script>
+  <script src="javascript/draw3D.js"></script>
+  <script src="javascript/brick.js"></script>
+
+</head>
+
+<body>
+  <main role="main" class="container">
+    <div class="row">
+      <button>Front</button>
+      <button>Back</button>
+      <button>3D View</button>
+      <button>Tile Designer</button>
+    </div>
+    
+  <div class="row">
+    <div id="front-div" class="col-6">
+      <h4 id="front-canvas-title"> Front Pattern </h4>
+    <div  id="canvas-holder-front"></div>
+    </div>
+    <div id="back-div" class="col-6">
+        <h4 id= "back-canvas-title"> Back Pattern </h4>
+       
+  <div  id="canvas-holder-back"></div>
+    </div>
+    </div>
+
+    <div class="container" class="mt1rem">
+      <div class="row">
+        <div class="col-9">
+          <h4>Tiles</h4>
+          <div id="allowedTiles-holder"></div>
+        </div>
+        <div class="col-3 btn-div">
+          <div id="btnClearTile-holder"></div>
+          <div id="btnClearBoard-holder"></div>
+          <div id="btnFillBoard-holder"></div>
+           <div id="btnView3D-holder"></div>
+          <div id="btnExit3D-holder"></div>
+          <div id="btnSaveTileJSON-holder"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container shape-div">
+      <div class="row">
+        <div class="col-9">
+          
+          <h4>Shape</h4>
+          
+          <div id="controls-holder">
+            <table>
+              <tr>
+                <td class="first-col">
+                  <strong>Rotation:</strong>
+                  <span id="txtRotation-holder"></span>
+                </td>
+                <td>
+                  <span id="sldRotation-holder"></span>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <strong>Mag:</strong>
+                  <span id="txtMag-holder"></span>
+                </td>
+                <td>
+                  <span id="sldMag-holder"></span>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <strong>Pull:</strong>
+                  <span id="txtPull-holder"></span>
+                </td>
+                <td>
+                  <span id="sldPull-holder"></span>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <strong>Side Pull:</strong>
+                  <span id="txtSidePull-holder"></span>
+                </td>
+                <td>
+                  <span id="sldSidePull-holder"></span>
+                </td>
+              </tr>
+            </table>
+          </div>
+        </div>
+        <div class="col-3">
+          <h4>Current</h4>
+          <div id="currentTileSVG-holder"></div>
+        </div>
+      </div>
+    </div>
+
+    
+  <div class="container grid-div">
+      <div class="row">
+        <div class="col-9">
+          
+          <h4>Grid Setup </h4>
+          <div id="btnReset-holder" class="holder"></div>
+          
+          <div id="gridSetup-holder" >
+            <table>
+              <tr>
+                <td class="first-col">
+                  <strong>Rows:</strong>
+                  <span id="txtRows-holder"></span>
+                </td>
+                <td>
+                  <span id="sldRows-holder"></span>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <strong>Columns:</strong>
+                  <span id="txtCols-holder"></span>
+                </td>
+                <td>
+                  <span id="sldCols-holder"></span>
+                </td>
+              </tr>
+            </table>
+          </div>
+
+       
+    
+   <div class="container mt1rem">
+      <div class="row">
+        <div class="col-9">
+ 
+          <h4>JSON</h4>
+          <div id="selJSON-holder" class="mb1rem"></div>
+          <div id="btnSaveJSON-holder" class="mb1rem"></div>
+          <div id="btnMakeJSON-holder" class="mb1rem"></div>
+          
+          
+          <p>Copy/Paste to save / load</p>
+          <textarea id="json-holder"></textarea>
+          <div id="btnLoadJSON-holder" class="mb1rem"></div>
+        </div>
+        
+         
+<!--         <div class="col-sm">
+          
+          <h4>SVG</h4>
+          <div id="btnSaveSVG-holder" class="mb1rem"></div>
+          <p>Save an SVG version to your computer</p>
+          <textarea id="svg-holder"></textarea>
+        </div> -->
+      </div>
+    </div>
+
+<!--       
+    <div class="container" class="mt1rem">
+      <h2>Instructions</h2>
+      <ul>
+        <li>Click the squares to place a tile</li>
+        <li>Adjust the sliders to change how they look</li>
+      </ul>
+    </div>
+       -->
+      
+      
+  </main>
+</body>
+
+</html>

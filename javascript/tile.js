@@ -207,9 +207,9 @@ Tile.prototype.drawToCanvas = function(x, y) {
   translate(x - this.size * this.center.x, y - this.size * this.center.y);
 
   scale(this.size, this.size);
- strokeWeight(2 / this.size);
-    //noStroke();
-  stroke(255, 0, 0);
+  strokeWeight(2 / this.size);
+  //noStroke();
+  stroke(40, 40, 40);
   fill(0);
   //rect(0, 0, 1, 1);
   fill(255);
