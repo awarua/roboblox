@@ -106,7 +106,7 @@ function setup() {
   for (let c = 0; c < COLS; c++) {
     board[c] = new Array(ROWS);
     for (let r = 0; r < ROWS; r++) {
-      board[c][r] = 0;
+      board[c][r] = -1;
     }
   }
 
@@ -121,13 +121,9 @@ function setup() {
 
   // Set up the buttons that toggle screens
   for (let i of [SHOW_FRONT, SHOW_BACK, SHOW_3D, SHOW_SETTINGS, SHOW_FILES]){
-    let id = SCREEN_IDS[i].id;
-    let btnId = SCREEN_IDS[i].btnId;
-    console.log('id', id, 'btnId', btnId);
+    let {id, btnId} = SCREEN_IDS[i];
     let btn = select(btnId);
-    console.log('btn', btn);
     btn.mouseClicked(() => {
-      // console.log('i', i, 'id', id);
       select(id).toggleClass('hidden');
     });
   }

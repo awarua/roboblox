@@ -120,13 +120,8 @@ class PathPart {
     } else if (this.partType == 'C' && this.params.length == 6){
    bezierVertex(this.params[0], this.params[1], this.params[2], 
         this.params[3], this.params[4], this.params[5]);
-      
-      
-      
     }
   }
-  
-  
 
   /**
    * Returns an SVG string representation of the path. 
