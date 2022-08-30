@@ -26,19 +26,19 @@
     }
 
     // Figure out the start of the path from the opening vertex
-    this.start = createVector(tiles[0].vertices[oIdx][0], tiles[0].vertices[oIdx][1]);
+    this.start = p1.createVector(tiles[0].vertices[oIdx][0], tiles[0].vertices[oIdx][1]);
 
     this.markCols = Array(8);
-    colorMode(HSB, 360, 100, 100, 100);
+    p1.colorMode(p1.HSB, 360, 100, 100, 100);
     for (let i = 0; i < this.markCols.length; i++){
-      let c = color((360 / 8) * i, 100, 100);
+      let c = p1.color((360 / 8) * i, 100, 100);
       if (i % 2 == 0){
         this.markCols[i] = c;
       } else {
         this.markCols[(i + 4) % this.markCols.length] = c;
       }
     }
-    colorMode(RGB, 255, 255, 255, 255);
+    p1.colorMode(p1.RGB, 255, 255, 255, 255);
     this.markColIdx = 0;
     if (typeof(markColIdx) == 'number'){
       this.markColIdx = markColIdx
@@ -60,10 +60,10 @@
     this.pathParts.push(part);
   }
 
-  toCanvas(){
-    vertex(this.start.x, this.start.y);
+  toCanvas(s){
+    s.vertex(this.start.x, this.start.y);
     for (let i = 0; i < this.pathParts.length; i++){
-      this.pathParts[i].toCanvas();
+      this.pathParts[i].toCanvas(s);
     }
   }
 
@@ -113,12 +113,12 @@ class PathPart {
   /**
    * Draws the path to the canvas
    */
-  toCanvas() {
+  toCanvas(s) {
     if (this.partType == 'L' && this.params.length == 2){
-     vertex(this.params[0], this.params[1]);
+      s.vertex(this.params[0], this.params[1]);
      
     } else if (this.partType == 'C' && this.params.length == 6){
-   bezierVertex(this.params[0], this.params[1], this.params[2], 
+      s.bezierVertex(this.params[0], this.params[1], this.params[2], 
         this.params[3], this.params[4], this.params[5]);
     }
   }

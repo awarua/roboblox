@@ -25,10 +25,27 @@ class Tile {
 
     this.currentMarkCol = 0;
     this.markCols = [
-      color(255, 0, 0),
-      color(0, 255, 0),
-      color(255, 100, 0),
-      color(0, 255, 255),
+      p1.color(255, 0, 0),
+      p1.color(0, 255, 0),
+      p1.color(255, 100, 0),
+      p1.color(0, 255, 255),
+    ];
+
+    // UI properties
+    this.r = 0.3;
+    this.m = 0.3;
+
+    // Order of button centres. Note - order matters because these 
+    // correspond to the openings in the tile.
+    this.buttonCentres = [
+      {x: this.m,     y: 0},
+      {x: 1 - this.m, y: 0},
+      {x: 1,          y: this.m},
+      {x: 1,          y: 1 - this.m},  
+      {x: 1 - this.m, y: 1},
+      {x: this.m,     y: 1},
+      {x: 0,          y: 1 - this.m},
+      {x: 0,          y: this.m},
     ];
 
     this.markCol = this.markCols[this.currentMarkCol];
@@ -41,12 +58,17 @@ class Tile {
 
     let acc = this.num;
     for (let i = this.sides.length - 1; i >= 0; i--) {
-      let p = pow(2, i);
+      let p = p1.pow(2, i);
       if (acc >= p) {
         acc -= p;
         this.sides[i] = true;
       }
     }
+
+    this.binStr = this.makeBinStr(this.sides);
+    // console.log(
+    //   this.num, this.binStr, parseInt(this.binStr, 2), 
+    //   this.numFromSideArray(this.sides));
 
     this.vertices = [
       [0, 0], [0.5,   0],
@@ -55,17 +77,25 @@ class Tile {
       [0, 1], [  0, 0.5],
     ];
 
-    this.center = createVector(0.5, 0.5);
+    this.center = p1.createVector(0.5, 0.5);
   }
 
-  display(x, y) {
+  display(x, y, s) {
     if (paramsChanged){
       this.calculateGroup();
       this.svgString = this.toSVGString();
     }
 
-    this.drawToCanvas(x, y);
+    this.drawToCanvas(x, y, s);
 
+  }
+
+  makeBinStr(sideArray){
+    return sideArray.map(e => e ? 1 : 0).reverse().join('');
+  }
+
+  numFromSideArray(sideArray){
+    return parseInt(this.makeBinStr(sideArray), 2);
   }
 
   calculateGroup(){
@@ -80,10 +110,10 @@ class Tile {
 
       for (let i = 0; i < this.vertices.length; i++){
         let endIdx = (i + 1) % this.vertices.length;
-        let startVx = createVector(
+        let startVx = p1.createVector(
           this.vertices[i][0] - this.center.x, 
           this.vertices[i][1] - this.center.y);
-        let endVx = createVector(
+        let endVx = p1.createVector(
           this.vertices[endIdx][0] - this.center.x, 
           this.vertices[endIdx][1] - this.center.y);
         startVx.setMag(0.1);
@@ -156,13 +186,13 @@ class Tile {
     let cVx = this.vertices[cIdx];
 
     let middleVertex = this.avgVertex(oIdx, cIdx);
-    let magVec = createVector(oVx[0] - cVx[0], oVx[1] - cVx[1])
+    let magVec = p1.createVector(oVx[0] - cVx[0], oVx[1] - cVx[1])
     magVec.setMag(magVec.mag() * (tileParams.mag / 100));
-    magVec.rotate(radians(tileParams.rotation));
+    magVec.rotate(p1.radians(tileParams.rotation));
 
     // Create a vector for control point from opening edge of tile towards centre
     // Scale the control vector according to user input
-    let openSideCxVec = createVector(this.center.x - oVx[0], this.center.y - oVx[1]);
+    let openSideCxVec = p1.createVector(this.center.x - oVx[0], this.center.y - oVx[1]);
     openSideCxVec.setMag(openSideCxVec.mag() * (tileParams.sidePull / 100));
     let openSideCxVx = [oVx[0] + openSideCxVec.x, oVx[1] + openSideCxVec.y];
 
@@ -172,11 +202,11 @@ class Tile {
       middleVertex[0],             middleVertex[1]    
     ]);
 
-    magVec.rotate(radians(180));
+    magVec.rotate(p1.radians(180));
 
     // Create a vector for control point from closing edge of tile towards centre
     // Scale the control vector according to user input
-    let closeSideCxVec = createVector(this.center.x - cVx[0], this.center.y - cVx[1]);
+    let closeSideCxVec = p1.createVector(this.center.x - cVx[0], this.center.y - cVx[1]);
     closeSideCxVec.setMag(closeSideCxVec.mag() * (tileParams.sidePull / 100));
     let closeSideCxVx = [cVx[0] + closeSideCxVec.x, cVx[1] + closeSideCxVec.y];
 
@@ -199,28 +229,75 @@ class Tile {
     return path;
   }
 
-  drawToCanvas(x, y) { 
-    push();
-    translate(x - this.size * this.center.x, y - this.size * this.center.y);
+  drawToCanvas(x, y, s) { 
+    s.push();
+    s.translate(x - this.size * this.center.x, y - this.size * this.center.y);
+    s.scale(this.size, this.size);
+    s.noStroke();
+    s.fill(0);
+    s.rect(0, 0, 1, 1);
+    s.fill(255);
 
-    scale(this.size, this.size);
-    strokeWeight(2 / this.size);
-    //noStroke();
-    stroke(40, 40, 40);
-    fill(0);
-    //rect(0, 0, 1, 1);
-    fill(255);
-
-    beginShape();
+    s.beginShape();
     
     for (let i = 0; i < this.drawingData.length; i++){
       if (this.drawingData[i]){
-        this.drawingData[i].toCanvas();
+        this.drawingData[i].toCanvas(s);
       }
     }
-    endShape(CLOSE);
+    s.endShape(s.CLOSE);
 
-    pop();
+    s.pop();
+  }
+
+  sideClicked(mx, my, tx, ty, s){
+    // Scale the mouseX, mouseY relative to the tile's position on canvas and
+    // size so that 1.0 equals the width of the tile
+    let x = (mx - tx) / this.size;
+    let y = (my - ty) / this.size;
+
+    // console.log(x, y);
+
+    let sideClicked = -1;
+
+    // Check distance to first circle
+    for (let i = 0; i < this.buttonCentres.length; i++){
+      let c = this.buttonCentres[i];
+      if (s.dist(c.x, c.y, x, y) < this.r){ 
+        sideClicked = i;
+      }
+    }
+
+    return sideClicked;
+  }
+
+  // Return a number for the tile that we would get if we toggled the 
+  // specified side on this tile.
+  toggleSide(s){
+    // console.log(this.sides);
+    let newSides = [...this.sides];
+    newSides[s] = !newSides[s];
+    // console.log(newSides);
+
+    let newN = this.numFromSideArray(newSides);
+    return newN;
+  }
+
+  showUI(x, y, s) {
+    s.push();
+    s.translate(x, y);
+    s.scale(this.size, this.size);
+    s.noFill();
+    s.fill(150, 200);
+    s.stroke(120);
+    s.strokeWeight(2 / this.size);
+
+    // Draw each of the button centres to the screen.
+    for(let c of this.buttonCentres){
+      s.circle(c.x, c.y, this.r);
+    }
+
+    s.pop();
   }
 
   /**
@@ -298,7 +375,7 @@ class Tile {
 
     let mP = [(oV[0] + cV[0]) / 2, (oV[1] + cV[1]) / 2];
 
-    let vec = createVector(this.center.x - mP[0], this.center.y - mP[1]);
+    let vec = p1.createVector(this.center.x - mP[0], this.center.y - mP[1]);
 
     vec.setMag(vec.mag() * (tileParams.pull / 100));
 
@@ -375,7 +452,7 @@ class Tile {
     let numSplits = numPieces - 1;
 
     let a = this.splitPathDataToPieces(path.start, path.pathParts[0], numPieces);
-    let startB = createVector(path.pathParts[0].params[4], path.pathParts[0].params[5]);
+    let startB = p1.createVector(path.pathParts[0].params[4], path.pathParts[0].params[5]);
     let b = this.splitPathDataToPieces(startB, path.pathParts[1], numPieces);
     
 
@@ -403,7 +480,7 @@ class Tile {
   }
 
   splitPathDataToPieces(v0, pathPart, numHalfPieces){
-    let numSplits = floor((numHalfPieces - 1) / 2);
+    let numSplits = p1.floor((numHalfPieces - 1) / 2);
 
     let a;
     let b;
@@ -415,9 +492,9 @@ class Tile {
 
     if (numHalfPieces == 2){
       return [[v0, 
-        createVector(pathParams[0], pathParams[1]),
-        createVector(pathParams[2], pathParams[3]),
-        createVector(pathParams[4], pathParams[5])
+        p1.createVector(pathParams[0], pathParams[1]),
+        p1.createVector(pathParams[2], pathParams[3]),
+        p1.createVector(pathParams[4], pathParams[5])
       ]];
     }
 
@@ -435,9 +512,9 @@ class Tile {
   }
 
   splitPathData(v0, pathParams, t){
-    let v1 = createVector(pathParams[0], pathParams[1]);
-    let v2 = createVector(pathParams[2], pathParams[3]);
-    let v3 = createVector(pathParams[4], pathParams[5]);  
+    let v1 = p1.createVector(pathParams[0], pathParams[1]);
+    let v2 = p1.createVector(pathParams[2], pathParams[3]);
+    let v3 = p1.createVector(pathParams[4], pathParams[5]);  
     let v4 = p5.Vector.lerp(v0, v1, t);
     let v5 = p5.Vector.lerp(v1, v2, t);
     let v6 = p5.Vector.lerp(v2, v3, t);

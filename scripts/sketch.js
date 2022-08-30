@@ -1,5 +1,5 @@
-let ROWS = 7;
-let COLS = 10;
+let ROWS = 17;
+let COLS = 20;
 const MARGIN = 0;
 
 const SHOW_FRONT = 0;
@@ -36,97 +36,144 @@ const SCREEN_IDS = {
   },
 }
 
-let visibleScreen = SHOW_FRONT;
+//let visibleScreen = SHOW_FRONT;
 
 // let nextTileToSave = 0;
 // let btnSaveNextTile;
 
-let cvn;
+// let cvn;
 let tiles;
-let board = [];
-let selectedCnv = null
+// let frontBoard;
+// let selectedCnv = null
 
-let bricks = [];
+// let bricks = [];
 
-let masterTileSize = 80
+let masterTileSize = 50
 let tileSize = masterTileSize;
 
 let tileParams;
 let paramsChanged = true;
 
-let lastClicked = null;
+// let lastClicked = null;
 let isTileSelected = false;
-let selectedTile = null;
+// let selectedTile = null;
 
-let btnClearTile;
-let btnFillBoard;
-let btnClearBoard;
-let btnView3D;
-let btnExit3D;
-let selJSON;
-let btnSaveJSON;
-let btnMakeJSON;
-let rowsTxt;
-let colsTxt;
-let btnReset;
+// let btnClearTile;
+// let btnFillBoard;
+// let btnClearBoard;
+// let btnView3D;
+// let btnExit3D;
+// let selJSON;
+// let btnSaveJSON;
+// let btnMakeJSON;
+// let rowsTxt;
+// let colsTxt;
+// let btnReset;
 
-let easycam;
-let camState;
+// let easycam;
+// let camState;
 
-let viewer = {
-  display: false,
-  page: null
+// let viewer = {
+//   display: false,
+//   page: null
+// }
+
+
+let p1 = new p5((s) => {
+
+  s.setup = () => {
+    tileParams = new TileParameters();
+
+    // Initialise the collection of tiles.
+    tiles = new Array(256);
+    for (let i = 0; i < 256; i++) {
+      tiles[i] = new Tile(i, tileSize);
+    }
+
+    // Just once - at setup, loop over all the tiles and figure out which are compatibile
+    for (let ta of tiles) {
+      for (let tb of tiles) {
+        ta.checkCompatability(tb);
+      }
+    }
+
+    // This triggers the tiles to generate and memoize their svg string.
+    for (let i = 0; i < 256; i++) {
+      tiles[i].display(-tileSize, -tileSize, p1);
+    }
+
+    s.setupInputs();
+
+    s.clearGrid();
+    s.noLoop();
+  }
+
+  s.setupInputs = () => {
+    // Set up the buttons that toggle screens
+    for (let i of [SHOW_FRONT, SHOW_BACK, SHOW_3D, SHOW_SETTINGS, SHOW_FILES]){
+      let {id, btnId} = SCREEN_IDS[i];
+      let btn = p1.select(btnId);
+      btn.mouseClicked(() => {
+        p1.select(id).toggleClass('hidden');
+      });
+    }
+  }
+
+  s.draw = () => {
+    s.clearGrid();
+  }
+
+  s.clearGrid = () => {
+    // Set up markup for grid of allowed tiles
+    jQuery('#allowedTiles-holder').get(0).innerHTML = generateGridMarkup(8, 32);
+  }
+  
+})
+ 
+let frontBoard = new p5(makeBoard('#canvas-holder-front', ROWS, COLS));
+let backBoard = new p5(makeBoard('#canvas-holder-back', ROWS, COLS));
+
+//////
+ // Returns html markup for a grid.
+ // @param {*} gridRows rows
+ // @param {*} gridCols columns
+ // @returns String
+ //
+ function generateGridMarkup(gridRows, gridCols) {
+  let markupString = '<table class="grid">';
+
+  for (let r = 0; r < gridRows; r++) {
+    markupString += '  <tr>';
+    for (let c = 0; c < gridCols; c++) {
+      let tileNum = r * gridCols + c;
+      let className = '';
+      if (isTileSelected && selectedTile == tileNum) {
+        className = ' class="selected" ';
+      }
+
+      let svgString = tiles[tileNum].svgString
+
+      markupString += '    <td id="grid_' + tileNum + '" ' +
+        className +
+        'data-tile-num="' + tileNum + '" ">' +
+        svgString + '</td>';
+    }
+    markupString += '  </tr>'
+  }
+  markupString += '</table>';
+  return markupString;
 }
 
-function setup() {
-  const frontPar = select('#canvas-holder-front');
-  frontCanvas = createCanvas(tileSize * COLS, tileSize * ROWS);
-  frontCanvas.parent(frontPar);
 
+
+
+/*
+
+function _setup() {
   viewer.page = createGraphics(900, 400, WEBGL)
   camSetup();
 
-  tileParams = new TileParameters()
-
-  // Initialise the collection of tiles.
-  tiles = new Array(256);
-  for (let i = 0; i < 256; i++) {
-    tiles[i] = new Tile(i, tileSize);
-  }
-
-  // Just once - at setup, loop over all the tiles and figure out which are compatibile
-  for (let ta of tiles) {
-    for (let tb of tiles) {
-      ta.checkCompatability(tb);
-    }
-  }
-
-  // Initialise the board. -1 signifies no tile.
-  board = new Array(COLS);
-  for (let c = 0; c < COLS; c++) {
-    board[c] = new Array(ROWS);
-    for (let r = 0; r < ROWS; r++) {
-      board[c][r] = -1;
-    }
-  }
-
   clearGrid();
-
-  jQuery('#allowedTiles-holder').on('click', 'td', function(e) {
-    let tileNum = parseInt(jQuery(this).data('tile-num'));
-    setTile(tileNum);
-    setTileBack(tileNum)
-    return false;
-  });
-
-  // Set up the buttons that toggle screens
-  for (let i of [SHOW_FRONT, SHOW_BACK, SHOW_3D, SHOW_SETTINGS, SHOW_FILES]){
-    let {id, btnId} = SCREEN_IDS[i];
-    let btn = select(btnId);
-    btn.mouseClicked(() => {
-      select(id).toggleClass('hidden');
-    });
-  }
   
   selJSON = createSelect();
   selJSON.parent('#selJSON-holder');
@@ -198,7 +245,6 @@ function setup() {
   // btnSaveNextTile.parent('#btnSaveTileJSON-holder');
   // btnSaveNextTile.elt.addEventListener("click", saveTileJSON);
 
-
   // slideRotate = createSlider(0, 360, 180);
   // slideRotate.parent(select('#rotate-holder'));
   // slideRotate.mouseMoved(rotateDisplay);
@@ -206,53 +252,30 @@ function setup() {
   // // this.txtPull = select('#txtPull-holder');
   // // this.txtPull.html(this.pull);
 
-  for (let i = 0; i < 256; i++) {
-    tiles[i].display(-tileSize, -tileSize);
-  }
+
 
 }
 
-/**
- * Main draw loop
- */
-function draw() {
-  if (viewer.display == false) {
-    draw2D()
-  } else {
-    draw3D()
-    viewer.page.reset()
-  }
+/////
+ // Main draw loop
+ //
+function _draw() {
+  // frontBoard.display();
 
-  selectCnv()
+
+  // if (viewer.display == false) {
+  //   draw2D()
+  // } else {
+  //   draw3D()
+  //   viewer.page.reset()
+  // }
+
+  // selectCnv()
 }
 
-/**
- * Show the currently visible screen
- */
-function showScreen(){
-
-}
-
-/**
- * Draws a grid to show where the tiles go. 
- */
-function drawGrid() {
-  push();
-  
-  stroke(100);
-  for (let c = 0; c < COLS + 1; c++) {
-    line(c * tileSize, 0, c * tileSize, ROWS * tileSize);
-  }
-  for (let r = 0; r < ROWS + 1; r++) {
-    line(0, r * tileSize, COLS * tileSize, r * tileSize);
-  }
-  pop();
-}
 
 /////////////////////////////////////////////////
 // Helpers
-
-
 
 function makeJSON() {
   jQuery('#json-holder').get(0).value = JSON.stringify(toJSONBoard(false));
@@ -282,93 +305,46 @@ function loadJSON2() {
   fromJSON(json);
 }
 
-function setTile(tileNum) {
-
-    
-  if (lastClicked) {
-     
-
-    let c = lastClicked[0];
-    let r = lastClicked[1];
-
-    let [allowed, topDisallowed, leftDisallowed, rightDisallowed, bottomDisallowed] = getAllowed(c, r);
-
-    // Check if the selected tile can go at this position. If not, then 
-    // clear any neighbours that are blocking it.
-    if (r > 0 && topDisallowed.indexOf(tileNum) != -1) {
-      board[c][r - 1] = -1;
-    }
-    if (c > 0 && leftDisallowed.indexOf(tileNum) != -1) {
-      board[c - 1][r] = -1;
-    }
-    if (c < COLS - 1 && rightDisallowed.indexOf(tileNum) != -1) {
-      board[c + 1][r] = -1;
-    }
-    if (r < COLS - 1 && bottomDisallowed.indexOf(tileNum) != -1) {
-      board[c][r + 1] = -1;
-    }
-
-    board[c][r] = tileNum;
-    loop();
-    backCanvas.loop();
-  } else {
-    isTileSelected = true;
-    selectedTile = tileNum;
-    
-  }
-  
-  loop();
-  backCanvas.loop();
-  return false;
-
-}
-
-/**
- * Returns a json representation of current state
- */
-function toJSONBoard(includeCurves) {
-  
+//////
+ // Returns a json representation of current state
+ //
+function toJSONBoard(includeCurves){
   let morpholo = {};
   if ( selJSON.value() == 'Front'){
-
-
-  if (includeCurves) {
-    morpholo = {
-      tileParams,
-      board,
-      tiles,
-    };
-  } else {
-    morpholo = {
-      tileParams,
-      board,
+    if (includeCurves) {
+      morpholo = {
+        tileParams,
+        board,
+        tiles,
+      };
+    } else {
+      morpholo = {
+        tileParams,
+        board,
+      }
     }
   }
-}
-   if ( selJSON.value() == 'Back'){
-
- 
-
-  if (includeCurves) {
-    morpholo = {
-      tileParams,
-      boardBack,
-      tiles,
-    };
-  } else {
-    morpholo = {
-      tileParams,
-      boardBack,
+  if ( selJSON.value() == 'Back'){
+    if (includeCurves) {
+      morpholo = {
+        tileParams,
+        boardBack,
+        tiles,
+      };
+    } else {
+      morpholo = {
+        tileParams,
+        boardBack,
+      }
     }
   }
-}
-   return morpholo;
+  return morpholo;
 }
 
-/**
- * Restores a state from a provided json representation.
- * @param {*} json json representation of state.
- */
+///////
+ // Restores a state from a provided json representation.
+ // @param {*} json json representation of state.
+ //
 function fromJSON(json) {
   // TODO: For now, no sanity checking. Just trust whatever we are given.
   let morpholo = JSON.parse(json);
@@ -382,37 +358,6 @@ function fromJSON(json) {
   }
   loop();
   backCanvas.loop();
-}
-
-/** 
- * Returns html markup for a grid.
- * @param {*} gridRows rows
- * @param {*} gridCols columns
- * @returns String
- */
-function generateGridMarkup(gridRows, gridCols) {
-  let markupString = '<table class="grid">';
-
-  for (let r = 0; r < gridRows; r++) {
-    markupString += '  <tr>';
-    for (let c = 0; c < gridCols; c++) {
-      let tileNum = r * gridCols + c;
-      let className = '';
-      if (isTileSelected && selectedTile == tileNum) {
-        className = ' class="selected" ';
-      }
-
-      let svgString = tiles[tileNum].svgString
-
-      markupString += '    <td id="grid_' + tileNum + '" ' +
-        className +
-        'data-tile-num="' + tileNum + '" ">' +
-        svgString + '</td>';
-    }
-    markupString += '  </tr>'
-  }
-  markupString += '</table>';
-  return markupString;
 }
 
 function saveSVG() {
@@ -464,38 +409,18 @@ function generateSVGTileSet() {
   return svgString += '</svg>';
 }
 
-function clearGrid() {
-  // Set up markup for grid of allowed tiles
-  jQuery('#allowedTiles-holder').get(0).innerHTML = generateGridMarkup(8, 32);
-}
-
 function showAllowedInGrid(allowed) {
   for (let i = 0; i < allowed.length; i++) {
     jQuery('#grid_' + allowed[i]).addClass('allowed');
   }
 }
 
-/**
- * Returns true if the given point is inside the canvas.
- * @param {*} x 
- * @param {*} y 
- * @returns boolean
- */
-
-function isInsideFrontCanvas(x, y) {
-  return (x > 0 && x < width && y > 0 && y < height);
-}
-
-function isInsideBackCanvas(x, y) {
-  return (x > 0 && x < backCanvas.width && y > 0 && y < backCanvas.height);
-}
-
-/**
- * Returns an array of all the allowed tiles for a given position.
- * @param {*} x 
- * @param {*} y 
- * @returns Array
- */
+//////
+ // Returns an array of all the allowed tiles for a given position.
+ // @param {*} x 
+ // @param {*} y 
+ // @returns Array
+ //
 function getAllowed(c, r) {
   c = constrain(c, 0, COLS - 1);
   r = constrain(r, 0, ROWS - 1);
@@ -539,20 +464,15 @@ function getAllowed(c, r) {
 
 
 function sldRowsChanged(){
-    rowsTxt.html(rowSlider.value());
-  
+  rowsTxt.html(rowSlider.value());
 }
 function sldColsChanged(){
-    colsTxt.html(colsSlider.value());
-  
+  colsTxt.html(colsSlider.value());
 }
 
-
-
-
-/**
- * Event handler for mouse click. Place a tile at the given x, y.
- */
+///////
+ // Event handler for mouse click. Place a tile at the given x, y.
+ ///
 function mouseClicked() {
   
  let a = isInsideFrontCanvas(mouseX, mouseY)
@@ -614,57 +534,53 @@ function mouseClicked() {
 }
 
 function fillBoard() {
-
   console.log('fillBoard()');
 
   if ( selectedCnv == null){
-  for (let c = 0; c < COLS; c++) {
-    for (let r = 0; r < ROWS; r++) {
-      if (board[c][r] < 0) {
-        let [allowed, ...rest] = getAllowed(c, r);
-        let newTileNum = allowed[floor(random(allowed.length))];
-        board[c][r] = newTileNum;
+    for (let c = 0; c < COLS; c++) {
+      for (let r = 0; r < ROWS; r++) {
+        if (board[c][r] < 0) {
+          let [allowed, ...rest] = getAllowed(c, r);
+          let newTileNum = allowed[floor(random(allowed.length))];
+          board[c][r] = newTileNum;
+        }
       }
     }
-  }
 
-
-
-  for (let c = 0; c < COLS; c++) {
-    for (let r = 0; r < ROWS; r++) {
-      if (boardBack[c][r] < 0) {
-        let [allowed, ...rest] = getAllowedBack(c, r);
-        let newTileNum = allowed[floor(random(allowed.length))];
-        boardBack[c][r] = newTileNum;
+    for (let c = 0; c < COLS; c++) {
+      for (let r = 0; r < ROWS; r++) {
+        if (boardBack[c][r] < 0) {
+          let [allowed, ...rest] = getAllowedBack(c, r);
+          let newTileNum = allowed[floor(random(allowed.length))];
+          boardBack[c][r] = newTileNum;
+        }
       }
     }
-  }
   }
   
   if ( selectedCnv == true){
-  for (let c = 0; c < COLS; c++) {
-    for (let r = 0; r < ROWS; r++) {
-      if (board[c][r] < 0) {
-        let [allowed, ...rest] = getAllowed(c, r);
-        let newTileNum = allowed[floor(random(allowed.length))];
-        board[c][r] = newTileNum;
+    for (let c = 0; c < COLS; c++) {
+      for (let r = 0; r < ROWS; r++) {
+        if (board[c][r] < 0) {
+          let [allowed, ...rest] = getAllowed(c, r);
+          let newTileNum = allowed[floor(random(allowed.length))];
+          board[c][r] = newTileNum;
+        }
       }
     }
-  }
   }
   
-    if ( selectedCnv == false){
-  for (let c = 0; c < COLS; c++) {
-    for (let r = 0; r < ROWS; r++) {
-      if (boardBack[c][r] < 0) {
-        let [allowed, ...rest] = getAllowedBack(c, r);
-        let newTileNum = allowed[floor(random(allowed.length))];
-        boardBack[c][r] = newTileNum;
+  if ( selectedCnv == false){
+    for (let c = 0; c < COLS; c++) {
+      for (let r = 0; r < ROWS; r++) {
+        if (boardBack[c][r] < 0) {
+          let [allowed, ...rest] = getAllowedBack(c, r);
+          let newTileNum = allowed[floor(random(allowed.length))];
+          boardBack[c][r] = newTileNum;
+        }
       }
     }
   }
-  }
-
 
   loop();
   backCanvas.loop();
@@ -672,37 +588,36 @@ function fillBoard() {
 
 function clearBoard() {
 
-if (selectedCnv == null){
-  for (let c = 0; c < COLS; c++) {
-    for (let r = 0; r < ROWS; r++) {
-      board[c][r] = -1;
+  if (selectedCnv == null){
+    for (let c = 0; c < COLS; c++) {
+      for (let r = 0; r < ROWS; r++) {
+        board[c][r] = -1;
+      }
+    }
+    //clear back board
+    for (let c = 0; c < COLS; c++) {
+      for (let r = 0; r < ROWS; r++) {
+        boardBack[c][r] = -1;
+      }
     }
   }
-  //clear back board
-  for (let c = 0; c < COLS; c++) {
-    for (let r = 0; r < ROWS; r++) {
-      boardBack[c][r] = -1;
-    }
-  }
-}
   
   if( selectedCnv == true){
-   for (let c = 0; c < COLS; c++) {
-    for (let r = 0; r < ROWS; r++) {
-      board[c][r] = -1;
+    for (let c = 0; c < COLS; c++) {
+      for (let r = 0; r < ROWS; r++) {
+        board[c][r] = -1;
+      }
     }
   }
-}
   
-if (selectedCnv == false){
-  //clear back board
-  for (let c = 0; c < COLS; c++) {
-    for (let r = 0; r < ROWS; r++) {
-      boardBack[c][r] = -1;
+  if (selectedCnv == false){
+    //clear back board
+    for (let c = 0; c < COLS; c++) {
+      for (let r = 0; r < ROWS; r++) {
+        boardBack[c][r] = -1;
+      }
     }
   }
-}
-  
   loop()
   backCanvas.loop();
 }
@@ -720,11 +635,9 @@ function clearTile() {
 }
 
 function view3D() {
-  
   if ( ROWS * 100 >400){
-    
     let a = 700 + (ROWS*100)
-  easycam.setDistanceMax(a);
+    easycam.setDistanceMax(a);
     
     let b = -50-(ROWS*30)
      camState.center= [0,b,0]
@@ -740,17 +653,15 @@ function view3D() {
   if (fullBrickCheck() === true) {
     hideBackCanvas();
 
-
     resizeCanvas(900, 400)
     viewer.display = true
-
 
     btnClearTile.elt.disabled = true;
     btnClearBoard.elt.disabled = true;
     btnFillBoard.elt.disabled = true;
     btnView3D.elt.disabled = true;
     btnExit3D.elt.disabled = false;
-     btnReset.elt.disabled = true;
+    btnReset.elt.disabled = true;
 
     // this loop creates the bricks from the tiles in the board
     bricks = new Array(COLS);
@@ -769,9 +680,6 @@ function view3D() {
           tiles[q].drawingData.sides = tiles[q].sides
           let front = tiles[q];
 
-
-
-
           // back is for the back tile drawing data 
           let back = tiles[s];
 
@@ -788,23 +696,16 @@ function view3D() {
       }
     }
   } else {
-   
     window.alert("Please fill yellow spaces to make a full brick");
-  
   }
-  
-
-
   loop()
 }
 
 function exit3D() {
-
   showBackCanvas();
 
   resizeCanvas(tileSize * COLS, tileSize * ROWS);
   viewer.display = false;
-
 
   btnClearTile.elt.disabled = false;
   btnClearBoard.elt.disabled = false;
@@ -812,7 +713,6 @@ function exit3D() {
   btnView3D.elt.disabled = false;
   btnExit3D.elt.disabled = true;
   btnReset.elt.disabled = false;
-
 }
 
 // check to see if there are matching front and back tils pairs to make a full brick
@@ -834,73 +734,59 @@ function fullBrickCheck() {
   }
 
   return t
-
 }
 
 // selectedCnv = true is the front canvase 
 //selectedCnv = false is the back canvas 
 function selectCnv (){
   
- // change buttons to front canvas 
-if (selectedCnv == true) { 
-  
-btnClearBoard.elt.innerHTML  = "Clear Front Board"
-  btnFillBoard.elt.innerHTML  = "Fill Front Board"
-  
+  // change buttons to front canvas 
+  if (selectedCnv == true) { 
+    btnClearBoard.elt.innerHTML  = "Clear Front Board"
+    btnFillBoard.elt.innerHTML  = "Fill Front Board"
+  } 
 
-
-} 
-    //change buttons to back canvas
+  //change buttons to back canvas
   if(selectedCnv == false ) {
     btnFillBoard.elt.innerHTML  = "Fill Back Board"
-    btnClearBoard.elt.innerHTML  = "Clear Back Board"
-  
-    
-}
-  
-  if (selectedCnv == null) { 
-  
-btnClearBoard.elt.innerHTML  = "Clear Boards"
-    btnFillBoard.elt.innerHTML  = "Fill Boards 3"
+    btnClearBoard.elt.innerHTML  = "Clear Back Board"   
   }
   
+  if (selectedCnv == null) { 
+    btnClearBoard.elt.innerHTML  = "Clear Boards"
+    btnFillBoard.elt.innerHTML  = "Fill Boards 3"
+  }
 }
 
 function selJSONEvent(){
-//   let btnSaveJSON = createButton('Save JSON');
-//   btnSaveJSON.parent('#btnSaveJSON-holder');
-//   btnSaveJSON.elt.addEventListener("click", saveJSONBoard);
+  //   let btnSaveJSON = createButton('Save JSON');
+  //   btnSaveJSON.parent('#btnSaveJSON-holder');
+  //   btnSaveJSON.elt.addEventListener("click", saveJSONBoard);
 
-//   let btnMakeJSON = createButton('Make JSON');
-//   btnMakeJSON.parent('#btnMakeJSON-holder');
-//   btnMakeJSON.elt.addEventListener("click", makeJSON);
-  
-  
+  //   let btnMakeJSON = createButton('Make JSON');
+  //   btnMakeJSON.parent('#btnMakeJSON-holder');
+  //   btnMakeJSON.elt.addEventListener("click", makeJSON);
+
   if ( selJSON.value() == 'Front'){ 
     btnSaveJSON.elt.innerHTML  = "Save Front JSON"
-  btnMakeJSON.elt.innerHTML  = "Make Front JSON"
-  
+    btnMakeJSON.elt.innerHTML  = "Make Front JSON"
   }
 
   if( selJSON.value() == 'Back'){
-    
-        btnSaveJSON.elt.innerHTML  = "Save Back JSON"
-  btnMakeJSON.elt.innerHTML  = "Make Back JSON"
-    
+    btnSaveJSON.elt.innerHTML  = "Save Back JSON"
+    btnMakeJSON.elt.innerHTML  = "Make Back JSON" 
   }
 }
 
 function reGrid(){
-
-//    let frontWidth = document.getElementById('front-div')
-//      .getBoundingClientRect(),
-//        colWidth = frontWidth.right - frontWidth.left;
-  
+  //    let frontWidth = document.getElementById('front-div')
+  //      .getBoundingClientRect(),
+  //        colWidth = frontWidth.right - frontWidth.left;
    
   ROWS = rowSlider.value()
   COLS = colsSlider.value()
   
-    // Initialise the board. -1 signifies no tile.
+  // Initialise the board. -1 signifies no tile.
   board = new Array(COLS);
   for (let c = 0; c < COLS; c++) {
     board[c] = new Array(ROWS);
@@ -909,51 +795,46 @@ function reGrid(){
     }
   }
   
-    // Initialise the board. -1 signifies no tile.
-    boardBack = new Array(COLS);
-    for (let c = 0; c < COLS; c++) {
-      boardBack[c] = new Array(ROWS);
-      for (let r = 0; r < ROWS; r++) {
-        boardBack[c][r] = -1;
-      }
+  // Initialise the board. -1 signifies no tile.
+  boardBack = new Array(COLS);
+  for (let c = 0; c < COLS; c++) {
+    boardBack[c] = new Array(ROWS);
+    for (let r = 0; r < ROWS; r++) {
+      boardBack[c][r] = -1;
     }
+  }
 
-resizeWidow()
+  resizeWindow()
  
   //frontCanvas.reset();
   //backCanvas.reset(); 
-//   resizeCanvas(tileSize * COLS, tileSize * ROWS);
-//   backCanvas.resizeCanvas(tileSize * COLS, tileSize * ROWS);
+  //   resizeCanvas(tileSize * COLS, tileSize * ROWS);
+  //   backCanvas.resizeCanvas(tileSize * COLS, tileSize * ROWS);
   
-
   loop();
-backCanvas.loop();
+  backCanvas.loop();
 }
 
-function resizeWidow(){
-  
-  
-  let frontWidth = document.getElementById('front-div')
-     .getBoundingClientRect(),
-       colWidth = frontWidth.right - frontWidth.left;
-  
+function resizeWindow(){
+  let frontWidth = document.getElementById('front-div').getBoundingClientRect();
+  let colWidth = frontWidth.right - frontWidth.left;
   
   // if the canvas is bigger then the column width resize tiles 
   if ( masterTileSize*COLS >= colWidth){
-    tileSize = (colWidth-20)/COLS 
+    tileSize = (colWidth-20)/COLS;
   }  else if ( colWidth >= masterTileSize*COLS  ){
-    tileSize = masterTileSize
-}
+    tileSize = masterTileSize;
+  }
   
   for (let i = 0; i < tiles.length; i++) {
     tiles[i].size = tileSize  
   }
  
-    resizeCanvas(tileSize * COLS, tileSize * ROWS);
+  resizeCanvas(tileSize * COLS, tileSize * ROWS);
   backCanvas.resizeCanvas(tileSize * COLS, tileSize * ROWS);
 }
 
 function windowResized() {
-  resizeWidow()
-  
-     }
+  resizeWindow()
+}
+*/

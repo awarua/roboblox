@@ -1,3 +1,5 @@
+/*
+
 let boardBack = [];
 
 let lastClickedBack = null;
@@ -382,18 +384,19 @@ function showFrontSelected(p) {
     for (let r = 0; r < ROWS; r++) {
       let a = (COLS - 1) - c
       // Draw the tile if one has been placed.
-      if (board[c][r] >= 0 && boardBack[a][r] == -1) {
+      // if (board[c][r] >= 0 && boardBack[a][r] == -1) {
 
 
-        p.push();
-        p.noFill();
-        p.stroke('yellow');
-        p.strokeWeight(2);
-        p.rect(a * tileSize, r * tileSize, tileSize, tileSize);
-        p.pop();
+      //   p.push();
+      //   p.noFill();
+      //   p.stroke('yellow');
+      //   p.strokeWeight(2);
+      //   p.rect(a * tileSize, r * tileSize, tileSize, tileSize);
+      //   p.pop();
 
-      }
+      // }
     }
   }
   //p.noLoop();
 }
+*/
