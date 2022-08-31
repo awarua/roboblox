@@ -54,62 +54,59 @@ class Brick {
   }
 
 
-  display() {
+  display(viewer) {
     viewer.page.push();
     viewer.page.translate(0, 0, this.size / 2);
-    this.displayTile(this.frontTile)
+    this.displayTile(viewer, this.frontTile)
 
     viewer.page.translate(this.size, 0, -this.size);
 
     viewer.page.push();
 
     let flip = true
-    this.displayTile(this.backTile, flip)
+    this.displayTile(viewer, this.backTile, flip)
     viewer.page.pop();
 
     viewer.page.pop();
   }
 
 
-  loft() {
+  loft(viewer) {
     viewer.page.push();
     viewer.page.translate(this.center.x, this.center.y);
     viewer.page.scale(this.size, this.size, this.size);
-    //viewer.page.noStroke();
-
 
     viewer.page.strokeWeight(0.5);
     viewer.page.stroke(50);
 
-
     viewer.page.fill(255);
-
-
 
     viewer.page.lightFalloff(0.09, 0.001, 0)
     viewer.page.pointLight(255, 255, 255, this.center.x - 500, this.center.y - 300, this.center.z + 40)
 
-
     let q = (this.backPoints.length + this.frontPoints.length) / 2
-    for (let i = 0; i < q; i++) {
 
+    for (let i = 0; i < q; i++) {
       viewer.page.beginShape()
 
-      let a = i + 1
+      let a = i + 1;
       if (a >= q) {
-        a = i
+        a = i;
       }
-      viewer.page.vertex(this.frontPoints[i].x, this.frontPoints[i].y, this.frontPoints[i].z)
-      viewer.page.vertex(this.backPoints[i].x, this.backPoints[i].y, this.backPoints[i].z)
 
-      viewer.page.vertex(this.backPoints[a].x, this.backPoints[a].y, this.backPoints[a].z)
-      viewer.page.vertex(this.frontPoints[a].x, this.frontPoints[a].y, this.frontPoints[a].z)
+      viewer.page.vertex(
+        this.frontPoints[i].x, this.frontPoints[i].y, this.frontPoints[i].z)
+      viewer.page.vertex(
+        this.backPoints[i].x, this.backPoints[i].y, this.backPoints[i].z)
 
+      viewer.page.vertex(
+        this.backPoints[a].x, this.backPoints[a].y, this.backPoints[a].z)
+      viewer.page.vertex(
+        this.frontPoints[a].x, this.frontPoints[a].y, this.frontPoints[a].z)
 
-      viewer.page.endShape(CLOSE)
+      viewer.page.endShape(viewer.page.CLOSE)
     }
     viewer.page.pop();
-
   }
 
   findPoints(drawingData, flip) {
@@ -125,7 +122,6 @@ class Brick {
 
         // stores front points under the index number of the parent path
 
-
         // finds x and y points on line
         for (let u = 0; u <= this.steps; u++) {
           let t = u / this.steps;
@@ -135,9 +131,9 @@ class Brick {
           let c = drawingData[i].start.y;
           let d = drawingData[i].pathParts[0].params[1];
 
-          let bezPointX = bezierPoint(a, a, b, b, t);
-          let bezPointY = bezierPoint(c, c, d, d, t);
-          let point = createVector(bezPointX, bezPointY);
+          let bezPointX = p1.bezierPoint(a, a, b, b, t);
+          let bezPointY = p1.bezierPoint(c, c, d, d, t);
+          let point = p1.createVector(bezPointX, bezPointY);
           points.push(point);
         }
       }
@@ -161,10 +157,10 @@ class Brick {
           let c2 = drawingData[i].pathParts[0].params[3];
           let d2 = drawingData[i].pathParts[0].params[5];
 
-          let bezPointX = bezierPoint(a, b, c, d, t);
-          let bezPointY = bezierPoint(a2, b2, c2, d2, t);
+          let bezPointX = p1.bezierPoint(a, b, c, d, t);
+          let bezPointY = p1.bezierPoint(a2, b2, c2, d2, t);
 
-          let point = createVector(bezPointX, bezPointY);
+          let point = p1.createVector(bezPointX, bezPointY);
           points.push(point);
         }
       }
@@ -194,10 +190,10 @@ class Brick {
               let c2 = drawingData[i].pathParts[j].params[3]
               let d2 = drawingData[i].pathParts[j].params[5]
 
-              let bezPointX = bezierPoint(a, b, c, d, t)
-              let bezPointY = bezierPoint(a2, b2, c2, d2, t)
+              let bezPointX = p1.bezierPoint(a, b, c, d, t)
+              let bezPointY = p1.bezierPoint(a2, b2, c2, d2, t)
 
-              let point = createVector(bezPointX, bezPointY)
+              let point = p1.createVector(bezPointX, bezPointY)
               points.push(point);
             }
           }
@@ -218,10 +214,10 @@ class Brick {
               let c2 = drawingData[i].pathParts[j].params[3]
               let d2 = drawingData[i].pathParts[j].params[5]
 
-              let bezPointX = bezierPoint(a, b, c, d, t)
-              let bezPointY = bezierPoint(a2, b2, c2, d2, t)
+              let bezPointX = p1.bezierPoint(a, b, c, d, t)
+              let bezPointY = p1.bezierPoint(a2, b2, c2, d2, t)
 
-              let point = createVector(bezPointX, bezPointY)
+              let point = p1.createVector(bezPointX, bezPointY)
               points.push(point);
             }
           }
@@ -256,7 +252,7 @@ class Brick {
     return points
   }
 
-  displayTile(drawingData, flip) {
+  displayTile(viewer, drawingData, flip) {
 
     viewer.page.push();
     viewer.page.translate(this.center.x, this.center.y, 0);
@@ -319,7 +315,7 @@ class Brick {
       }
     }
 
-    viewer.page.endShape(CLOSE);
+    viewer.page.endShape(viewer.page.CLOSE);
     viewer.page.pop();
   }
 

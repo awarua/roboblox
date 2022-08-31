@@ -1,5 +1,5 @@
-let ROWS = 17;
-let COLS = 20;
+let ROWS = 4;
+let COLS = 5;
 const MARGIN = 0;
 
 const SHOW_FRONT = 0;
@@ -48,7 +48,7 @@ let tiles;
 
 // let bricks = [];
 
-let masterTileSize = 50
+let masterTileSize = 100
 let tileSize = masterTileSize;
 
 let tileParams;
@@ -132,6 +132,7 @@ let p1 = new p5((s) => {
  
 let frontBoard = new p5(makeBoard('#canvas-holder-front', ROWS, COLS));
 let backBoard = new p5(makeBoard('#canvas-holder-back', ROWS, COLS));
+let board3D = new p5(make3DBoard('#canvas-holder-3d', ROWS, COLS));
 
 //////
  // Returns html markup for a grid.
