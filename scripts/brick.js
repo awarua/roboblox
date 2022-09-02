@@ -258,7 +258,7 @@ class Brick {
     viewer.page.translate(this.center.x, this.center.y, 0);
     viewer.page.scale(this.size, this.size);
     // viewer.page.strokeWeight(10 / this.size);
-    viewer.page.stroke('red');
+    viewer.page.stroke(100);
     viewer.page.fill(255);
     //viewer.page.noStroke();
 

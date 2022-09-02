@@ -2,6 +2,10 @@ let ROWS = 4;
 let COLS = 5;
 const MARGIN = 0;
 
+let masterTileSize = 100
+let tileSize = masterTileSize;
+
+
 const SHOW_FRONT = 0;
 const SHOW_BACK = 1;
 const SHOW_3D = 2;
@@ -47,9 +51,6 @@ let tiles;
 // let selectedCnv = null
 
 // let bricks = [];
-
-let masterTileSize = 100
-let tileSize = masterTileSize;
 
 let tileParams;
 let paramsChanged = true;
@@ -133,6 +134,16 @@ let p1 = new p5((s) => {
 let frontBoard = new p5(makeBoard('#canvas-holder-front', ROWS, COLS));
 let backBoard = new p5(makeBoard('#canvas-holder-back', ROWS, COLS));
 let board3D = new p5(make3DBoard('#canvas-holder-3d', ROWS, COLS));
+
+function showFront(){
+  p1.select('#front-row').removeClass('hidden');
+  p1.select('#back-row').addClass('hidden');
+}
+
+function showBack(){
+  p1.select('#back-row').removeClass('hidden');
+  p1.select('#front-row').addClass('hidden');
+}
 
 //////
  // Returns html markup for a grid.

@@ -6,6 +6,8 @@ function make3DBoard(domParentId, rows, cols, front, back){
     let bricks;
     let frontB;
     let backB;
+    let isShowingFront = true;
+    let rotationMomentum = 0;
 
     let viewer = {
       display: false,
@@ -24,10 +26,29 @@ function make3DBoard(domParentId, rows, cols, front, back){
       s.background(0);
       viewer.page.clear();
 
-      s.drawBase();
+      let rotationAngle = s.floor(
+        s.degrees(2 * s.asin(easyCam.getRotation()[0])));
+
+      if (rotationAngle < 90 && rotationAngle >= -90){
+        if (isShowingFront){
+          showBack();
+          isShowingFront = false;
+        }
+      } else {
+        if (!isShowingFront){
+          showFront();
+          isShowingFront = true;
+        }
+      } 
+
+      if (rotationMomentum > 0){
+        rotationMomentum *= 0.9;
+        easyCam.rotateY(rotationMomentum);
+      }
+
+      // s.drawBase();
 
       s.setupBricks();
-
 
       // viewer.page.ambientLight(70);
       //viewer.page.pointLight(
@@ -124,17 +145,17 @@ function make3DBoard(domParentId, rows, cols, front, back){
       frontB = frontBoard.getBoard();
       backB = backBoard.getBoard();
 
-      if ( rows * 100 > 400 ){
-        let a = 700 + ( rows * 100 );
-        easyCam.setDistanceMax(a);
+      // if ( rows * 100 > 400 ){
+      //   let a = 700 + ( rows * 100 );
+      //   easyCam.setDistanceMax(a);
         
-        let b = -50 - (rows*30);
-        camState.center = [ 0, b ,0 ];
-        easyCam.setState(camState);
-      } else {
-        easyCam.setDistanceMax( 700 );
-        easyCam.center = [0, -50, 0];
-      }
+      //   let b = -50 - (rows*30);
+      //   camState.center = [ 0, b ,0 ];
+      //   easyCam.setState(camState);
+      // } else {
+      //   easyCam.setDistanceMax( 700 );
+      //   easyCam.center = [0, -50, 0];
+      // }
     
       // if (s.fullBrickCheck()) {
         
@@ -186,13 +207,16 @@ function make3DBoard(domParentId, rows, cols, front, back){
 
     s.mouseDragged = () => {
       if (s.isInside(s.mouseX, s.mouseY)) {
+        rotationMomentum = 0;
         let deltaX = s.abs(s.mouseX - s.pmouseX);
         if (s.mouseX > s.pmouseX) {
-          easyCam.rotateY(-0.005 * deltaX);
+          rotationMomentum = -0.005 * deltaX;
         } else {
-          easyCam.rotateY(0.005 * deltaX);
+          rotationMomentum = 0.005 * deltaX
         }
+        easyCam.rotateY(rotationMomentum);
       }
+      return false;
     }
     
     // function offCvn() {
