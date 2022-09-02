@@ -16,35 +16,38 @@ function make3DBoard(domParentId, rows, cols, front, back){
       let cnv = s.createCanvas(tileSize * cols, tileSize * rows);
       cnv.parent(s.select(domParentId));
 
-      viewer.page = s.createGraphics(900, 400, s.WEBGL);
+      viewer.page = s.createGraphics(s.width, s.height, s.WEBGL);
       s.camSetup();
     }
 
     s.draw = () => {
       s.background(0);
+      viewer.page.clear();
+
+      s.drawBase();
+
       s.setupBricks();
 
-      viewer.page.background(0);
 
-      viewer.page.ambientLight(70);
-      viewer.page.pointLight(
-        150, 150, 150, 0, -s.height / 2 * rows, 200 * rows);
-      viewer.page.pointLight(
-        100, 100, 100, 0, -s.height / 2 * rows, -200 * rows);
+      // viewer.page.ambientLight(70);
+      //viewer.page.pointLight(
+      //  150, 150, 150, 0, -s.height / 2 * rows, 200 * rows);
+      //viewer.page.pointLight(
+      //  100, 100, 100, 0, -s.height / 2 * rows, -200 * rows);
 
       //  s.drawGrid3D();
 
       viewer.page.push();
       viewer.page.fill(255, 255, 0);
       viewer.page.noStroke();
-      viewer.page.translate(-tileSize * (cols / 2), -tileSize * (cols - 1));
+      viewer.page.translate(-tileSize * (cols / 2), -tileSize * 1 * ((rows + 1) / 2));
 
       for (let c = 0; c < cols; c++) {
         for (let r = 0; r < rows; r++) {
           if (frontB[c][r] > -1) {
             bricks[c][r].loft(viewer);
             viewer.page.push();
-            viewer.page.ambientLight(255);
+            // viewer.page.ambientLight(255);
             bricks[c][r].display(viewer);
             viewer.page.pop();
           }
@@ -52,7 +55,6 @@ function make3DBoard(domParentId, rows, cols, front, back){
       }
 
       viewer.page.pop();
-      s.drawBase();
       s.image(viewer.page, 0, 0);
     }
 
@@ -62,12 +64,12 @@ function make3DBoard(domParentId, rows, cols, front, back){
 
     s.drawBase = () => {
       viewer.page.push();
-      viewer.page.translate(0, tileSize, 0);
+      viewer.page.translate(0, 2 * tileSize, 0);
       viewer.page.angleMode(s.DEGREES);
-      viewer.page.fill(250);
+      viewer.page.fill(255, 200);
       viewer.page.ellipseMode(s.CENTER);
       viewer.page.rotateX(90);
-      viewer.page.circle(0, 0, 100 + (cols * tileSize));
+      viewer.page.circle(0, 0, (2 * cols * tileSize));
       viewer.page.pop();
     }
 

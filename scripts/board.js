@@ -20,8 +20,10 @@ function makeBoard(domParentId, rows, cols){
       //       It is not really working though...
       for (let c = 0; c < cols; c++){
         for (let r = 0; r < rows; r++){
-          let sideNum = s.floor(s.random(8));
-          s.toggleSide(sideNum, {c, r});
+          for (let i = 0; i < 8; i++){
+            let sideNum = s.floor(s.random(8));
+            s.toggleSide(sideNum, {c, r});  
+          }
         }
       }
 
@@ -107,8 +109,6 @@ function makeBoard(domParentId, rows, cols){
     }    
 
     s.toggleSide = (sideNum, position) => {
-      // console.log('toggleSide() sideNum:', sideNum, 'position:', position);
-
       let n = s.getTileNumber(position);
       if (position){
         n = board[position.c][position.r];
@@ -121,15 +121,14 @@ function makeBoard(domParentId, rows, cols){
       // dr = delta-row
       // sideNum = side of the neighbor.
       let neighbors = [
-        {dc:  0, dr: -1, s: 5}, {dc:  0, dr: -1, sideNum: 4},
-        {dc:  1, dr:  0, s: 7}, {dc:  1, dr:  0, sideNum: 6},
-        {dc:  0, dr:  1, s: 1}, {dc:  0, dr:  1, sideNum: 0},
-        {dc: -1, dr:  0, s: 3}, {dc: -1, dr:  0, sideNum: 2},
+        {dc:  0, dr: -1, sideNum: 5}, {dc:  0, dr: -1, sideNum: 4},
+        {dc:  1, dr:  0, sideNum: 7}, {dc:  1, dr:  0, sideNum: 6},
+        {dc:  0, dr:  1, sideNum: 1}, {dc:  0, dr:  1, sideNum: 0},
+        {dc: -1, dr:  0, sideNum: 3}, {dc: -1, dr:  0, sideNum: 2},
       ];
 
       // Toggle the tile side and the neighbor tile's side
       let newN = tiles[n].toggleSide(sideNum);
-      // console.log(newN);
       board[position.c][position.r] = newN;
 
       // Check that the neighbor is on the board
@@ -139,9 +138,7 @@ function makeBoard(domParentId, rows, cols){
 
       if (nc >= 0 && nc < cols && nr >= 0 && nr < rows){
         let neighborN = board[nc][nr];
-        // console.log('neighborN:', neighborN, 'nc:', nc, 'nr:', nr);
-        let newNeighborN = tiles[neighborN].toggleSide(
-          neighbor.sideNum);   
+        let newNeighborN = tiles[neighborN].toggleSide(neighbor.sideNum);   
         board[nc][nr] = newNeighborN;      
       }
     }
