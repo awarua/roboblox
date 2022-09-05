@@ -77,12 +77,14 @@ class Brick {
     viewer.page.scale(this.size, this.size, this.size);
 
     viewer.page.strokeWeight(0.5);
-    viewer.page.stroke(50);
+    // viewer.page.stroke(50);
+    viewer.page.stroke(255);
+    viewer.page.noFill();
 
-    viewer.page.fill(255);
+    // viewer.page.fill(255);
 
-    viewer.page.lightFalloff(0.09, 0.001, 0)
-    viewer.page.pointLight(255, 255, 255, this.center.x - 500, this.center.y - 300, this.center.z + 40)
+    // viewer.page.lightFalloff(0.09, 0.001, 0)
+    // viewer.page.pointLight(255, 255, 255, this.center.x - 500, this.center.y - 300, this.center.z + 40)
 
     let q = (this.backPoints.length + this.frontPoints.length) / 2
 
@@ -141,8 +143,6 @@ class Brick {
       // if the path is a curve with no splits
       if (drawingData[i].pathType == 'CURVE' && drawingData[i].pathParts.length == 1) {
 
-
-
         // finds points for curve 
         for (let u = 0; u <= this.steps; u++) {
 
@@ -165,16 +165,15 @@ class Brick {
         }
       }
 
-      // when the curve has more then two pats devide steps between them
-      if (drawingData[i].pathType == 'CURVE' && drawingData[i].pathParts.length == 2) {
-
+      // when the curve has more then two paths divide steps between them
+      if (drawingData[i].pathType == 'CURVE' 
+          && drawingData[i].pathParts.length == 2) {
 
         let a = drawingData[i].pathParts.length;
         this.splitSteps = this.steps / a;
 
         //for every pathPart in a path
         for (let j = 0; j < drawingData[i].pathParts.length; j++) {
-
 
           if (j == 0) {
             for (let u = 0; u <= this.splitSteps; u++) {
@@ -197,10 +196,7 @@ class Brick {
               points.push(point);
             }
           }
-
           if (j == 1) {
-
-
             // finds points for curve 
             for (let u = 0; u <= this.splitSteps; u++) {
               let t = u / this.splitSteps;
@@ -225,7 +221,6 @@ class Brick {
       }
     }
 
-
     if (flip) {
 
       let hold = []
@@ -239,7 +234,6 @@ class Brick {
       let t = (this.steps + 1) * 2
       for (let j = 0; j < t; j++) {
         hold.push(points.shift(j))
-
       }
 
       points.reverse();
@@ -253,13 +247,19 @@ class Brick {
   }
 
   displayTile(viewer, drawingData, flip) {
-
     viewer.page.push();
     viewer.page.translate(this.center.x, this.center.y, 0);
-    viewer.page.scale(this.size, this.size);
+
+    // TODO: Hack - not sure why I have to scale x differently front and back
+    let xScale = flip ? 1.7 * this.size : this.size;
+    viewer.page.scale(xScale, this.size, 0);
+
     // viewer.page.strokeWeight(10 / this.size);
-    viewer.page.stroke(100);
-    viewer.page.fill(255);
+    // viewer.page.stroke(100);
+    viewer.page.stroke(255);
+    viewer.page.strokeWeight(2);
+    viewer.page.noFill();
+    // viewer.page.fill(255);
     //viewer.page.noStroke();
 
     // //display circle on front points 
@@ -275,28 +275,22 @@ class Brick {
     if (flip) {
       viewer.page.rotateY(180)
     }
-
     viewer.page.beginShape();
     let p = drawingData.length
     for (let i = 0; i < p; i++) {
       let l = drawingData[i].pathParts.length
       for (let j = 0; j < l; j++) {
 
-        // set a vertext for the line path
+        // set a vertex for the line path
         if (drawingData[i].pathParts[j].partType == 'L' && drawingData[i].pathParts[j].params.length == 2) {
-
           let x = drawingData[i].pathParts[j].params[0]
           let y = drawingData[i].pathParts[j].params[1]
           viewer.page.vertex(x, y);
-
-
         } else if (drawingData[i].pathParts[j].partType == 'C' && drawingData[i].pathParts[j].params.length == 6) {
-
           if (drawingData[i].pathParts.length == 2 && j == 1) {
             let x = drawingData[i].pathParts[0].params[4]
             let y = drawingData[i].pathParts[0].params[5]
             viewer.page.vertex(x, y)
-
           } else {
             let x = drawingData[i].start.x
             let y = drawingData[i].start.y
@@ -310,7 +304,6 @@ class Brick {
           let e = drawingData[i].pathParts[j].params[4]
           let f = drawingData[i].pathParts[j].params[5]
           viewer.page.bezierVertex(a, b, c, d, e, f);
-
         }
       }
     }
@@ -318,5 +311,4 @@ class Brick {
     viewer.page.endShape(viewer.page.CLOSE);
     viewer.page.pop();
   }
-
 }

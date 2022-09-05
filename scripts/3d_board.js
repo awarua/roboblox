@@ -1,4 +1,4 @@
-function make3DBoard(domParentId, rows, cols, front, back){
+function make3DBoard(domParentId, rows, cols){
   return (s) => {
 
     let easyCam;
@@ -67,6 +67,7 @@ function make3DBoard(domParentId, rows, cols, front, back){
         for (let r = 0; r < rows; r++) {
           if (frontB[c][r] > -1) {
             bricks[c][r].loft(viewer);
+
             viewer.page.push();
             // viewer.page.ambientLight(255);
             bricks[c][r].display(viewer);
@@ -166,34 +167,24 @@ function make3DBoard(domParentId, rows, cols, front, back){
         for (let c = 0; c < cols; c++) {
           bricks[c] = new Array(rows);
           for (let r = 0; r < rows; r++) {
-            if (frontB[c][r] > -1) {
-
-              let a = (cols - 1) - c
-              // q is the tile num for the front tile
-              let frontTileNum = frontB[c][r]
-              //s is the tile num for the back tile
-              let backTileNum = backB[a][r]
-    
-              // front is the drawing data for the front tile
-              tiles[frontTileNum].drawingData.sides = tiles[frontTileNum].sides
-              let front = tiles[frontTileNum];
-    
-              // back is for the back tile drawing data 
-              let back = tiles[backTileNum];
-    
-              // center is for the center of the brick
-              let center = s.createVector(c * tileSize, r * tileSize);
-    
-              // size is the size of the tile
-              let size = tiles[frontTileNum].size;
-    
-              bricks[c][r] = new Brick(front, back, center, size);
-            }
+            let a = (cols - 1) - c
+            // Get the tile num for the front and tile
+            let frontTileNum = frontB[c][r]
+            let backTileNum = backB[a][r]
+  
+            // Get front and back tiles
+            let front = tiles[frontTileNum];
+            let back = tiles[backTileNum];
+  
+            // center is for the center of the brick
+            let center = s.createVector(c * tileSize, r * tileSize);
+  
+            // size is the size of the tile
+            let size = tiles[frontTileNum].size;
+  
+            bricks[c][r] = new Brick(front, back, center, size);
           }
         }
-      // } else {
-      //   console.log("Please fill yellow spaces to make a full brick");
-      // }
     }
 
     // Returns true if a given point is inside the canvas
