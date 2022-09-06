@@ -1,10 +1,10 @@
-let ROWS = 4;
-let COLS = 5;
+let ROWS = 6;
+let COLS = 9;
 const MARGIN = 0;
+const WIREFRAME = false;
 
-let masterTileSize = 100
-let tileSize = masterTileSize;
-
+let masterTileSize = 1
+// let tileSize = masterTileSize;
 
 const SHOW_FRONT = 0;
 const SHOW_BACK = 1;
@@ -83,12 +83,14 @@ let isTileSelected = false;
 let p1 = new p5((s) => {
 
   s.setup = () => {
+    s.noCanvas();
+
     tileParams = new TileParameters();
 
     // Initialise the collection of tiles.
     tiles = new Array(256);
     for (let i = 0; i < 256; i++) {
-      tiles[i] = new Tile(i, tileSize);
+      tiles[i] = new Tile(i);
     }
 
     // Just once - at setup, loop over all the tiles and figure out which are compatibile
@@ -98,13 +100,12 @@ let p1 = new p5((s) => {
       }
     }
 
-    // This triggers the tiles to generate and memoize their svg string.
-    for (let i = 0; i < 256; i++) {
-      tiles[i].display(-tileSize, -tileSize, p1);
-    }
+    // // This triggers the tiles to generate and memoize their svg string.
+    // for (let i = 0; i < 256; i++) {
+    //   tiles[i].display(-tileSize, -tileSize, p1);
+    // }
 
     s.setupInputs();
-
     s.clearGrid();
     s.noLoop();
   }
@@ -131,8 +132,8 @@ let p1 = new p5((s) => {
   
 })
  
-let frontBoard = new p5(makeBoard('#canvas-holder-front', ROWS, COLS));
-let backBoard = new p5(makeBoard('#canvas-holder-back', ROWS, COLS));
+let frontBoard = new p5(makeBoard('#canvas-holder-front', ROWS, COLS, false));
+let backBoard = new p5(makeBoard('#canvas-holder-back', ROWS, COLS, true));
 let board3D = new p5(make3DBoard('#canvas-holder-3d', ROWS, COLS));
 
 function showFront(){

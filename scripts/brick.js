@@ -1,39 +1,13 @@
 class Brick {
 
-  constructor(fTile, bTile, center, size) {
+  constructor(fTile, bTile, center) {
 
     this.fTile = fTile
     this.bTile = bTile
 
     this.frontTile = fTile.drawingData;
     this.backTile = bTile.drawingData;
-
-
-    //     for (let i = 0; i < this.backTile.length; i++) {
-    //       for (let j = 0; j < this.backTile[i].pathParts.length; j++) {
-
-    //         if (this.backTile[i].pathParts[j].pathType === 'L') {
-
-    //           for (let l = 0; l < this.backTile[i].pathParts[j].params.length; l++) {
-    //             let center = 1
-    //             this.backTile[i].pathParts[j].params[l] = (center - this.backTile[i].pathParts[j].params[l]) + center
-    //           }
-
-    //         } else {
-
-    //           for (let l = 0; l < this.backTile[i].pathParts[j].params.length; l = l + 2) {
-    //             let center = 0.5
-    //             this.backTile[i].pathParts[j].params[l] = (center - this.backTile[i].pathParts[j].params[l]) + center
-    //           }
-    //         }
-    //       }
-    //     }
-
-
-
-
     this.center = center;
-    this.size = size
     this.steps = 5
     this.frontPoints = this.findPoints(this.frontTile)
 
@@ -43,48 +17,56 @@ class Brick {
     // sets the z location for the points 
     let l = this.frontPoints.length
     for (let i = 0; i < l; i++) {
-      this.frontPoints[i].z = ((this.size / 2) / this.size) - 0.01
+      this.frontPoints[i].z = 0.5 - 0.01;
     }
     let k = this.backPoints.length
     for (let i = 0; i < k; i++) {
-      this.backPoints[i].z = ((-this.size / 2) / this.size) + 0.01
+      this.backPoints[i].z = -0.5 + 0.01;
+    }
+  }
+
+  display(viewer, tileSize) {
+    viewer.page.push();
+    // Translate so that the tile is centred
+    // viewer.page.translate(-tileSize / 2, -tileSize / 2, 0)
+    
+    // Translate and draw front tile
+    viewer.page.translate(0, 0, tileSize / 2);
+    this.displayTile(viewer, this.frontTile, tileSize, false)
+
+
+    viewer.page.translate(tileSize, 0, -tileSize);
+
+    viewer.page.push();
+    let flip = true
+    this.displayTile(viewer, this.backTile, tileSize, flip)
+    viewer.page.pop();
+
+    viewer.page.pop();
+  }
+
+  loft(viewer, tileSize) {
+    viewer.page.push();
+    // viewer.page.translate(-tileSize / 2, -tileSize / 2, 0);
+
+    // viewer.page.translate(this.center.x, this.center.y);
+    viewer.page.scale(tileSize, tileSize, tileSize);
+
+    if (WIREFRAME){
+      viewer.page.stroke(100);
+      viewer.page.strokeWeight(0.5);
+      viewer.page.noFill();  
+    } else {
+      viewer.page.stroke(255, 200);
+      viewer.page.strokeWeight(0.5);
+      viewer.page.fill(255);  
     }
 
-
-  }
-
-
-  display(viewer) {
-    viewer.page.push();
-    viewer.page.translate(0, 0, this.size / 2);
-    this.displayTile(viewer, this.frontTile)
-
-    viewer.page.translate(this.size, 0, -this.size);
-
-    viewer.page.push();
-
-    let flip = true
-    this.displayTile(viewer, this.backTile, flip)
-    viewer.page.pop();
-
-    viewer.page.pop();
-  }
-
-
-  loft(viewer) {
-    viewer.page.push();
-    viewer.page.translate(this.center.x, this.center.y);
-    viewer.page.scale(this.size, this.size, this.size);
-
-    viewer.page.strokeWeight(0.5);
-    // viewer.page.stroke(50);
-    viewer.page.stroke(255);
-    viewer.page.noFill();
-
-    // viewer.page.fill(255);
-
-    // viewer.page.lightFalloff(0.09, 0.001, 0)
-    // viewer.page.pointLight(255, 255, 255, this.center.x - 500, this.center.y - 300, this.center.z + 40)
+    // This makes the lofting render dark
+    viewer.page.lightFalloff(tileSize / 2, 0.001, 0)
+    viewer.page.pointLight(
+      255, 255, 255, 
+      this.center.x - 500, this.center.y - 300, this.center.z + 40)
 
     let q = (this.backPoints.length + this.frontPoints.length) / 2
 
@@ -230,7 +212,7 @@ class Brick {
         points[i].x = (center - points[i].x) + center
       }
 
-      // this loop takes the first 2 segment points so they can be added to the front of the reveresed array
+      // this loop takes the first 2 segment points so they can be added to the front of the reversed array
       let t = (this.steps + 1) * 2
       for (let j = 0; j < t; j++) {
         hold.push(points.shift(j))
@@ -246,35 +228,31 @@ class Brick {
     return points
   }
 
-  displayTile(viewer, drawingData, flip) {
+  displayTile(viewer, drawingData, tileSize, flip) {
     viewer.page.push();
-    viewer.page.translate(this.center.x, this.center.y, 0);
+    // viewer.page.translate(this.center.x, this.center.y, 0);
+
 
     // TODO: Hack - not sure why I have to scale x differently front and back
-    let xScale = flip ? 1.7 * this.size : this.size;
-    viewer.page.scale(xScale, this.size, 0);
+    //       The value 1.7 is also arrived at by trial and error, so probably
+    //       fragile to changes in the sketch. 
+    // let xScale = flip ? 1.7 * tileSize : tileSize;
+    viewer.page.scale(tileSize, tileSize, 0);
 
-    // viewer.page.strokeWeight(10 / this.size);
-    // viewer.page.stroke(100);
-    viewer.page.stroke(255);
-    viewer.page.strokeWeight(2);
-    viewer.page.noFill();
-    // viewer.page.fill(255);
-    //viewer.page.noStroke();
+    if (WIREFRAME){
+      viewer.page.stroke(255);
+      viewer.page.strokeWeight(3); 
+      viewer.page.fill(255, 200);  
+    } else {
+      viewer.page.stroke(100);
+      viewer.page.strokeWeight(1);
+      viewer.page.fill(255);      
+    }
 
-    // //display circle on front points 
-    // viewer.page.push();
-    // viewer.page.noStroke();
-    // viewer.page.fill(0, 255, 0);
-    // for (let i = 0; i < this.frontPoints.length; i++) {
-    //   let x = this.frontPoints[i].x
-    //   let y = this.frontPoints[i].y
-    //   viewer.page.circle(x, y, 0.1)
-    // }
-    // viewer.page.pop();
     if (flip) {
       viewer.page.rotateY(180)
     }
+
     viewer.page.beginShape();
     let p = drawingData.length
     for (let i = 0; i < p; i++) {
@@ -282,11 +260,13 @@ class Brick {
       for (let j = 0; j < l; j++) {
 
         // set a vertex for the line path
-        if (drawingData[i].pathParts[j].partType == 'L' && drawingData[i].pathParts[j].params.length == 2) {
+        if (drawingData[i].pathParts[j].partType == 'L' 
+            && drawingData[i].pathParts[j].params.length == 2) {
           let x = drawingData[i].pathParts[j].params[0]
           let y = drawingData[i].pathParts[j].params[1]
           viewer.page.vertex(x, y);
-        } else if (drawingData[i].pathParts[j].partType == 'C' && drawingData[i].pathParts[j].params.length == 6) {
+        } else if (drawingData[i].pathParts[j].partType == 'C' 
+                   && drawingData[i].pathParts[j].params.length == 6) {
           if (drawingData[i].pathParts.length == 2 && j == 1) {
             let x = drawingData[i].pathParts[0].params[4]
             let y = drawingData[i].pathParts[0].params[5]

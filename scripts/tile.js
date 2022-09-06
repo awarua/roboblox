@@ -1,11 +1,10 @@
 class Tile {
-  constructor (num, size) {
+  constructor (num) {
     this.openings = [];
     
     this.sides = new Array(8);
     this.vertices = new Array(8);
     this.num = num;
-    this.size = size;
     this.tilePoints = [];
     
     // Arrays to store all tiles that are allowed beside this one.
@@ -80,13 +79,13 @@ class Tile {
     this.center = p1.createVector(0.5, 0.5);
   }
 
-  display(x, y, s) {
+  display(x, y, s, tileSize) {
     if (paramsChanged){
       this.calculateGroup();
       this.svgString = this.toSVGString();
     }
 
-    this.drawToCanvas(x, y, s);
+    this.drawToCanvas(x, y, s, tileSize);
 
   }
 
@@ -229,14 +228,14 @@ class Tile {
     return path;
   }
 
-  drawToCanvas(x, y, s) { 
+  drawToCanvas(x, y, s, tileSize) { 
     s.push();
-    s.translate(x - this.size * this.center.x, y - this.size * this.center.y);
-    s.scale(this.size, this.size);
-    s.noStroke();
+    s.translate(x - tileSize * this.center.x, y - tileSize * this.center.y);
+    s.scale(tileSize, tileSize);
+    s.push();
     s.fill(0);
-    s.rect(0, 0, 1, 1);
-    s.fill(255);
+    s.square(0, 0, 1);
+    s.pop();
 
     s.beginShape();
     
@@ -250,11 +249,11 @@ class Tile {
     s.pop();
   }
 
-  sideClicked(mx, my, tx, ty, s){
+  sideClicked(mx, my, tx, ty, s, tileSize){
     // Scale the mouseX, mouseY relative to the tile's position on canvas and
     // size so that 1.0 equals the width of the tile
-    let x = (mx - tx) / this.size;
-    let y = (my - ty) / this.size;
+    let x = (mx - tx) / tileSize;
+    let y = (my - ty) / tileSize;
 
     // console.log(x, y);
 
@@ -283,14 +282,14 @@ class Tile {
     return newN;
   }
 
-  showUI(x, y, s) {
+  showUI(x, y, s, tileSize) {
     s.push();
     s.translate(x, y);
-    s.scale(this.size, this.size);
+    s.scale(tileSize, tileSize);
     s.noFill();
     s.fill(150, 200);
     s.stroke(120);
-    s.strokeWeight(2 / this.size);
+    s.strokeWeight(2 / tileSize);
 
     // Draw each of the button centres to the screen.
     for(let c of this.buttonCentres){
@@ -304,12 +303,12 @@ class Tile {
    * Output an SVG element for this tile.
    * This is used for showing the svg in the UI. 
    */
-  toSVGString(){
+  toSVGString(tileSize){
     let margin = 0;
     let doJoin = true;
-    let svgString = '<svg width="100%" viewBox="0 0 ' + (1 * this.size) + ' ' + (1 * this.size) + '"  '
+    let svgString = '<svg width="100%" viewBox="0 0 ' + (1 * tileSize) + ' ' + (1 * tileSize) + '"  '
       + 'class="bgblack" xmlns="http://www.w3.org/2000/svg">\n'
-      + '<g transform="scale(' + this.size + ' ' + this.size + ')">';
+      + '<g transform="scale(' + tileSize + ' ' + tileSize + ')">';
     svgString += this.toSVGGroup(0, 0, margin, doJoin);
     svgString += '</g></svg>';
     return svgString;
@@ -334,7 +333,7 @@ class Tile {
    * @param {*} x x position the group should be placed at
    * @param {*} y y position the group should be placed at
    */
-  toSVGGroup(c, r, margin, join){
+  toSVGGroup(c, r, margin, join, tileSize){
     let svgGroupString = '<g transform="translate(' + (c * (1 + margin)) + ' ' 
       + (r * (1 + margin)) + ')" stroke-width="0.01">';
 
@@ -343,11 +342,11 @@ class Tile {
     }
 
     // if (this.num == 255){
-    //   svgGroupString += '<rect x="0" y="0" width="' + this.size * scale + '" height="' 
-    //     + this.size * scale + '" stroke="none" fill="black" />';
+    //   svgGroupString += '<rect x="0" y="0" width="' + tileSize * scale + '" height="' 
+    //     + tileSize * scale + '" stroke="none" fill="black" />';
     // } else {
-    //   svgGroupString += '<rect x="0" y="0" width="' + this.size * scale + '" height="' 
-    //     + this.size * scale + '" stroke="none" fill="white" />';
+    //   svgGroupString += '<rect x="0" y="0" width="' + tileSize * scale + '" height="' 
+    //     + tileSize * scale + '" stroke="none" fill="white" />';
     // }
 
     for (let i = 0; i < this.drawingData.length; i++){

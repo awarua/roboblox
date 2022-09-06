@@ -1,18 +1,39 @@
-function makeBoard(domParentId, rows, cols){
+function makeBoard(domParentId, rows, cols, hideAfter){
   return (s) => {
     let board;
     let lastClicked = null;
+    let tileSize = masterTileSize;
+    let toggles; 
+    let scaleFactor = 1;
+    let margin = 20;
   
     s.setup = () => {
-      let cnv = s.createCanvas(tileSize * cols, tileSize * rows);
-      cnv.parent(s.select(domParentId));
+      // Get the parent dom element and figure out width
+      let domParent = s.select(domParentId);
+      let w = domParent.width;
+      tileSize = w / cols;
+      scaleFactor = (w - 2 * margin) / w;
 
-      // Initialise the board. -1 signifies no tile.
+      let canvasHeight = margin * 2 + tileSize * rows * scaleFactor;
+
+      // console.log('2d w', w, '2d height', canvasHeight, 
+      //  'tileSize', tileSize, 'scaleFactor', scaleFactor);
+
+      // console.log(scaleFactor);
+
+      let cnv = s.createCanvas(w, canvasHeight);
+      cnv.parent(domParent);
+
+      // Initialize the board. -1 signifies no tile.
       board = new Array(cols);
+      toggles = new Array(cols);
+
       for (let c = 0; c < cols; c++) {
         board[c] = new Array(rows);
+        toggles[c] = new Array(rows);
         for (let r = 0; r < rows; r++) {
           board[c][r] = 0
+          toggles[c][r] = false;
         }
       }
 
@@ -27,15 +48,49 @@ function makeBoard(domParentId, rows, cols){
         }
       }
 
+      // // TODO: This is an attempt to apply a simple heuristic
+      // //       to ensure that the board will stand up
+      // //       at least one of either side 4 or 5 must be
+      // //       present
+      // for (let r = 0; r < rows; r++){
+      //   for (let c = 0; c < cols; c++){
+      //     let t = tiles[board[c][r]]; 
+      //     if (t.sides[4] && t.sides[5]){
+      //       let sideNum = (s.random() < 0.5) ? 4 : 5;
+      //       console.log(domParentId, c, r, t.sides[4], t.sides[5], 'toggling', sideNum);
+      //       s.toggleSide(sideNum, {c, r});
+      //       toggles[c][r] = true;
+      //     } else {
+      //       console.log(domParentId, c, r, 'ok', t.sides[4], t.sides[5]);
+      //     };
+      //   }
+      // }
+
+      // Hide the board if asked to.
+      if (hideAfter){
+        domParent.elt.parentElement.parentElement.classList.add('hidden');
+      }
+
       s.noLoop();
     };
   
     s.draw = () => {
       // console.log(domParentId, 'draw()', 'lastClicked', lastClicked);
       s.push();
-      s.background(51);
+      s.background(0);
+      s.translate(s.width / 2, s.height / 2);
+      s.scale(scaleFactor);
+      s.translate(-tileSize * cols / 2, -tileSize * rows / 2);
+
       s.displayTiles();
+
+      // s.stroke(0, 255, 255);
+      // s.line(0, 20, s.width, 20);
+      // s.translate(s.width / 2, s.height / 2);
+      // s.scale(scaleFactor);
+      // s.translate(-tileSize * cols / 2, -tileSize * rows / 2);
       s.displayGrid();
+
       s.displayLastClicked();
       // s.fill(255, 0, 0);
       // s.text(domParentId, 20, 20);
@@ -52,7 +107,10 @@ function makeBoard(domParentId, rows, cols){
             let n = board[c][r];
             let x = c * tileSize + (tileSize / 2);
             let y = r * tileSize + (tileSize / 2);
-            tiles[n].display(x, y, s);
+
+            s.noStroke();
+            s.fill(255);
+            tiles[n].display(x, y, s, tileSize);
           }
         }
       }
@@ -61,7 +119,7 @@ function makeBoard(domParentId, rows, cols){
     s.displayGrid = () => {
       s.push();
       s.strokeWeight(1);
-      s.stroke(100);
+      s.stroke(100, 200);
       for (let c = 0; c < cols + 1; c++) {
         s.line(c * tileSize, 0, c * tileSize, rows * tileSize);
       }
@@ -74,7 +132,7 @@ function makeBoard(domParentId, rows, cols){
     s.displayLastClicked = () => {
       if (lastClicked){
         s.push();
-        s.stroke(255, 0, 0);
+        s.stroke(200, 200, 255);
         s.noFill();
         // s.fill(255, 0, 0);
         let x = lastClicked.c * tileSize;
@@ -83,7 +141,7 @@ function makeBoard(domParentId, rows, cols){
         s.pop();
 
         let n = board[lastClicked.c][lastClicked.r];
-        tiles[n].showUI(x, y, s);
+        tiles[n].showUI(x, y, s, tileSize);
       }
     };
 
@@ -109,6 +167,7 @@ function makeBoard(domParentId, rows, cols){
     }    
 
     s.toggleSide = (sideNum, position) => {
+      // console.log('toggleSide', sideNum, position);
       let n = s.getTileNumber(position);
       if (position){
         n = board[position.c][position.r];
@@ -180,9 +239,18 @@ function makeBoard(domParentId, rows, cols){
       //  `${s.isInside(s.mouseX, s.mouseY)}`);
 
       if (s.isInside(s.mouseX, s.mouseY)) {
+        // Take account of the scale factor
+        let xMargin = s.width * (1 - scaleFactor) / 2;
+        let yMargin = s.height * (1 - scaleFactor) / 2;
+
+        let scaledX = (s.mouseX - xMargin) / scaleFactor;
+        let scaledY = (s.mouseY - yMargin) / scaleFactor;
+
+        // console.log(s.mouseX, xMargin, scaledX);
+
         // Calculate the row and column index
-        let c = s.floor(s.mouseX / tileSize);
-        let r = s.floor(s.mouseY / tileSize);
+        let c = s.floor(scaledX / tileSize);
+        let r = s.floor(scaledY / tileSize);
     
         // Just to be doubly-sure, use the constrain function to make sure the index is valid
         c = s.constrain(c, 0, cols - 1);
@@ -197,7 +265,8 @@ function makeBoard(domParentId, rows, cols){
 
           // If one of the sides is clicked, then figure out which one
           // And toggle that side for this tile and it's neighbor.
-          let sideClicked = tiles[n].sideClicked(s.mouseX, s.mouseY, x, y, s);
+          let sideClicked = tiles[n].sideClicked(
+            scaledX, scaledY, x, y, s, tileSize);
           if (sideClicked >= 0){
             // console.log('in last clicked tile. s:', sideClicked);
             s.toggleSide(sideClicked, lastClicked);
