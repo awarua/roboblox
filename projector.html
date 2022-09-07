@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+  <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+  <meta
+    http-equiv="Content-Security-Policy"
+    content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline';"
+  />
+  <meta
+    http-equiv="X-Content-Security-Policy"
+    content="default-src 'self'; script-src 'self'"
+  />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Roboblox Projection</title>
+
+  <link rel="stylesheet" href="styles/style.css">
+
+  <!-- <script src="scripts/libs/jQuery.js"></script> -->
+  <script src="scripts/libs/p5.js"></script>
+  <!-- <script src="scripts/libs/p5.dom.js"></script>
+  <script src="scripts/libs/p5.easycam.js"></script> -->
+  <script src="scripts/drawing_data.js"></script>
+  <script src="scripts/parameters.js"></script>
+  <script src="scripts/tile.js"></script>
+  <script src="scripts/board.js"></script>
+  <script src="scripts/brick.js"></script>
+  <script src="scripts/3d_board.js"></script>
+  <script src="scripts/projector.js"></script>
+
+</head>
+
+<body>
+  <main role="main" class="container" id="main-elt">
+    <button id="btn-fullscreen">Fullscreen</button>
+    <div id="canvas-holder-3d"></div>
+  </main>
+</body>
+
+</html>

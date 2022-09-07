@@ -24,19 +24,20 @@
     }
 
     // Figure out the start of the path from the opening vertex
-    this.start = p1.createVector(tiles[0].vertices[oIdx][0], tiles[0].vertices[oIdx][1]);
+    this.start = app.p1.createVector(
+      app.tiles[0].vertices[oIdx][0], app.tiles[0].vertices[oIdx][1]);
 
     this.markCols = Array(8);
-    p1.colorMode(p1.HSB, 360, 100, 100, 100);
+    app.p1.colorMode(app.p1.HSB, 360, 100, 100, 100);
     for (let i = 0; i < this.markCols.length; i++){
-      let c = p1.color((360 / 8) * i, 100, 100);
+      let c = app.p1.color((360 / 8) * i, 100, 100);
       if (i % 2 == 0){
         this.markCols[i] = c;
       } else {
         this.markCols[(i + 4) % this.markCols.length] = c;
       }
     }
-    p1.colorMode(p1.RGB, 255, 255, 255, 255);
+    app.p1.colorMode(app.p1.RGB, 255, 255, 255, 255);
     this.markColIdx = 0;
     if (typeof(markColIdx) == 'number'){
       this.markColIdx = markColIdx

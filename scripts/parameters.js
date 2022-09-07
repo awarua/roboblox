@@ -14,32 +14,32 @@ class TileParameters {
     this.pull = pull || DEFAULT_PULL;
     this.sidePull = sidePull || DEFAULT_SIDE_PULL;
 
-    this.sldRotation = p1.createSlider(-180, 180, this.rotation);
-    this.sldRotation.parent(p1.select('#sldRotation-holder'));
+    this.sldRotation = app.p1.createSlider(-180, 180, this.rotation);
+    this.sldRotation.parent(app.p1.select('#sldRotation-holder'));
     this.sldRotation.mouseMoved(sldRotationChanged);
     this.sldRotation.mouseClicked(fnFalse);
-    this.txtRotation = p1.select('#txtRotation-holder');
+    this.txtRotation = app.p1.select('#txtRotation-holder');
     this.txtRotation.html(this.rotation);
 
-    this.sldMag = p1.createSlider(0, 100, this.mag);
-    this.sldMag.parent(p1.select('#sldMag-holder'));
+    this.sldMag = app.p1.createSlider(0, 100, this.mag);
+    this.sldMag.parent(app.p1.select('#sldMag-holder'));
     this.sldMag.mouseMoved(sldMagChanged);
     this.sldMag.mouseClicked(fnFalse);
-    this.txtMag = p1.select('#txtMag-holder');
+    this.txtMag = app.p1.select('#txtMag-holder');
     this.txtMag.html(this.mag);
 
-    this.sldPull = p1.createSlider(0, 100, this.pull);
-    this.sldPull.parent(p1.select('#sldPull-holder'));
+    this.sldPull = app.p1.createSlider(0, 100, this.pull);
+    this.sldPull.parent(app.p1.select('#sldPull-holder'));
     this.sldPull.mouseMoved(sldPullChanged);
     this.sldPull.mouseClicked(fnFalse);
-    this.txtPull = p1.select('#txtPull-holder');
+    this.txtPull = app.p1.select('#txtPull-holder');
     this.txtPull.html(this.pull);
 
-    this.sldSidePull = p1.createSlider(0, 100, this.sidePull);
-    this.sldSidePull.parent(p1.select('#sldSidePull-holder'));
+    this.sldSidePull = app.p1.createSlider(0, 100, this.sidePull);
+    this.sldSidePull.parent(app.p1.select('#sldSidePull-holder'));
     this.sldSidePull.mouseMoved(sldSidePullChanged);
     this.sldSidePull.mouseClicked(fnFalse);
-    this.txtSidePull = p1.select('#txtSidePull-holder');
+    this.txtSidePull = app.p1.select('#txtSidePull-holder');
     this.txtSidePull.html(this.sidePull);
 
     function fnFalse(e) {

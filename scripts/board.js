@@ -1,8 +1,8 @@
-function makeBoard(domParentId, rows, cols, hideAfter, initialTile){
+function makeBoard(domParentId, _app, hideAfter, initialTile){
   return (s) => {
     let board;
     let lastClicked = null;
-    let tileSize = masterTileSize;
+    let tileSize = _app.masterTileSize;
     let toggles; 
     let scaleFactor = 1;
     let margin = 20;
@@ -11,15 +11,15 @@ function makeBoard(domParentId, rows, cols, hideAfter, initialTile){
       // Get the parent dom element and figure out width
       let domParent = s.select(domParentId);
       let w = domParent.width;
-      tileSize = w / cols;
+      tileSize = w / app.COLS;
       scaleFactor = (w - 2 * margin) / w;
 
-      let canvasHeight = margin * 2 + tileSize * rows * scaleFactor;
+      let canvasHeight = margin * 2 + tileSize * app.ROWS * scaleFactor;
       let cnv = s.createCanvas(w, canvasHeight);
       cnv.parent(domParent);
 
-      board = new Array(cols);
-      toggles = new Array(cols);
+      board = new Array(app.COLS);
+      toggles = new Array(app.COLS);
       s.initializeBoard();
 
       if (typeof(initialTile) != "undefined"){
@@ -42,7 +42,7 @@ function makeBoard(domParentId, rows, cols, hideAfter, initialTile){
       s.background(0);
       s.translate(s.width / 2, s.height / 2);
       s.scale(scaleFactor);
-      s.translate(-tileSize * cols / 2, -tileSize * rows / 2);
+      s.translate(-tileSize * app.COLS / 2, -tileSize * app.ROWS / 2);
 
       s.displayTiles();
 
@@ -50,7 +50,7 @@ function makeBoard(domParentId, rows, cols, hideAfter, initialTile){
       // s.line(0, 20, s.width, 20);
       // s.translate(s.width / 2, s.height / 2);
       // s.scale(scaleFactor);
-      // s.translate(-tileSize * cols / 2, -tileSize * rows / 2);
+      // s.translate(-tileSize * app.COLS / 2, -tileSize * app.ROWS / 2);
       s.displayGrid();
 
       s.displayLastClicked();
@@ -62,8 +62,8 @@ function makeBoard(domParentId, rows, cols, hideAfter, initialTile){
 
     // Iterate over the tiles in the board and display them
     s.displayTiles = () => {
-      for (let c = 0; c < cols; c++){
-        for (let r = 0; r < rows; r++){
+      for (let c = 0; c < app.COLS; c++){
+        for (let r = 0; r < app.ROWS; r++){
           // Draw the tile (if one has been placed)
           if (board[c][r] >= 0){
             let n = board[c][r];
@@ -72,7 +72,7 @@ function makeBoard(domParentId, rows, cols, hideAfter, initialTile){
 
             s.noStroke();
             s.fill(255);
-            tiles[n].display(x, y, s, tileSize);
+            app.tiles[n].display(x, y, s, tileSize);
 
             // Display the tile number at the top left corner.
             // s.push();
@@ -89,11 +89,11 @@ function makeBoard(domParentId, rows, cols, hideAfter, initialTile){
       s.push();
       s.strokeWeight(1);
       s.stroke(100, 200);
-      for (let c = 0; c < cols + 1; c++) {
-        s.line(c * tileSize, 0, c * tileSize, rows * tileSize);
+      for (let c = 0; c < app.COLS + 1; c++) {
+        s.line(c * tileSize, 0, c * tileSize, app.ROWS * tileSize);
       }
-      for (let r = 0; r < rows + 1; r++) {
-        s.line(0, r * tileSize, cols * tileSize, r * tileSize);
+      for (let r = 0; r < app.ROWS + 1; r++) {
+        s.line(0, r * tileSize, app.COLS * tileSize, r * tileSize);
       }
       s.pop();
     };
@@ -110,16 +110,16 @@ function makeBoard(domParentId, rows, cols, hideAfter, initialTile){
         s.pop();
 
         let n = board[lastClicked.c][lastClicked.r];
-        tiles[n].showUI(x, y, s, tileSize);
+        app.tiles[n].showUI(x, y, s, tileSize);
       }
     };
 
     // Initialize the board with zero tiles
     s.initializeBoard = () => {
-      for (let c = 0; c < cols; c++) {
-        board[c] = new Array(rows);
-        toggles[c] = new Array(rows);
-        for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < app.COLS; c++) {
+        board[c] = new Array(app.ROWS);
+        toggles[c] = new Array(app.ROWS);
+        for (let r = 0; r < app.ROWS; r++) {
           board[c][r] = 0
           toggles[c][r] = false;
         }
@@ -128,8 +128,8 @@ function makeBoard(domParentId, rows, cols, hideAfter, initialTile){
 
     // Fill the board with the specified tile (don't care about neighbors)
     s.fillBoard = (tileNum) => {
-      for (let c = 0; c < cols; c++){
-        for (let r = 0; r < rows; r++){
+      for (let c = 0; c < app.COLS; c++){
+        for (let r = 0; r < app.ROWS; r++){
           board[c][r] = tileNum;
         }
       }      
@@ -137,8 +137,8 @@ function makeBoard(domParentId, rows, cols, hideAfter, initialTile){
 
     // Fill the board with random tiles (making sure they all fit)
     s.fillBoardRandomly = () => {
-      for (let c = 0; c < cols; c++){
-        for (let r = 0; r < rows; r++){
+      for (let c = 0; c < app.COLS; c++){
+        for (let r = 0; r < app.ROWS; r++){
           for (let i = 0; i < 8; i++){
             let sideNum = s.floor(s.random(8));
             s.toggleSide(sideNum, {c, r});  
@@ -151,9 +151,9 @@ function makeBoard(domParentId, rows, cols, hideAfter, initialTile){
     // This is an attempt to apply a simple heuristic to ensure that the
     // board will stand up. At least one of either side 4 or 5 must be present
     s.stabilizeBoard = () => {
-      for (let r = 0; r < rows; r++){
-        for (let c = 0; c < cols; c++){
-          let t = tiles[board[c][r]]; 
+      for (let r = 0; r < app.ROWS; r++){
+        for (let c = 0; c < app.COLS; c++){
+          let t = app.tiles[board[c][r]]; 
           if (t.sides[4] && t.sides[5]){
             let sideNum = (s.random() < 0.5) ? 4 : 5;
             s.toggleSide(sideNum, {c, r});
@@ -207,7 +207,7 @@ function makeBoard(domParentId, rows, cols, hideAfter, initialTile){
       ];
 
       // Toggle the tile side and the neighbor tile's side
-      let newN = tiles[n].toggleSide(sideNum);
+      let newN = app.tiles[n].toggleSide(sideNum);
       board[position.c][position.r] = newN;
 
       // Check that the neighbor is on the board
@@ -215,9 +215,9 @@ function makeBoard(domParentId, rows, cols, hideAfter, initialTile){
       let nc = position.c + neighbor.dc;
       let nr = position.r + neighbor.dr;
 
-      if (nc >= 0 && nc < cols && nr >= 0 && nr < rows){
+      if (nc >= 0 && nc < app.COLS && nr >= 0 && nr < app.ROWS){
         let neighborN = board[nc][nr];
-        let newNeighborN = tiles[neighborN].toggleSide(neighbor.sideNum);   
+        let newNeighborN = app.tiles[neighborN].toggleSide(neighbor.sideNum);   
         board[nc][nr] = newNeighborN;      
       }
     }
@@ -227,11 +227,11 @@ function makeBoard(domParentId, rows, cols, hideAfter, initialTile){
         if (s.keyCode == s.UP_ARROW){
           lastClicked.r = s.max(lastClicked.r - 1, 0);
         } else if (s.keyCode == s.DOWN_ARROW){
-          lastClicked.r = s.min(lastClicked.r + 1, rows - 1);
+          lastClicked.r = s.min(lastClicked.r + 1, app.ROWS - 1);
         } else if (s.keyCode == s.LEFT_ARROW){
           lastClicked.c = s.max(lastClicked.c - 1, 0);
         } else if (s.keyCode == s.RIGHT_ARROW){
-          lastClicked.c = s.min(lastClicked.c + 1, cols - 1);
+          lastClicked.c = s.min(lastClicked.c + 1, app.COLS - 1);
         } else if (s.key == '1'){
           s.toggleSide(0, lastClicked);
         } else if (s.key == '2'){
@@ -273,8 +273,8 @@ function makeBoard(domParentId, rows, cols, hideAfter, initialTile){
         let r = s.floor(scaledY / tileSize);
     
         // Just to be doubly-sure, use the constrain function to make sure the index is valid
-        c = s.constrain(c, 0, cols - 1);
-        r = s.constrain(r, 0, rows - 1);
+        c = s.constrain(c, 0, app.COLS - 1);
+        r = s.constrain(r, 0, app.ROWS - 1);
     
         // If it is over the last clicked tile, first check that it's not
         // over one of that tile's UI elements
@@ -285,7 +285,7 @@ function makeBoard(domParentId, rows, cols, hideAfter, initialTile){
 
           // If one of the sides is clicked, then figure out which one
           // And toggle that side for this tile and it's neighbor.
-          let sideClicked = tiles[n].sideClicked(
+          let sideClicked = app.tiles[n].sideClicked(
             scaledX, scaledY, x, y, s, tileSize);
           if (sideClicked >= 0){
             // console.log('in last clicked tile. s:', sideClicked);

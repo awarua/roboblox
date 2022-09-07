@@ -1,13 +1,13 @@
 class Brick {
-  constructor(fTile, bTile, center) {
+  constructor(fTile, bTile, center, viewer) {
     this.fTile = fTile
     this.bTile = bTile
     this.frontTile = fTile.drawingData;
     this.backTile = bTile.drawingData;
     this.center = center;
     this.steps = 15;
-    this.frontPoints = this.findPoints(this.frontTile)
-    this.backPoints = this.findPoints(this.backTile, true);
+    this.frontPoints = this.findPoints(this.frontTile, viewer)
+    this.backPoints = this.findPoints(this.backTile, viewer, true);
 
     // sets the z location for the points 
     let l = this.frontPoints.length
@@ -130,7 +130,7 @@ class Brick {
     viewer.pop();
   }
 
-  findPoints(drawingData, flip) {
+  findPoints(drawingData, viewer, flip) {
     let points = []
 
     // for every path of drawingData
@@ -151,9 +151,9 @@ class Brick {
           let c = drawingData[i].start.y;
           let d = drawingData[i].pathParts[0].params[1];
 
-          let bezPointX = p1.bezierPoint(a, a, b, b, t);
-          let bezPointY = p1.bezierPoint(c, c, d, d, t);
-          let point = p1.createVector(bezPointX, bezPointY);
+          let bezPointX = viewer.bezierPoint(a, a, b, b, t);
+          let bezPointY = viewer.bezierPoint(c, c, d, d, t);
+          let point = viewer.createVector(bezPointX, bezPointY);
           points.push(point);
         }
       }
@@ -176,10 +176,10 @@ class Brick {
           let c2 = drawingData[i].pathParts[0].params[3];
           let d2 = drawingData[i].pathParts[0].params[5];
 
-          let bezPointX = p1.bezierPoint(a, b, c, d, t);
-          let bezPointY = p1.bezierPoint(a2, b2, c2, d2, t);
+          let bezPointX = viewer.bezierPoint(a, b, c, d, t);
+          let bezPointY = viewer.bezierPoint(a2, b2, c2, d2, t);
 
-          let point = p1.createVector(bezPointX, bezPointY);
+          let point = viewer.createVector(bezPointX, bezPointY);
           points.push(point);
         }
       }
@@ -208,10 +208,10 @@ class Brick {
               let c2 = drawingData[i].pathParts[j].params[3]
               let d2 = drawingData[i].pathParts[j].params[5]
 
-              let bezPointX = p1.bezierPoint(a, b, c, d, t)
-              let bezPointY = p1.bezierPoint(a2, b2, c2, d2, t)
+              let bezPointX = viewer.bezierPoint(a, b, c, d, t)
+              let bezPointY = viewer.bezierPoint(a2, b2, c2, d2, t)
 
-              let point = p1.createVector(bezPointX, bezPointY)
+              let point = viewer.createVector(bezPointX, bezPointY)
               points.push(point);
             }
           }
@@ -229,10 +229,10 @@ class Brick {
               let c2 = drawingData[i].pathParts[j].params[3]
               let d2 = drawingData[i].pathParts[j].params[5]
 
-              let bezPointX = p1.bezierPoint(a, b, c, d, t)
-              let bezPointY = p1.bezierPoint(a2, b2, c2, d2, t)
+              let bezPointX = viewer.bezierPoint(a, b, c, d, t)
+              let bezPointY = viewer.bezierPoint(a2, b2, c2, d2, t)
 
-              let point = p1.createVector(bezPointX, bezPointY)
+              let point = viewer.createVector(bezPointX, bezPointY)
               points.push(point);
             }
           }

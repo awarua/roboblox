@@ -1,16 +1,19 @@
-function make3DBoard(domParentId, rows, cols){
+function make3DBoard(domParentId, appFn, makeFull){
   return (s) => {
     let bricks;
     let frontB;
     let backB;
     let isShowingFront = true;
-    let tileSize = masterTileSize;
+    let tileSize = appFn().masterTileSize;
     let margin = 20;
     let scaleFactor = 1;
     let w;
     let f;
     let cam;
     let defaultCamZ;
+    let rows = appFn().ROWS
+    let cols = appFn().COLS
+    let zoom = 0.75;
 
     s.preload = () => {
       f = s.loadFont('styles/iconsolata/Inconsolata.otf');
@@ -23,7 +26,13 @@ function make3DBoard(domParentId, rows, cols){
       scaleFactor = (w - 2 * margin) / w;
       let canvasHeight = margin * 2 + tileSize * rows * scaleFactor;
 
-      let cnv = s.createCanvas(tileSize * cols, canvasHeight, s.WEBGL);
+      let cnv;
+      if (makeFull){
+        console.log('make full');
+        cnv = s.createCanvas(s.displayWidth, s.displayHeight, s.WEBGL);
+      } else {
+        cnv = s.createCanvas(tileSize * cols, canvasHeight, s.WEBGL);
+      }
       cnv.parent(domParent);
       s.angleMode(s.DEGREES);
       s.textFont(f);
@@ -42,12 +51,12 @@ function make3DBoard(domParentId, rows, cols){
       // whether to display the front or back tile layout. 
       if (cam.eyeZ < 0){
         if (isShowingFront){
-          showBack();
+          appFn().showBack();
           isShowingFront = false;
         }
       } else {
         if (!isShowingFront){
-          showFront();
+          appFn().showFront();
           isShowingFront = true;
         }
       } 
@@ -76,6 +85,7 @@ function make3DBoard(domParentId, rows, cols){
     s.drawBricks = () => {
       s.push();
       s.scale(scaleFactor);
+      s.scale(zoom);
       s.translate(-tileSize * (cols / 2), -tileSize * (rows / 2));
 
       // Iterate over the columns and rows and draw each brick
@@ -98,8 +108,8 @@ function make3DBoard(domParentId, rows, cols){
     // back boards
     s.setupBricks = () => {      
       // Get a copy of the front and back boards
-      frontB = frontBoard.getBoard();
-      backB = backBoard.getBoard();
+      frontB = appFn().frontBoard.getBoard();
+      backB = appFn().backBoard.getBoard();
   
       // this loop creates the bricks from the tiles in the board
       bricks = new Array(cols);
@@ -112,8 +122,8 @@ function make3DBoard(domParentId, rows, cols){
           let backTileNum = backB[a][r]
 
           // Get front and back tiles
-          let front = tiles[frontTileNum];
-          let back = tiles[backTileNum];
+          let front = appFn().tiles[frontTileNum];
+          let back = appFn().tiles[backTileNum];
 
           // center is for the center of the brick
           let center = s.createVector(
@@ -121,9 +131,9 @@ function make3DBoard(domParentId, rows, cols){
             r * tileSize + tileSize / 2);
 
           // size is the size of the tile
-          let size = tiles[frontTileNum].size;
+          let size = appFn().tiles[frontTileNum].size;
 
-          bricks[c][r] = new Brick(front, back, center, size);
+          bricks[c][r] = new Brick(front, back, center, s);
         }
       }
     }

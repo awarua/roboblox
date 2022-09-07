@@ -1,56 +1,42 @@
-let ROWS = 5;
-let COLS = 6;
-const MARGIN = 0;
-const WIREFRAME = false;
-
-let masterTileSize = 1
-// let tileSize = masterTileSize;
-
-const SHOW_FRONT = 0;
-const SHOW_BACK = 1;
-const SHOW_3D = 2;
-const SHOW_SETTINGS = 3;
-const SHOW_FILES = 4;
-
-const SCREEN_IDS = {
-  [SHOW_SETTINGS]: {
-    id: '#settings-row',
-    btnId: '#btn-show-settings',
-    isHidden: true,
-  },
-  [SHOW_FILES]: {
-    id: '#files-row',
-    btnId: '#btn-show-files',
-    isHidden: true,
-  },
+var app = {
+  ROWS: 5,
+  COLS: 6,
+  MARGIN: 0,
+  WIREFRAME: false,
+  masterTileSize: 1,
+  paramsChanged: true,
+  isTileSelected: false,
+  tileParams: null,
+  tiles: null,
+  projector: null,
+  p1: null,
+  frontBoard: null,
+  backBoard: null,
+  board3D: null,
+  showFront: null,
+  showBack: null,
 }
 
-let tiles;
-let tileParams;
-let paramsChanged = true;
-let isTileSelected = false;
-
-let p1 = new p5((s) => {
+app.p1 = new p5((s) => {
 
   s.setup = () => {
     s.noCanvas();
 
-    tileParams = new TileParameters();
+    app.tileParams = new TileParameters();
 
     // Initialise the collection of tiles.
-    tiles = new Array(256);
+    app.tiles = new Array(256);
     for (let i = 0; i < 256; i++) {
-      tiles[i] = new Tile(i);
+      app.tiles[i] = new Tile(i);
     }
 
     for (let i = 0; i < 256; i++) {
-      tiles[i].calculateData(1);
+      app.tiles[i].calculateData(1);
     }
-  
 
     // Just once - at setup, loop over all the tiles and figure out which are compatibile
-    for (let ta of tiles) {
-      for (let tb of tiles) {
+    for (let ta of app.tiles) {
+      for (let tb of app.tiles) {
         ta.checkCompatability(tb);
       }
     }
@@ -62,20 +48,29 @@ let p1 = new p5((s) => {
 
   s.setupInputs = () => {
     // Set up the buttons that toggle screens
-    let btnShowFront = p1.select('#btn-show-front');
+    let btnShowFront = app.p1.select('#btn-show-front');
     btnShowFront.mouseClicked(() => {
-      board3D.setCamFront();
+      app.board3D.setCamFront();
     })
 
-    let btnShowBack = p1.select('#btn-show-back');
+    let btnShowBack = app.p1.select('#btn-show-back');
     btnShowBack.mouseClicked(() => {
-      board3D.setCamBack();
+      app.board3D.setCamBack();
     })
 
-    let btnJSON = p1.select('#btn-json');
+    let btnJSON = app.p1.select('#btn-json');
     btnJSON.mouseClicked(() => {
       s.showJSON();
     })
+
+    let btnProjector = app.p1.select('#btn-projector');
+    btnProjector.mouseClicked(() => {
+      app.projector = window.open('projector.html');
+      app.projector.addEventListener('load', () => {
+        app.projector.setParent(window);
+      }, true);
+    })
+
   }
 
   s.draw = () => {
@@ -106,32 +101,28 @@ let p1 = new p5((s) => {
 
   s.toJSON = (includeCurves) => {
     let morpholo = {
-      tileParams: tileParams.toJSON(),
-      front: frontBoard.getBoard(),
-      back: backBoard.getBoard(),
-      tiles: tiles.map(e => e.toJSON()),
+      tileParams: app.tileParams.toJSON(),
+      front: app.frontBoard.getBoard(),
+      back: app.backBoard.getBoard(),
+      tiles: app.tiles.map(e => e.toJSON()),
     };
     
     return morpholo;
   }
-  
-
 })
  
-let frontBoard = new p5(makeBoard('#canvas-holder-front', ROWS, COLS, 
-                        false));
-let backBoard = new p5(makeBoard('#canvas-holder-back', ROWS, COLS,
-                       true));
-let board3D = new p5(make3DBoard('#canvas-holder-3d', ROWS, COLS));
+app.frontBoard = new p5(makeBoard('#canvas-holder-front', app, false));
+app.backBoard = new p5(makeBoard('#canvas-holder-back', app, true));
+app.board3D = new p5(make3DBoard('#canvas-holder-3d', () => app));
 
-function showFront(){
-  p1.select('#front-row').removeClass('hidden');
-  p1.select('#back-row').addClass('hidden');
+app.showFront = () => {
+  app.p1.select('#front-row').removeClass('hidden');
+  app.p1.select('#back-row').addClass('hidden');
 }
 
-function showBack(){
-  p1.select('#back-row').removeClass('hidden');
-  p1.select('#front-row').addClass('hidden');
+app.showBack = () => {
+  app.p1.select('#back-row').removeClass('hidden');
+  app.p1.select('#front-row').addClass('hidden');
 }
 
 //////
@@ -148,11 +139,11 @@ function showBack(){
     for (let c = 0; c < gridCols; c++) {
       let tileNum = r * gridCols + c;
       let className = '';
-      if (isTileSelected && selectedTile == tileNum) {
+      if (app.isTileSelected && selectedTile == tileNum) {
         className = ' class="selected" ';
       }
 
-      let svgString = tiles[tileNum].svgString
+      let svgString = app.tiles[tileNum].svgString
 
       markupString += '    <td id="grid_' + tileNum + '" ' +
         className +
