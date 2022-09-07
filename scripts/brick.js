@@ -1,18 +1,12 @@
 class Brick {
-
   constructor(fTile, bTile, center) {
-
     this.fTile = fTile
     this.bTile = bTile
-
     this.frontTile = fTile.drawingData;
     this.backTile = bTile.drawingData;
     this.center = center;
     this.steps = 15;
-
-    
     this.frontPoints = this.findPoints(this.frontTile)
-    
     this.backPoints = this.findPoints(this.backTile, true);
 
     // sets the z location for the points 
@@ -27,13 +21,10 @@ class Brick {
   }
 
   display(viewer, tileSize) {
-    viewer.push();
-    // Translate so that the tile is centred
-    // viewer.translate(-tileSize / 2, -tileSize / 2, 0)
-    
     this.displayLoft(viewer, tileSize);
     
     // Translate and draw front tile
+    viewer.push();    
     viewer.translate(0, 0, tileSize / 2);
     this.displayTile(viewer, this.frontTile, tileSize, false)
 
@@ -42,7 +33,6 @@ class Brick {
     viewer.translate(tileSize, 0, -tileSize);
     this.displayTile(viewer, this.backTile, tileSize, true)
     viewer.pop();
-
     viewer.pop();
   }
 
@@ -54,17 +44,6 @@ class Brick {
     viewer.strokeWeight(1);
     viewer.scale(tileSize, tileSize, tileSize);
     viewer.ambientMaterial(255);
-
-
-    // if (WIREFRAME){
-    //   viewer.stroke(255);
-    //   viewer.strokeWeight(3); 
-    //   viewer.fill(255, 200);  
-    // } else {
-    //   viewer.stroke(100);
-    //   viewer.strokeWeight(1);
-    //   viewer.fill(255);      
-    // }
 
     if (flip) {
       viewer.rotateY(180)
@@ -94,7 +73,6 @@ class Brick {
             let y = drawingData[i].start.y
             viewer.vertex(x, y)
           }
-
           let a = params[0]
           let b = params[1]
           let c = params[2]
@@ -110,57 +88,11 @@ class Brick {
     viewer.pop();
   }
 
-  // displayTile2(viewer, pts, tileSize, flip){
-  //   viewer.push();
-  //   viewer.scale(tileSize, tileSize, tileSize);
-    
-  //   viewer.stroke(100, 50);
-  //   viewer.strokeWeight(0.5);
-  //   viewer.fill(255);  
-
-  //   viewer.beginShape()
-  //   for (let pointIdx = 0; pointIdx < pts.length; pointIdx++) {
-
-  //     // Constrain it so that if one of the sides has more points than the
-  //     // other, that the remaining points are lofted to the last one.
-  //     let nextPointIdx = pointIdx + 1;
-  //     if (nextPointIdx >= pts.length) {
-  //       nextPointIdx = 0;
-  //     }
-
-  //     let pt = pts[pointIdx];
-
-  //     // Draw a box at each vertex to debug.
-  //     viewer.push();
-  //     viewer.translate(pt.x, pt.y, pt.z);
-  //     viewer.fill(viewer.map(pointIdx, 0, pts.length, 0, 255), 255, 200);
-  //     let boxS = viewer.map(pointIdx, 0, pts.length, 0.001, 0.05);
-  //     viewer.box(boxS, boxS, boxS);
-  //     viewer.pop();
-
-  //     viewer.vertex(pt.x, pt.y, pt.z)
-  //   }
-  //   viewer.endShape(viewer.CLOSE)
-  //   viewer.pop();
-  // }
-
   displayLoft(viewer, tileSize) {
     viewer.push();
     viewer.scale(tileSize, tileSize, tileSize);
-    // viewer.normalMaterial();
-
     viewer.ambientMaterial(20, 20, 20);
     viewer.noStroke();
-
-    // if (WIREFRAME){
-    //   viewer.stroke(100);
-    //   viewer.strokeWeight(0.5);
-    //   viewer.noFill();  
-    // } else {
-    //   viewer.stroke(255, 0, 0, 50);
-    //   viewer.strokeWeight(0.5);
-    //   viewer.fill(100);  
-    // }
 
     let maxPoints = viewer.max(this.backPoints.length, this.frontPoints.length);
 
@@ -199,7 +131,6 @@ class Brick {
   }
 
   findPoints(drawingData, flip) {
-
     let points = []
 
     // for every path of drawingData
@@ -228,7 +159,8 @@ class Brick {
       }
 
       // if the path is a curve with no splits
-      if (drawingData[i].pathType == 'CURVE' && drawingData[i].pathParts.length == 1) {
+      if (drawingData[i].pathType == 'CURVE' 
+        && drawingData[i].pathParts.length == 1) {
 
         // finds points for curve 
         for (let u = 0; u <= this.steps; u++) {
@@ -332,5 +264,4 @@ class Brick {
     }
     return points
   }
-
 }

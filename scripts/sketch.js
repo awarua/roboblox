@@ -40,45 +40,10 @@ const SCREEN_IDS = {
   },
 }
 
-//let visibleScreen = SHOW_FRONT;
-
-// let nextTileToSave = 0;
-// let btnSaveNextTile;
-
-// let cvn;
 let tiles;
-// let frontBoard;
-// let selectedCnv = null
-
-// let bricks = [];
-
 let tileParams;
 let paramsChanged = true;
-
-// let lastClicked = null;
 let isTileSelected = false;
-// let selectedTile = null;
-
-// let btnClearTile;
-// let btnFillBoard;
-// let btnClearBoard;
-// let btnView3D;
-// let btnExit3D;
-// let selJSON;
-// let btnSaveJSON;
-// let btnMakeJSON;
-// let rowsTxt;
-// let colsTxt;
-// let btnReset;
-
-// let easycam;
-// let camState;
-
-// let viewer = {
-//   display: false,
-//   page: null
-// }
-
 
 let p1 = new p5((s) => {
 
@@ -99,11 +64,6 @@ let p1 = new p5((s) => {
         ta.checkCompatability(tb);
       }
     }
-
-    // // This triggers the tiles to generate and memoize their svg string.
-    // for (let i = 0; i < 256; i++) {
-    //   tiles[i].display(-tileSize, -tileSize, p1);
-    // }
 
     s.setupInputs();
     s.clearGrid();
@@ -129,7 +89,7 @@ let p1 = new p5((s) => {
     // Set up markup for grid of allowed tiles
     s.select('#allowedTiles-holder').elt.innerHTML = generateGridMarkup(8, 32);
   }
-  
+
 })
  
 let frontBoard = new p5(makeBoard('#canvas-holder-front', ROWS, COLS, 
@@ -266,28 +226,7 @@ function _setup() {
   // // slideRotate.mouseClicked(fnFalse);
   // // this.txtPull = select('#txtPull-holder');
   // // this.txtPull.html(this.pull);
-
-
-
 }
-
-/////
- // Main draw loop
- //
-function _draw() {
-  // frontBoard.display();
-
-
-  // if (viewer.display == false) {
-  //   draw2D()
-  // } else {
-  //   draw3D()
-  //   viewer.page.reset()
-  // }
-
-  // selectCnv()
-}
-
 
 /////////////////////////////////////////////////
 // Helpers

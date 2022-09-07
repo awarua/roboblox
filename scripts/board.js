@@ -15,19 +15,11 @@ function makeBoard(domParentId, rows, cols, hideAfter, initialTile){
       scaleFactor = (w - 2 * margin) / w;
 
       let canvasHeight = margin * 2 + tileSize * rows * scaleFactor;
-
-      // console.log('2d w', w, '2d height', canvasHeight, 
-      //  'tileSize', tileSize, 'scaleFactor', scaleFactor);
-
-      // console.log(scaleFactor);
-
       let cnv = s.createCanvas(w, canvasHeight);
       cnv.parent(domParent);
 
-      // Initialize the board. -1 signifies no tile.
       board = new Array(cols);
       toggles = new Array(cols);
-
       s.initializeBoard();
 
       if (typeof(initialTile) != "undefined"){
@@ -35,24 +27,6 @@ function makeBoard(domParentId, rows, cols, hideAfter, initialTile){
       } else {
         s.fillBoardRandomly();
       }
-
-      // // TODO: This is an attempt to apply a simple heuristic
-      // //       to ensure that the board will stand up
-      // //       at least one of either side 4 or 5 must be
-      // //       present
-      // for (let r = 0; r < rows; r++){
-      //   for (let c = 0; c < cols; c++){
-      //     let t = tiles[board[c][r]]; 
-      //     if (t.sides[4] && t.sides[5]){
-      //       let sideNum = (s.random() < 0.5) ? 4 : 5;
-      //       console.log(domParentId, c, r, t.sides[4], t.sides[5], 'toggling', sideNum);
-      //       s.toggleSide(sideNum, {c, r});
-      //       toggles[c][r] = true;
-      //     } else {
-      //       console.log(domParentId, c, r, 'ok', t.sides[4], t.sides[5]);
-      //     };
-      //   }
-      // }
 
       // Hide the board if asked to.
       if (hideAfter){
@@ -173,11 +147,29 @@ function makeBoard(domParentId, rows, cols, hideAfter, initialTile){
       }
     }
 
+    // Adjust tiles so they can stand up!
+    // This is an attempt to apply a simple heuristic to ensure that the
+    // board will stand up. At least one of either side 4 or 5 must be present
+    s.stabilizeBoard = () => {
+      for (let r = 0; r < rows; r++){
+        for (let c = 0; c < cols; c++){
+          let t = tiles[board[c][r]]; 
+          if (t.sides[4] && t.sides[5]){
+            let sideNum = (s.random() < 0.5) ? 4 : 5;
+            s.toggleSide(sideNum, {c, r});
+            toggles[c][r] = true;
+          } else {
+              console.log(domParentId, c, r, 'ok', t.sides[4], t.sides[5]);
+          };
+        }
+      }
+    }
+              
     // Returns a copy of the current board
     s.getBoard = () => {
       return board;
     }
- 
+              
     // Returns true if a given point is inside the canvas
     s.isInside = (x, y) => {
       return x > 0 && x < s.width && y > 0 && y < s.height;
@@ -304,48 +296,13 @@ function makeBoard(domParentId, rows, cols, hideAfter, initialTile){
         } else {
           lastClicked = {c, r};
         }
-
-        // let [allowed, 
-        //   topDisallowed, leftDisallowed, rightDisallowed, bottomDisallowed] 
-        //   = getAllowed(c, r);
-    
-        // if (isTileSelected) {
-        //   // Check if the selected tile can go at this position. If not, then 
-        //   // clear any neighbours that are blocking it.
-        //   if (topDisallowed.indexOf(selectedTile) != -1) {
-        //     board[c][r - 1] = -1;
-        //   }
-        //   if (leftDisallowed.indexOf(selectedTile) != -1) {
-        //     board[c - 1][r] = -1;
-        //   }
-        //   if (rightDisallowed.indexOf(selectedTile) != -1) {
-        //     board[c + 1][r] = -1;
-        //   }
-        //   if (bottomDisallowed.indexOf(selectedTile) != -1) {
-        //     board[c][r + 1] = -1;
-        //   }
-    
-        //   board[c][r] = selectedTile;
-    
-        // } else {
-          // 
-          // Highlight the allowed ones in the grid
-          // clearGrid();
-          // showAllowedInGrid(allowed);
-        // }
     
         s.loop();
         return false;
       } else {
         lastClicked = null;
-        // isTileSelected = false;
-        // selectedTile = null;
-        // clearGrid();
         s.loop();
-        // backCanvas.loop();
       }
-    };
- 
+    }; 
   }
-
 }

@@ -1,5 +1,3 @@
-
-
 /**
  * 
  */
@@ -165,50 +163,5 @@ class PathPart {
   toConsole(){
     console.log(this.partType + ": " + this.params);
   }
-
-//   /**
-//    * Displays the number of this path on the canvas. 
-//    * Useful for debugging. 
-//    */
-//   drawPathNum(pathNum, c){
-//     let m = firstPoint();
-//     let mx = m.x;
-//     let my = m.y;
-
-//     push();
-//     translate(mx, my);
-//     fill(c);
-
-//     // Calculate angle to draw text at and text alignment to make 
-//     // it more readable. 
-//     let angleToCenter = atan2(my - tileSize / 2, mx - tileSize / 2);
-//     let offsetX = 10;
-//     textAlign(LEFT, CENTER);
-//     if (abs(angleToCenter) > HALF_PI) {
-//       angleToCenter += PI;
-//       offsetX = -10;
-//       textAlign(RIGHT, CENTER);
-//     }
-//     rotateZ(angleToCenter);
-//     text(pathNum + ": " + this.numEdges + " edges", offsetX, 0);
-//     print(1)
-//     pop();
-//   }
-
-//   /**
-//    * Draws all of the handles of the path to the canvas. 
-//    * Useful for debugging.
-//    */
-//   drawHandles(p, c){
-//     let pts = this.points.getHandles();
-
-//     if (pts != null) {
-//       for (let i = 0; i < pts.length; i++) {
-//         let pt = pts[i];
-//         fill(c);
-//         text(i, pt.x, pt.y);
-//       }
-//     }
-//   }
 
 }
