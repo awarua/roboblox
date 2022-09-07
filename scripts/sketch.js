@@ -23,11 +23,6 @@ const SCREEN_IDS = {
     btnId: '#btn-show-back',
     isHidden: true,
   },
-  [SHOW_3D]: {
-    id: '#3d-row',
-    btnId: '#btn-show-3d',
-    isHidden: true,
-  },
   [SHOW_SETTINGS]: {
     id: '#settings-row',
     btnId: '#btn-show-settings',
@@ -72,13 +67,23 @@ let p1 = new p5((s) => {
 
   s.setupInputs = () => {
     // Set up the buttons that toggle screens
-    for (let i of [SHOW_FRONT, SHOW_BACK, SHOW_3D, SHOW_SETTINGS, SHOW_FILES]){
-      let {id, btnId} = SCREEN_IDS[i];
-      let btn = p1.select(btnId);
-      btn.mouseClicked(() => {
-        p1.select(id).toggleClass('hidden');
-      });
-    }
+    let btnShowFront = p1.select('#btn-show-front');
+    btnShowFront.mouseClicked(() => {
+      board3D.setCamFront();
+    })
+
+    let btnShowBack = p1.select('#btn-show-back');
+    btnShowBack.mouseClicked(() => {
+      board3D.setCamBack();
+    })
+
+    // for (let i of [SHOW_FRONT, SHOW_BACK, SHOW_SETTINGS, SHOW_FILES]){
+    //   let {id, btnId} = SCREEN_IDS[i];
+    //   let btn = p1.select(btnId);
+    //   btn.mouseClicked(() => {
+    //     p1.select(id).toggleClass('hidden');
+    //   });
+    // }
   }
 
   s.draw = () => {

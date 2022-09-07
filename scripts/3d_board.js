@@ -10,6 +10,7 @@ function make3DBoard(domParentId, rows, cols){
     let w;
     let f;
     let cam;
+    let defaultCamZ;
 
     s.preload = () => {
       f = s.loadFont('styles/iconsolata/Inconsolata.otf');
@@ -28,8 +29,8 @@ function make3DBoard(domParentId, rows, cols){
       s.textFont(f);
 
       cam = s.createCamera();
-      cam.setPosition(0, 0, cam.eyeZ + tileSize / 2);
-      cam.lookAt(0, 0, 0);
+      defaultCamZ = cam.eyeZ + tileSize / 2;
+      s.setCamFront();
     }
 
     s.draw = () => {
@@ -125,6 +126,16 @@ function make3DBoard(domParentId, rows, cols){
           bricks[c][r] = new Brick(front, back, center, size);
         }
       }
+    }
+
+    s.setCamFront = () => {
+      cam.setPosition(0, 0, defaultCamZ);
+      cam.lookAt(0, 0, 0);
+    }
+
+    s.setCamBack = () => {
+      cam.setPosition(0, 0, -defaultCamZ);
+      cam.lookAt(0, 0, 0);
     }
 
     // Returns true if a given point is inside the canvas
