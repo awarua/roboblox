@@ -8,89 +8,194 @@ class Brick {
     this.frontTile = fTile.drawingData;
     this.backTile = bTile.drawingData;
     this.center = center;
-    this.steps = 5
-    this.frontPoints = this.findPoints(this.frontTile)
+    this.steps = 15;
 
-    let flip = true
-    this.backPoints = this.findPoints(this.backTile, flip)
+    
+    this.frontPoints = this.findPoints(this.frontTile)
+    
+    this.backPoints = this.findPoints(this.backTile, true);
 
     // sets the z location for the points 
     let l = this.frontPoints.length
     for (let i = 0; i < l; i++) {
-      this.frontPoints[i].z = 0.5 - 0.01;
+      this.frontPoints[i].z = 0.5 - 0.001;
     }
     let k = this.backPoints.length
     for (let i = 0; i < k; i++) {
-      this.backPoints[i].z = -0.5 + 0.01;
+      this.backPoints[i].z = -0.5 + 0.001;
     }
   }
 
   display(viewer, tileSize) {
-    viewer.page.push();
+    viewer.push();
     // Translate so that the tile is centred
-    // viewer.page.translate(-tileSize / 2, -tileSize / 2, 0)
+    // viewer.translate(-tileSize / 2, -tileSize / 2, 0)
+    
+    this.displayLoft(viewer, tileSize);
     
     // Translate and draw front tile
-    viewer.page.translate(0, 0, tileSize / 2);
+    viewer.translate(0, 0, tileSize / 2);
     this.displayTile(viewer, this.frontTile, tileSize, false)
 
+    // Translate and draw the back tile (relative to front)
+    viewer.push();
+    viewer.translate(tileSize, 0, -tileSize);
+    this.displayTile(viewer, this.backTile, tileSize, true)
+    viewer.pop();
 
-    viewer.page.translate(tileSize, 0, -tileSize);
-
-    viewer.page.push();
-    let flip = true
-    this.displayTile(viewer, this.backTile, tileSize, flip)
-    viewer.page.pop();
-
-    viewer.page.pop();
+    viewer.pop();
   }
 
-  loft(viewer, tileSize) {
-    viewer.page.push();
-    // viewer.page.translate(-tileSize / 2, -tileSize / 2, 0);
+  displayTile(viewer, drawingData, tileSize, flip) {
+    viewer.push();
+    viewer.noStroke();
+    viewer.fill(255);
+    viewer.stroke(200);
+    viewer.strokeWeight(1);
+    viewer.scale(tileSize, tileSize, tileSize);
+    viewer.ambientMaterial(255);
 
-    // viewer.page.translate(this.center.x, this.center.y);
-    viewer.page.scale(tileSize, tileSize, tileSize);
 
-    if (WIREFRAME){
-      viewer.page.stroke(100);
-      viewer.page.strokeWeight(0.5);
-      viewer.page.noFill();  
-    } else {
-      viewer.page.stroke(255, 200);
-      viewer.page.strokeWeight(0.5);
-      viewer.page.fill(255);  
+    // if (WIREFRAME){
+    //   viewer.stroke(255);
+    //   viewer.strokeWeight(3); 
+    //   viewer.fill(255, 200);  
+    // } else {
+    //   viewer.stroke(100);
+    //   viewer.strokeWeight(1);
+    //   viewer.fill(255);      
+    // }
+
+    if (flip) {
+      viewer.rotateY(180)
     }
 
-    // This makes the lofting render dark
-    viewer.page.lightFalloff(tileSize / 2, 0.001, 0)
-    viewer.page.pointLight(
-      255, 255, 255, 
-      this.center.x - 500, this.center.y - 300, this.center.z + 40)
+    viewer.beginShape();
 
-    let q = (this.backPoints.length + this.frontPoints.length) / 2
+    for (let i = 0; i < drawingData.length; i++) {
+      let pathParts = drawingData[i].pathParts;
+      for (let j = 0; j < pathParts.length; j++) {
+        let pathPart = pathParts[j];
+        let pathType = pathPart.partType;
+        let params = pathPart.params;
 
-    for (let i = 0; i < q; i++) {
-      viewer.page.beginShape()
+        // set a vertex for the line path
+        if (pathType == 'L' && params.length == 2) {
+          let x = params[0]
+          let y = params[1]
+          viewer.vertex(x, y);
+      } else if (pathType == 'C' && params.length == 6) {
+          if (pathParts.length == 2 && j == 1) {
+            let x = pathParts[0].params[4]
+            let y = pathParts[0].params[5]
+            viewer.vertex(x, y)
+          } else {
+            let x = drawingData[i].start.x
+            let y = drawingData[i].start.y
+            viewer.vertex(x, y)
+          }
 
-      let a = i + 1;
-      if (a >= q) {
-        a = i;
+          let a = params[0]
+          let b = params[1]
+          let c = params[2]
+          let d = params[3]
+          let e = params[4]
+          let f = params[5]
+          viewer.bezierVertex(a, b, c, d, e, f);
+        }
+      }
+    }
+
+    viewer.endShape(viewer.CLOSE);
+    viewer.pop();
+  }
+
+  // displayTile2(viewer, pts, tileSize, flip){
+  //   viewer.push();
+  //   viewer.scale(tileSize, tileSize, tileSize);
+    
+  //   viewer.stroke(100, 50);
+  //   viewer.strokeWeight(0.5);
+  //   viewer.fill(255);  
+
+  //   viewer.beginShape()
+  //   for (let pointIdx = 0; pointIdx < pts.length; pointIdx++) {
+
+  //     // Constrain it so that if one of the sides has more points than the
+  //     // other, that the remaining points are lofted to the last one.
+  //     let nextPointIdx = pointIdx + 1;
+  //     if (nextPointIdx >= pts.length) {
+  //       nextPointIdx = 0;
+  //     }
+
+  //     let pt = pts[pointIdx];
+
+  //     // Draw a box at each vertex to debug.
+  //     viewer.push();
+  //     viewer.translate(pt.x, pt.y, pt.z);
+  //     viewer.fill(viewer.map(pointIdx, 0, pts.length, 0, 255), 255, 200);
+  //     let boxS = viewer.map(pointIdx, 0, pts.length, 0.001, 0.05);
+  //     viewer.box(boxS, boxS, boxS);
+  //     viewer.pop();
+
+  //     viewer.vertex(pt.x, pt.y, pt.z)
+  //   }
+  //   viewer.endShape(viewer.CLOSE)
+  //   viewer.pop();
+  // }
+
+  displayLoft(viewer, tileSize) {
+    viewer.push();
+    viewer.scale(tileSize, tileSize, tileSize);
+    // viewer.normalMaterial();
+
+    viewer.ambientMaterial(20, 20, 20);
+    viewer.noStroke();
+
+    // if (WIREFRAME){
+    //   viewer.stroke(100);
+    //   viewer.strokeWeight(0.5);
+    //   viewer.noFill();  
+    // } else {
+    //   viewer.stroke(255, 0, 0, 50);
+    //   viewer.strokeWeight(0.5);
+    //   viewer.fill(100);  
+    // }
+
+    let maxPoints = viewer.max(this.backPoints.length, this.frontPoints.length);
+
+    for (let pointIdx = 0; pointIdx < maxPoints; pointIdx++) {
+      let nextPointIdx = pointIdx + 1;
+      if (nextPointIdx >= maxPoints) {
+        nextPointIdx = 0;
       }
 
-      viewer.page.vertex(
-        this.frontPoints[i].x, this.frontPoints[i].y, this.frontPoints[i].z)
-      viewer.page.vertex(
-        this.backPoints[i].x, this.backPoints[i].y, this.backPoints[i].z)
+      let a = this.frontPoints[pointIdx];
+      let b = this.backPoints[pointIdx];
+      let c = this.frontPoints[nextPointIdx];
+      let d = this.backPoints[nextPointIdx];
 
-      viewer.page.vertex(
-        this.backPoints[a].x, this.backPoints[a].y, this.backPoints[a].z)
-      viewer.page.vertex(
-        this.frontPoints[a].x, this.frontPoints[a].y, this.frontPoints[a].z)
+      viewer.beginShape();
+      viewer.vertex(a.x, a.y, a.z);
+      viewer.vertex(b.x, b.y, b.z);
+      viewer.vertex(c.x, c.y, c.z);
+      viewer.endShape(viewer.CLOSE);
 
-      viewer.page.endShape(viewer.page.CLOSE)
+      viewer.beginShape();
+      viewer.vertex(b.x, b.y, b.z);
+      viewer.vertex(c.x, c.y, c.z);
+      viewer.vertex(d.x, d.y, d.z);
+      viewer.endShape(viewer.CLOSE);
+
+      if (pointIdx % 3 == 0){
+        viewer.push();
+        viewer.strokeWeight(tileSize / 250);
+        viewer.stroke(255, 100);
+        viewer.line(a.x, a.y, a.z, b.x, b.y, b.z);
+        viewer.pop();
+      }
     }
-    viewer.page.pop();
+    viewer.pop();
   }
 
   findPoints(drawingData, flip) {
@@ -228,67 +333,4 @@ class Brick {
     return points
   }
 
-  displayTile(viewer, drawingData, tileSize, flip) {
-    viewer.page.push();
-    // viewer.page.translate(this.center.x, this.center.y, 0);
-
-
-    // TODO: Hack - not sure why I have to scale x differently front and back
-    //       The value 1.7 is also arrived at by trial and error, so probably
-    //       fragile to changes in the sketch. 
-    // let xScale = flip ? 1.7 * tileSize : tileSize;
-    viewer.page.scale(tileSize, tileSize, 0);
-
-    if (WIREFRAME){
-      viewer.page.stroke(255);
-      viewer.page.strokeWeight(3); 
-      viewer.page.fill(255, 200);  
-    } else {
-      viewer.page.stroke(100);
-      viewer.page.strokeWeight(1);
-      viewer.page.fill(255);      
-    }
-
-    if (flip) {
-      viewer.page.rotateY(180)
-    }
-
-    viewer.page.beginShape();
-    let p = drawingData.length
-    for (let i = 0; i < p; i++) {
-      let l = drawingData[i].pathParts.length
-      for (let j = 0; j < l; j++) {
-
-        // set a vertex for the line path
-        if (drawingData[i].pathParts[j].partType == 'L' 
-            && drawingData[i].pathParts[j].params.length == 2) {
-          let x = drawingData[i].pathParts[j].params[0]
-          let y = drawingData[i].pathParts[j].params[1]
-          viewer.page.vertex(x, y);
-        } else if (drawingData[i].pathParts[j].partType == 'C' 
-                   && drawingData[i].pathParts[j].params.length == 6) {
-          if (drawingData[i].pathParts.length == 2 && j == 1) {
-            let x = drawingData[i].pathParts[0].params[4]
-            let y = drawingData[i].pathParts[0].params[5]
-            viewer.page.vertex(x, y)
-          } else {
-            let x = drawingData[i].start.x
-            let y = drawingData[i].start.y
-            viewer.page.vertex(x, y)
-          }
-
-          let a = drawingData[i].pathParts[j].params[0]
-          let b = drawingData[i].pathParts[j].params[1]
-          let c = drawingData[i].pathParts[j].params[2]
-          let d = drawingData[i].pathParts[j].params[3]
-          let e = drawingData[i].pathParts[j].params[4]
-          let f = drawingData[i].pathParts[j].params[5]
-          viewer.page.bezierVertex(a, b, c, d, e, f);
-        }
-      }
-    }
-
-    viewer.page.endShape(viewer.page.CLOSE);
-    viewer.page.pop();
-  }
 }

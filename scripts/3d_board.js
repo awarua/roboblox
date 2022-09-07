@@ -13,11 +13,12 @@ function make3DBoard(domParentId, rows, cols){
     let margin = 20;
     let scaleFactor = 1;
     let w;
+    let f;
+    let cam;
 
-    let viewer = {
-      display: false,
-      page: null,
-    };
+    s.preload = () => {
+      f = s.loadFont('styles/iconsolata/Inconsolata.otf');
+    }
     
     s.setup = () => {
       let domParent = s.select(domParentId);
@@ -27,31 +28,42 @@ function make3DBoard(domParentId, rows, cols){
       scaleFactor = (w - 2 * margin) / w;
       let canvasHeight = margin * 2 + tileSize * rows * scaleFactor;
 
-      let cnv = s.createCanvas(tileSize * cols, canvasHeight);
+      let cnv = s.createCanvas(tileSize * cols, canvasHeight, s.WEBGL);
       console.log('3d w', w, '3d height', canvasHeight, 
         'tileSize', tileSize, 'scaleFactor', scaleFactor);
       cnv.parent(domParent);
 
-      viewer.page = s.createGraphics(s.width, s.height, s.WEBGL);
-      viewer.page.angleMode(viewer.page.DEGREES);
+      s.angleMode(s.DEGREES);
+      s.textFont(f);
+
+      cam = s.createCamera();
+      cam.setPosition(0, 0, cam.eyeZ + tileSize / 2);
+      cam.lookAt(0, 0, 0);
+
       // s.camSetup();
     }
 
     s.draw = () => {
-      s.background(0);
-      viewer.page.clear();
+      // TODO: This doesn't need to be done every time, but I will leave it
+      //       for now.
+      s.setupBricks();
+
+      // s.ambientLight(255);
+      // s.pointLight(255, 255, 255, 0, 0, -10000);
 
       // console.log(s.floor(easyCam.state.distance));
 
       // Figure out the current amount of rotation and use this to decide
-      // whether to display the front or back tile layout. This is a bit of 
-      // a hack, because I'm figuring out the rotation based on the easyCam
-      // camera quaternion. But it works good enough.
+      // whether to display the front or back tile layout. 
+      //
+      // I was previously doing this with a bit of a hack, because I was
+      //  figuring out the rotation based on the easyCam camera quaternion.
+      // But it worked good enough, so I'm keeping for reference in case I
+      // need it again (next line).
       // let rotationAngle = s.degrees(2 * s.asin(easyCam.getRotation()[0]));
-      
-      // console.log(s.floor(rotation));
 
-      if (rotation > 90 && rotation <= 270){
+      //if (rotation > 90 && rotation <= 270){
+      if (cam.eyeZ < 0){
         if (isShowingFront){
           showBack();
           isShowingFront = false;
@@ -63,202 +75,217 @@ function make3DBoard(domParentId, rows, cols){
         }
       } 
 
-      // Implements a simple 'momentum' effect for the rotation.
-      if (s.abs(rotationMomentum) > 0){
-        rotationMomentum *= 0.5;
-        s.addRotation(rotationMomentum);
-      }
+      // // Implements a simple 'momentum' effect for the rotation.
+      // if (s.abs(rotationMomentum) > 0){
+      //   rotationMomentum *= 0.5;
+      //   s.addRotation(rotationMomentum);
+      // }
+
+      // let rotVec = s.createVector(s.mouseX - s.width / 2, tileSize);
+      // rotVec.rotate(rotation);
+
+      s.clear();
+      s.orbitControl(4, 0, 0);
+      
+      // s.ambientLight(250);
+      s.lightFalloff(0, 0.00015, 0);
+
+      s.pointLight(255, 255, 255, 
+        cam.eyeX + cam.eyeZ * 0.8, 
+        cam.eyeY - s.height / 2, 1.5 * cam.eyeZ);
+      s.pointLight(255, 255, 255, 
+        cam.eyeX + cam.eyeZ * 0.8, 
+        cam.eyeY - s.height / 2, 1.5 * -cam.eyeZ);
+
+      // s.ambientLight(255, 255, 255);
+      
+      // s.lights();
+
+      // s.push();
+      // s.sphere(tileSize / 2);
+      // s.pop();
+
+
+      
+      // s.camera(0, 0, tileSize * 10, 0, 0, 0);
 
       // s.drawBase();
-
-      // Recalculate the bricks (this probably doesn't need to be done every
-      // draw loop, but it works fine for now).
-      s.setupBricks();
-
-      // viewer.page.ambientLight(70);
-      //viewer.page.pointLight(
-      //  150, 150, 150, 0, -s.height / 2 * rows, 200 * rows);
-      //viewer.page.pointLight(
+      
+      // // TODO: Rotate the camera rather than rotating the objects.
+      // let rotVec = s.createVector(0, 10 * tileSize); 
+      // rotVec.rotate(rotation);
+      // s.camera(rotVec.x, 0, rotVec.y, 0, 0, 0, 0, 1, 0);
+      
+      // s.spotLight(
+      //   s.color(255), rotVec.x, 0, rotVec.y, 0, 0, 0);
+      
+      //s.pointLight(
       //  100, 100, 100, 0, -s.height / 2 * rows, -200 * rows);
+
+      // This makes the lofting render dark
+      // s.lightFalloff(tileSize / 2, 0.001, 0)
+      // s.pointLight(
+      //   255, 255, 255, 
+      //   this.center.x - 500, this.center.y - 300, this.center.z + 40)
 
       // s.drawGrid3D();
       s.drawBricks();
       
-      s.background(0);
-      // s.stroke(0, 255, 255);
-      // s.line(0, 20, s.width, 20);
-      // s.line(0, s.height - 20, s.width, s.height - 20);
-      // s.line(20, 0, 20, s.height);
-      // s.line(s.width - 20, 0, s.width - 20, s.height);
-
-      s.image(viewer.page, 0, 0);
-
-      // s.line(0, s.height / 2, s.width, s.height / 2);
-      // s.line(s.width / 2, 0, s.width / 2, s.height);
-
     }
 
     //////////////////////////////////////////////////////////
     // Drawing helpers
     // 
 
-    // s.drawBase = () => {
-    //   viewer.page.push();
-    //   viewer.page.translate(0, 2 * tileSize, 0);
-    //   viewer.page.angleMode(s.DEGREES);
-    //   viewer.page.fill(255, 200);
-    //   viewer.page.ellipseMode(s.CENTER);
-    //   viewer.page.rotateX(90);
-    //   viewer.page.circle(0, 0, (2 * cols * tileSize));
-    //   viewer.page.pop();
-    // }
-
-    // TODO: Not sure if this is used?
-    s.drawGrid3D = () => {
-      viewer.page.push();
-      viewer.page.translate(0, 0, -tileSize / 2);
-      viewer.page.rotateY(rotation);
-      // viewer.page.scale(scaleFactor);
-      // viewer.page.translate(-viewer.page.width / 2 + margin, 
-      //   -viewer.page.height / 2 + margin, 0);
-              
-      // viewer.page.fill(255, 100);
-      // viewer.page.stroke(255, 0, 0);
-      // viewer.page.square(0, 0, 100);
-      // viewer.page.translate(0, 0, -100);
-      // viewer.page.square(0, 0, 100);
-      // viewer.page.translate(0, 0, 100);
-
-      // viewer.page.scale(scaleFactor);
-      viewer.page.stroke(255, 255, 0);
-      viewer.page.strokeWeight(1);
-    
-      for (let c = 0; c < cols + 1; c++) {
-        // viewer.page.line(c * tileSize, 0, 0, c * tileSize, rows * tileSize, 0);
-      }
-    
-      for (let r = 0; r < rows + 1; r++) {
-        // viewer.page.line(0, r * tileSize, 0, cols * tileSize, r * tileSize, 0);
-      }
-
-      for (let c = 0; c < cols; c++){
-        for (let r = 0; r < rows; r++){
-          // viewer.page.push();
-          // viewer.page.translate(
-          //   c * tileSize + tileSize / 2, 
-          //   r * tileSize + tileSize / 2, 0);
-          // viewer.page.noFill();
-          // viewer.page.box(tileSize, tileSize, tileSize);
-          // viewer.page.pop();
-        }
-      }
-
-      viewer.page.fill(255, 0, 0);
-      viewer.page.plane(100, 100);
-
-      viewer.page.fill(255, 200);
-      viewer.page.translate(0, 0, tileSize / 2);
-      viewer.page.plane(viewer.page.width - 2 * margin, viewer.page.height - 2 * margin);
-
-      viewer.page.translate(0, 0, -tileSize);
-      viewer.page.plane(viewer.page.width - 2 * margin, viewer.page.height - 2 * margin);
-
-      viewer.page.pop();
-    }    
-
     // Draw the grid of all the bricks to the board
     s.drawBricks = () => {
-      viewer.page.push();
-      viewer.page.scale(scaleFactor);
-      viewer.page.translate(0, 0, -tileSize / 2);
-      viewer.page.rotateY(rotation);      
+      s.push();
+      s.scale(scaleFactor);
+      // s.translate(0, 0, -tileSize / 2);
+      // s.rotateY(rotation);      
       
-      viewer.page.translate(-tileSize * (cols / 2), -tileSize * (rows / 2));
-
-
-
+      s.translate(-tileSize * (cols / 2), -tileSize * (rows / 2));
 
       // Iterate over the columns and rows and draw each brick
       for (let c = 0; c < cols; c++) {
         for (let r = 0; r < rows; r++) {
-          viewer.page.push();
-          viewer.page.translate(c * tileSize, r * tileSize, 0);
-          bricks[c][r].loft(viewer, tileSize);
-          bricks[c][r].display(viewer, tileSize);
-          viewer.page.pop();
+          s.push();
+          s.translate(c * tileSize, r * tileSize, 0);
+          bricks[c][r].display(s, tileSize);
+          s.pop();
 
         }
       }
 
-      viewer.page.pop();
+      s.pop();
     }
 
+    // TODO: Not sure if this is used?
+    s.drawGrid3D = () => {
+      s.push();
+      // s.scale(scaleFactor);
+      // s.translate(-s.width / 2 + margin, 
+      //   -s.height / 2 + margin, 0);
+              
+      // s.fill(255, 100);
+      // s.stroke(255, 0, 0);
+      // s.square(0, 0, 100);
+      // s.translate(0, 0, -100);
+      // s.square(0, 0, 100);
+      // s.translate(0, 0, 100);
+
+      // s.scale(scaleFactor);
+      s.stroke(255, 255, 0);
+      s.strokeWeight(1);
+    
+      for (let c = 0; c < cols + 1; c++) {
+        // s.line(c * tileSize, 0, 0, c * tileSize, rows * tileSize, 0);
+      }
+    
+      for (let r = 0; r < rows + 1; r++) {
+        // s.line(0, r * tileSize, 0, cols * tileSize, r * tileSize, 0);
+      }
+
+      for (let c = 0; c < cols; c++){
+        for (let r = 0; r < rows; r++){
+          // s.push();
+          // s.translate(
+          //   c * tileSize + tileSize / 2, 
+          //   r * tileSize + tileSize / 2, 0);
+          // s.noFill();
+          // s.box(tileSize, tileSize, tileSize);
+          // s.pop();
+        }
+      }
+
+      s.fill(255, 0, 0);
+      s.plane(100, 100);
+
+      s.fill(255, 200);
+      s.translate(0, 0, tileSize / 2);
+      s.plane(s.width - 2 * margin, s.height - 2 * margin);
+
+      s.translate(0, 0, -tileSize);
+      s.plane(s.width - 2 * margin, s.height - 2 * margin);
+
+      s.pop();
+    }    
+
+    // s.drawBase = () => {
+    //   s.push();
+    //   s.translate(0, 2 * tileSize, 0);
+    //   s.angleMode(s.DEGREES);
+    //   s.fill(255, 200);
+    //   s.ellipseMode(s.CENTER);
+    //   s.rotateX(90);
+    //   s.circle(0, 0, (2 * cols * tileSize));
+    //   s.pop();
+    // }
 
     //////////////////////////////////////////////////////////
     // Helpers
     // 
 
-    // Helper to set up the easyCam camera.
-    s.camSetup = () => {
-      easyCam = new Dw.EasyCam(viewer.page._renderer);
+    // // Helper to set up the easyCam camera.
+    // s.camSetup = () => {
+    //   easyCam = new Dw.EasyCam(s._renderer);
 
-      // TODO: Calculate the distance depending on number
-      // of rows and columns. The formula below was calculated
-      // using an online curve fitter: https://mycurvefit.com/
-      // It works well if the number of columns and rows is the same
-      // but not otherwise.
+    //   // TODO: Calculate the distance depending on number
+    //   // of rows and columns. The formula below was calculated
+    //   // using an online curve fitter: https://mycurvefit.com/
+    //   // It works well if the number of columns and rows is the same
+    //   // but not otherwise.
 
-      let p = [
-        -2.14911422e-02,  4.47768998e-01, -3.04788531e+00, -4.47644293e+04,
-        2.39588187e-04, -3.50547786e-03,  2.66209479e-01,  4.47706588e+04
-      ];
+    //   let p = [
+    //     -2.14911422e-02,  4.47768998e-01, -3.04788531e+00, -4.47644293e+04,
+    //     2.39588187e-04, -3.50547786e-03,  2.66209479e-01,  4.47706588e+04
+    //   ];
 
-      let d1 =
-        p[0]*s.pow(cols,3) + p[1]*s.pow(cols,2) + p[2]*cols + p[3] + 
-        p[4]*s.pow(rows,3) + p[5]*s.pow(rows,2) + (p[6]*rows) + p[7];
+    //   let d1 =
+    //     p[0]*s.pow(cols,3) + p[1]*s.pow(cols,2) + p[2]*cols + p[3] + 
+    //     p[4]*s.pow(rows,3) + p[5]*s.pow(rows,2) + (p[6]*rows) + p[7];
 
-      let d = d1 * w * 0.65;
+    //   let d = d1 * w * 0.65;
 
-      d = 396;
+    //   d = 396;
 
-      console.log('d1', d1, 'd', d);
+    //   console.log('d1', d1, 'd', d);
 
 
 
-      // let x = s.min(cols, rows);
-      // let d = 529.7265 + (150316400 - 529.7265)/
-      //   (1 + s.pow(x/0.0000004845181,0.9083027))
-      //let d = 0;  
+    //   // let x = s.min(cols, rows);
+    //   // let d = 529.7265 + (150316400 - 529.7265)/
+    //   //   (1 + s.pow(x/0.0000004845181,0.9083027))
+    //   //let d = 0;  
 
-      // loads the easy cam library
-      easyCam = new Dw.EasyCam(viewer.page._renderer, {
-        distance: d,
-        center: [0,0,0] 
-      });
+    //   // loads the easy cam library
+    //   easyCam = new Dw.EasyCam(s._renderer, {
+    //     distance: d,
+    //     center: [0,0,0] 
+    //   });
 
-      // console.log(d);
+    //   // console.log(d);
     
-      document.oncontextmenu = () => false;
-      s.setAttributes('antialias', true);
+    //   document.oncontextmenu = () => false;
+    //   s.setAttributes('antialias', true);
     
-      //locks the cam rotation axis to yaw
-      easyCam.setRotationConstraint(true, false, false);
+    //   //locks the cam rotation axis to yaw
+    //   easyCam.setRotationConstraint(true, false, false);
     
-      // turns of default mouse controls
-      easyCam.removeMouseListeners();
-      // easyCam.setDistanceMin(10);
-      // easyCam.setDistanceMax(10000);
-      camState = easyCam.getState();    
-    }
+    //   // turns of default mouse controls
+    //   easyCam.removeMouseListeners();
+    //   // easyCam.setDistanceMin(10);
+    //   // easyCam.setDistanceMax(10000);
+    //   camState = easyCam.getState();    
+    // }
 
     // Set up the array of bricks based off the front and 
     // back boards
     s.setupBricks = () => {
+      
       // Get a copy of the front and back boards
       frontB = frontBoard.getBoard();
       backB = backBoard.getBoard();
-        
-      viewer.display = true;
   
       // this loop creates the bricks from the tiles in the board
       bricks = new Array(cols);
@@ -307,23 +334,23 @@ function make3DBoard(domParentId, rows, cols){
     // 
 
     // When the user drags the mouse, rotate the model left and right.
-    s.mouseDragged = () => {
-      if (s.isInside(s.mouseX, s.mouseY)) {
-        rotationMomentum = 0;
-        let deltaX = s.abs(s.mouseX - s.pmouseX);
-        if (s.mouseX < s.pmouseX) {
-          rotationMomentum = -0.05 * deltaX;
-        } else {
-          rotationMomentum = 0.05 * deltaX
-        }
-        // console.log('rotationMomentum', rotationMomentum, 
-        //             s.degrees(rotationMomentum), 'rotation', rotation);
-        rotationMomentum = s.degrees(rotationMomentum);
-        // s.addRotation(rotationMomentum);
-        // easyCam.rotateY(rotationMomentum);
-      }
-      return false;
-    }
+    // s.mouseDragged = () => {
+    //   if (s.isInside(s.mouseX, s.mouseY)) {
+    //     rotationMomentum = 0;
+    //     let deltaX = s.abs(s.mouseX - s.pmouseX);
+    //     if (s.mouseX < s.pmouseX) {
+    //       rotationMomentum = -0.05 * deltaX;
+    //     } else {
+    //       rotationMomentum = 0.05 * deltaX
+    //     }
+    //     // console.log('rotationMomentum', rotationMomentum, 
+    //     //             s.degrees(rotationMomentum), 'rotation', rotation);
+    //     rotationMomentum = s.degrees(rotationMomentum);
+    //     // s.addRotation(rotationMomentum);
+    //     // easyCam.rotateY(rotationMomentum);
+    //   }
+    //   return false;
+    // }
     
     // // Mousewheel handler to zoom in and out. I've disabled this.
     // s.mouseWheel = (evt) => {

@@ -1,5 +1,5 @@
-let ROWS = 6;
-let COLS = 9;
+let ROWS = 5;
+let COLS = 6;
 const MARGIN = 0;
 const WIREFRAME = false;
 
@@ -127,13 +127,15 @@ let p1 = new p5((s) => {
 
   s.clearGrid = () => {
     // Set up markup for grid of allowed tiles
-    jQuery('#allowedTiles-holder').get(0).innerHTML = generateGridMarkup(8, 32);
+    s.select('#allowedTiles-holder').elt.innerHTML = generateGridMarkup(8, 32);
   }
   
 })
  
-let frontBoard = new p5(makeBoard('#canvas-holder-front', ROWS, COLS, false));
-let backBoard = new p5(makeBoard('#canvas-holder-back', ROWS, COLS, true));
+let frontBoard = new p5(makeBoard('#canvas-holder-front', ROWS, COLS, 
+                        false));
+let backBoard = new p5(makeBoard('#canvas-holder-back', ROWS, COLS,
+                       true));
 let board3D = new p5(make3DBoard('#canvas-holder-3d', ROWS, COLS));
 
 function showFront(){

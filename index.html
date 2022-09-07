@@ -8,7 +8,7 @@
   <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
   <meta
     http-equiv="Content-Security-Policy"
-    content="default-src 'self'; script-src 'self'"
+    content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline';"
   />
   <meta
     http-equiv="X-Content-Security-Policy"
@@ -21,10 +21,10 @@
 
   <link rel="stylesheet" href="styles/style.css">
 
-  <script src="scripts/libs/jQuery.js"></script>
+  <!-- <script src="scripts/libs/jQuery.js"></script> -->
   <script src="scripts/libs/p5.js"></script>
-  <script src="scripts/libs/p5.dom.js"></script>
-  <script src="scripts/libs/p5.easycam.js"></script>
+  <!-- <script src="scripts/libs/p5.dom.js"></script>
+  <script src="scripts/libs/p5.easycam.js"></script> -->
   <script src="scripts/drawing_data.js"></script>
   <script src="scripts/parameters.js"></script>
   <script src="scripts/tile.js"></script>
@@ -38,23 +38,28 @@
 <body>
   <main role="main" class="container">
     <div class="row mt1rem">
-      <button class="col-1 ml1rem" id="btn-show-front">Front</button>
-      <button class="col-1 ml1rem" id="btn-show-back">Back</button>
-      <button class="col-1 ml1rem" id="btn-show-3d">3D View</button>
-      <button class="col-1 ml1rem" id="btn-show-settings">Settings</button>
-      <button class="col-1 ml1rem" id="btn-show-files">Files</button>
+      <button class="col-1 ml1rem bg-secondary" 
+              id="btn-show-front">Front</button>
+      <button class="col-1 ml1rem bg-secondary" 
+              id="btn-show-back">Back</button>
+      <button class="col-1 ml1rem bg-secondary" 
+              id="btn-show-3d">3D View</button>
+      <button class="col-1 ml1rem bg-secondary" 
+              id="btn-show-settings">Settings</button>
+      <button class="col-1 ml1rem bg-secondary" 
+              id="btn-show-files">Files</button>
     </div>
 
     <div class="row mt1rem">
       <div class="col-6">
         <div id="front-row">
-          <h4 id="front-canvas-title">Front Pattern </h4>
+          <h4 id="front-canvas-title">Front </h4>
           <div id="front-div">
             <div  id="canvas-holder-front"></div>
           </div>  
         </div>
         <div id="back-row">
-          <h4 id="back-canvas-title">Back Pattern </h4> 
+          <h4 id="back-canvas-title">Back </h4> 
           <div id="back-div">
             <div  id="canvas-holder-back"></div>
           </div>    

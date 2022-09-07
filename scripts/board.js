@@ -1,4 +1,4 @@
-function makeBoard(domParentId, rows, cols, hideAfter){
+function makeBoard(domParentId, rows, cols, hideAfter, initialTile){
   return (s) => {
     let board;
     let lastClicked = null;
@@ -28,24 +28,12 @@ function makeBoard(domParentId, rows, cols, hideAfter){
       board = new Array(cols);
       toggles = new Array(cols);
 
-      for (let c = 0; c < cols; c++) {
-        board[c] = new Array(rows);
-        toggles[c] = new Array(rows);
-        for (let r = 0; r < rows; r++) {
-          board[c][r] = 0
-          toggles[c][r] = false;
-        }
-      }
+      s.initializeBoard();
 
-      // TODO: This is an attempt to randomise the board.
-      //       It is not really working though...
-      for (let c = 0; c < cols; c++){
-        for (let r = 0; r < rows; r++){
-          for (let i = 0; i < 8; i++){
-            let sideNum = s.floor(s.random(8));
-            s.toggleSide(sideNum, {c, r});  
-          }
-        }
+      if (typeof(initialTile) != "undefined"){
+        s.fillBoard(initialTile);        
+      } else {
+        s.fillBoardRandomly();
       }
 
       // // TODO: This is an attempt to apply a simple heuristic
@@ -111,6 +99,13 @@ function makeBoard(domParentId, rows, cols, hideAfter){
             s.noStroke();
             s.fill(255);
             tiles[n].display(x, y, s, tileSize);
+
+            // Display the tile number at the top left corner.
+            // s.push();
+            // s.fill(255, 0, 0);
+            // s.textSize(tileSize / 5);
+            // s.text(n, x - tileSize / 2, y - tileSize / 2 + tileSize / 5);
+            // s.pop();
           }
         }
       }
@@ -144,6 +139,39 @@ function makeBoard(domParentId, rows, cols, hideAfter){
         tiles[n].showUI(x, y, s, tileSize);
       }
     };
+
+    // Initialize the board with zero tiles
+    s.initializeBoard = () => {
+      for (let c = 0; c < cols; c++) {
+        board[c] = new Array(rows);
+        toggles[c] = new Array(rows);
+        for (let r = 0; r < rows; r++) {
+          board[c][r] = 0
+          toggles[c][r] = false;
+        }
+      }
+    }
+
+    // Fill the board with the specified tile (don't care about neighbors)
+    s.fillBoard = (tileNum) => {
+      for (let c = 0; c < cols; c++){
+        for (let r = 0; r < rows; r++){
+          board[c][r] = tileNum;
+        }
+      }      
+    }
+
+    // Fill the board with random tiles (making sure they all fit)
+    s.fillBoardRandomly = () => {
+      for (let c = 0; c < cols; c++){
+        for (let r = 0; r < rows; r++){
+          for (let i = 0; i < 8; i++){
+            let sideNum = s.floor(s.random(8));
+            s.toggleSide(sideNum, {c, r});  
+          }
+        }
+      }
+    }
 
     // Returns a copy of the current board
     s.getBoard = () => {
