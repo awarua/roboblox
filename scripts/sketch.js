@@ -13,16 +13,6 @@ const SHOW_SETTINGS = 3;
 const SHOW_FILES = 4;
 
 const SCREEN_IDS = {
-  [SHOW_FRONT]: {
-    id: '#front-row',
-    btnId: '#btn-show-front',
-    isHidden: true,
-  },
-  [SHOW_BACK]: {
-    id: '#back-row',
-    btnId: '#btn-show-back',
-    isHidden: true,
-  },
   [SHOW_SETTINGS]: {
     id: '#settings-row',
     btnId: '#btn-show-settings',
@@ -53,6 +43,11 @@ let p1 = new p5((s) => {
       tiles[i] = new Tile(i);
     }
 
+    for (let i = 0; i < 256; i++) {
+      tiles[i].calculateData(1);
+    }
+  
+
     // Just once - at setup, loop over all the tiles and figure out which are compatibile
     for (let ta of tiles) {
       for (let tb of tiles) {
@@ -77,13 +72,10 @@ let p1 = new p5((s) => {
       board3D.setCamBack();
     })
 
-    // for (let i of [SHOW_FRONT, SHOW_BACK, SHOW_SETTINGS, SHOW_FILES]){
-    //   let {id, btnId} = SCREEN_IDS[i];
-    //   let btn = p1.select(btnId);
-    //   btn.mouseClicked(() => {
-    //     p1.select(id).toggleClass('hidden');
-    //   });
-    // }
+    let btnJSON = p1.select('#btn-json');
+    btnJSON.mouseClicked(() => {
+      s.showJSON();
+    })
   }
 
   s.draw = () => {
@@ -94,6 +86,35 @@ let p1 = new p5((s) => {
     // Set up markup for grid of allowed tiles
     s.select('#allowedTiles-holder').elt.innerHTML = generateGridMarkup(8, 32);
   }
+
+  // HELPERS
+
+  s.showJSON = () => {
+    console.log(s.toJSON());
+    // jQuery('#json-holder').get(0).value = JSON.stringify(toJSONBoard(false));
+
+    //   let a = selJSON.value()
+    //   saveJSON(toJSONBoard(true), a + '-Pattern-JSON-' + formatDate());
+    
+    // function formatDate() {
+    //   let d = new Date();
+    //   let retStr = `${d.getFullYear()}${nf(d.getMonth() + 1, 2, 0)}${nf(d.getDate(),2, 0)}-${nf(d.getHours(), 2, 0)}${nf(d.getMinutes(), 2, 0)}.${nf(d.getSeconds(), 2, 0)}`;
+    //   return retStr;
+    // }
+  
+  }
+
+  s.toJSON = (includeCurves) => {
+    let morpholo = {
+      tileParams: tileParams.toJSON(),
+      front: frontBoard.getBoard(),
+      back: backBoard.getBoard(),
+      tiles: tiles.map(e => e.toJSON()),
+    };
+    
+    return morpholo;
+  }
+  
 
 })
  
@@ -235,70 +256,6 @@ function _setup() {
 
 /////////////////////////////////////////////////
 // Helpers
-
-function makeJSON() {
-  jQuery('#json-holder').get(0).value = JSON.stringify(toJSONBoard(false));
-}
-
-function saveJSONBoard() {
-  let a = selJSON.value()
-  saveJSON(toJSONBoard(true), a + '-Pattern-JSON-' + formatDate());
-}
-
-function formatDate() {
-  let d = new Date();
-  let retStr = `${d.getFullYear()}${nf(d.getMonth() + 1, 2, 0)}${nf(d.getDate(),2, 0)}-${nf(d.getHours(), 2, 0)}${nf(d.getMinutes(), 2, 0)}.${nf(d.getSeconds(), 2, 0)}`;
-  return retStr;
-}
-
-// function saveTileJSON(){
-//   let json = tiles[nextTileToSave].toJSON();
-//   saveJSONTile(json, 'tile-' + nextTileToSave);
-//   nextTileToSave = (nextTileToSave + 1) % tiles.length;
-//   btnSaveNextTile.elt.textContent = "Save Tile: " + nextTileToSave;
-// }
-
-function loadJSON2() {
-  let json = jQuery('#json-holder').get(0).value;
-  // console.log(json);
-  fromJSON(json);
-}
-
-//////
- // Returns a json representation of current state
- //
-function toJSONBoard(includeCurves){
-  let morpholo = {};
-  if ( selJSON.value() == 'Front'){
-    if (includeCurves) {
-      morpholo = {
-        tileParams,
-        board,
-        tiles,
-      };
-    } else {
-      morpholo = {
-        tileParams,
-        board,
-      }
-    }
-  }
-  if ( selJSON.value() == 'Back'){
-    if (includeCurves) {
-      morpholo = {
-        tileParams,
-        boardBack,
-        tiles,
-      };
-    } else {
-      morpholo = {
-        tileParams,
-        boardBack,
-      }
-    }
-  }
-  return morpholo;
-}
 
 ///////
  // Restores a state from a provided json representation.

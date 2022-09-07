@@ -79,10 +79,14 @@ class Tile {
     this.center = p1.createVector(0.5, 0.5);
   }
 
+  calculateData(tileSize){
+    this.calculateGroup();
+    this.svgString = this.toSVGString(tileSize);
+  }
+
   display(x, y, s, tileSize) {
     if (paramsChanged){
-      this.calculateGroup();
-      this.svgString = this.toSVGString();
+      this.calculateData(tileSize);
     }
 
     this.drawToCanvas(x, y, s, tileSize);
