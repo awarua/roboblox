@@ -59,7 +59,7 @@ class Board {
       for (let r = 0; r < this.rows; r++){
         for (let i = 0; i < 8; i++){
           let sideNum = Math.floor(Math.random() * 8);
-          this.toggleSide(sideNum, {c, r});  
+          this.toggleSide(sideNum, {c, r});
         }
       }
     }

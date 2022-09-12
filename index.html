@@ -39,20 +39,17 @@
 <body>
   <main role="main" class="container">
     <div class="row mt1rem">
-      <button class="col-1 ml1rem bg-secondary" 
-              id="btn-show-front">Front</button>
-      <button class="col-1 ml1rem bg-secondary" 
-              id="btn-show-back">Back</button>
-      <button class="col-1 ml1rem bg-secondary" 
+      <button class="col-2 ml1rem bg-secondary hidden" 
+              id="btn-show-front">Show Front</button>
+      <button class="col-2 ml1rem bg-secondary" 
+              id="btn-show-back">Show Back</button>
+      <button class="col-2 ml1rem bg-secondary" 
               id="btn-show-settings">Settings</button>
-      <button class="col-1 ml1rem bg-secondary" 
-              id="btn-show-files">Files</button>
-      <button class="col-1 ml1rem bg-secondary" 
-              id="btn-json">JSON</button>
-      <button class="col-1 ml1rem bg-secondary"
+      <button class="col-2 ml1rem bg-secondary" 
+              id="btn-save-file">Save</button>
+      <!-- <span id="file-input-holder"></span> -->
+      <button class="col-2 ml1rem bg-secondary"
               id="btn-projector">Projector</button>
-      <button class="col-1 ml1rem bg-secondary"
-              id="btn-hello">Hello</button>
     </div>
 
     <div class="row mt1rem">
@@ -138,75 +135,6 @@
     <div class="row hidden">
       <h4>Allowed Tiles</h4>
       <div id="allowedTiles-holder"></div>
-    </div>
-
-    <div class="row hidden">
-      <h4>Current Tile</h4>
-      <div class="col-3">
-        <div id="currentTileSVG-holder"></div>
-      </div>
-    </div>
-
-    <div class="row hidden">
-      <div id="btnClearTile-holder"></div>
-      <div id="btnClearBoard-holder"></div>
-      <div id="btnFillBoard-holder"></div>
-      <div id="btnView3D-holder"></div>
-      <div id="btnExit3D-holder"></div>
-      <div id="btnSaveTileJSON-holder"></div>
-    </div>
-
-    <div class="row hidden" id="settings-2-row">
-      <h4>Grid Setup </h4>
-      <div id="btnReset-holder" class="holder"></div>
-      
-      <div id="gridSetup-holder" >
-        <table>
-          <tr>
-            <td class="first-col">
-              <strong>Rows:</strong>
-              <span id="txtRows-holder"></span>
-            </td>
-            <td>
-              <span id="sldRows-holder"></span>
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <strong>Columns:</strong>
-              <span id="txtCols-holder"></span>
-            </td>
-            <td>
-              <span id="sldCols-holder"></span>
-            </td>
-          </tr>
-        </table>
-      </div>
-    </div>
-
-    <div class="row hidden" id="files-row">
-      <h4>JSON</h4>
-      <div id="selJSON-holder" class="mb1rem"></div>
-      <div id="btnSaveJSON-holder" class="mb1rem"></div>
-      <div id="btnMakeJSON-holder" class="mb1rem"></div>
-      
-      
-      <p>Copy/Paste to save / load</p>
-      <textarea id="json-holder"></textarea>
-      <div id="btnLoadJSON-holder" class="mb1rem"></div>
-
-      <h4>SVG</h4>
-      <div id="btnSaveSVG-holder" class="mb1rem"></div>
-      <p>Save an SVG version to your computer</p>
-      <textarea id="svg-holder"></textarea>
-    </div>
-
-    <div class="row hidden" id="instructions-row">
-      <h2>Instructions</h2>
-      <ul>
-        <li>Click the squares to place a tile</li>
-        <li>Adjust the sliders to change how they look</li>
-      </ul>
     </div>
 
   </main>

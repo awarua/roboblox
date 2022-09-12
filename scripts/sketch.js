@@ -76,6 +76,7 @@ app.p1 = new p5((s) => {
       for (let i = 0; i < 256; i++) {
         app.tiles[i].calculateData(1);
       }
+      s.showJSON();
       app.frontBoard2D.loop();
       app.backBoard2D.loop();
       app?.board3D?.doSetupBricks();
@@ -107,44 +108,56 @@ app.p1 = new p5((s) => {
 
   s.setupInputs = () => {
     // Set up the buttons that toggle screens
-    let btnShowFront = app.p1.select('#btn-show-front');
+    let btnShowFront = s.select('#btn-show-front');
     btnShowFront.mouseClicked(() => {
       app?.board3D.setCamFront();
       app?.projector?.window?.board3D?.setCamFront();
     })
 
-    let btnShowBack = app.p1.select('#btn-show-back');
+    let btnShowBack = s.select('#btn-show-back');
     btnShowBack.mouseClicked(() => {
       app?.board3D.setCamBack();
       app?.projector?.window?.board3D.setCamBack();
     })
 
-    let btnJSON = app.p1.select('#btn-json');
-    btnJSON.mouseClicked(() => {
-      s.showJSON();
-    })
+    // let btnJSON = s.select('#btn-json');
+    // btnJSON.mouseClicked(() => {
+    //   s.showJSON();
+    // })
 
-    let btnProjector = app.p1.select('#btn-projector');
+    let btnProjector = s.select('#btn-projector');
     btnProjector.mouseClicked(() => {
-      app.projector = window.open('projector.html');
+      app.projector = window.open('projector.html', 'projector', 
+        'width=900,height=627');
       app?.projector?.addEventListener('load', () => {
         app?.projector?.setParent(window);
       }, true);
     })
 
-    let btnShowControls = app.p1.select('#btn-show-settings');
+    let btnShowControls = s.select('#btn-show-settings');
     btnShowControls.mouseClicked(() => {
-      console.log('show settings');
-      app.p1.select('#settings-row').addClass('isShown');
+      // console.log('show settings');
+      s.select('#settings-row').addClass('isShown');
       app.settingsVisible = true;
     });
 
-    let btnHideControls = app.p1.select('#btn-close-params');
+    let btnHideControls = s.select('#btn-close-params');
     btnHideControls.mouseClicked(() => {
-      app.p1.select('#settings-row').removeClass('isShown');
+      s.select('#settings-row').removeClass('isShown');
       app.settingsVisible = false;
     });
 
+    let btnSave = s.select('#btn-save-file');
+    btnSave.mouseClicked(() => {
+      let json = s.toJSON();
+      s.createStringDict(json).saveJSON(`roboblox-${s.formatDate()}.json`);
+    })
+
+    // let btnLoad = s.createFileInput((file) => {
+    //   let json = file.data;
+    //   console.log('loaded json', json);
+    // });
+    // btnLoad.parent('#file-input-holder');
   }
 
   s.clearGrid = () => {
@@ -156,7 +169,7 @@ app.p1 = new p5((s) => {
 
   s.showJSON = () => {
     const json = s.toJSON();
-    console.log('showJSON', json);
+    // console.log('showJSON', json);
     // debugger;
     window.electronAPI.updateJSON(json);
     
@@ -173,6 +186,12 @@ app.p1 = new p5((s) => {
   
   }
 
+  s.formatDate = () => {
+    let d = new Date();
+    let retStr = `${d.getFullYear()}${s.nf(d.getMonth() + 1, 2, 0)}${s.nf(d.getDate(),2, 0)}-${s.nf(d.getHours(), 2, 0)}${s.nf(d.getMinutes(), 2, 0)}.${s.nf(d.getSeconds(), 2, 0)}`;
+    return retStr;
+  }
+  
   s.toJSON = (includeCurves) => {
     let morpholo = {
       tileParams: app.tileParams.toJSON(),
@@ -198,11 +217,15 @@ app.exampleTile = new p5(make3DBoard('#example-tile-holder',
 // }, 100);
 
 app.showFront = () => {
+  app.p1.select('#btn-show-front').hide();
+  app.p1.select('#btn-show-back').show();
   app.frontBoard2D.setVisible(true);
   app.backBoard2D.setVisible(false);
 }
 
 app.showBack = () => {
+  app.p1.select('#btn-show-back').hide();
+  app.p1.select('#btn-show-front').show();
   app.backBoard2D.setVisible(true);
   app.frontBoard2D.setVisible(false);
 }
@@ -597,86 +620,5 @@ function clearTile() {
 
     backCanvas.loop();
   }
-}
-
-
-function selJSONEvent(){
-  //   let btnSaveJSON = createButton('Save JSON');
-  //   btnSaveJSON.parent('#btnSaveJSON-holder');
-  //   btnSaveJSON.elt.addEventListener("click", saveJSONBoard);
-
-  //   let btnMakeJSON = createButton('Make JSON');
-  //   btnMakeJSON.parent('#btnMakeJSON-holder');
-  //   btnMakeJSON.elt.addEventListener("click", makeJSON);
-
-  if ( selJSON.value() == 'Front'){ 
-    btnSaveJSON.elt.innerHTML  = "Save Front JSON"
-    btnMakeJSON.elt.innerHTML  = "Make Front JSON"
-  }
-
-  if( selJSON.value() == 'Back'){
-    btnSaveJSON.elt.innerHTML  = "Save Back JSON"
-    btnMakeJSON.elt.innerHTML  = "Make Back JSON" 
-  }
-}
-
-function reGrid(){
-  //    let frontWidth = document.getElementById('front-div')
-  //      .getBoundingClientRect(),
-  //        colWidth = frontWidth.right - frontWidth.left;
-   
-  ROWS = rowSlider.value()
-  COLS = colsSlider.value()
-  
-  // Initialise the board. -1 signifies no tile.
-  board = new Array(COLS);
-  for (let c = 0; c < COLS; c++) {
-    board[c] = new Array(ROWS);
-    for (let r = 0; r < ROWS; r++) {
-      board[c][r] = -1;
-    }
-  }
-  
-  // Initialise the board. -1 signifies no tile.
-  boardBack = new Array(COLS);
-  for (let c = 0; c < COLS; c++) {
-    boardBack[c] = new Array(ROWS);
-    for (let r = 0; r < ROWS; r++) {
-      boardBack[c][r] = -1;
-    }
-  }
-
-  resizeWindow()
- 
-  //frontCanvas.reset();
-  //backCanvas.reset(); 
-  //   resizeCanvas(tileSize * COLS, tileSize * ROWS);
-  //   backCanvas.resizeCanvas(tileSize * COLS, tileSize * ROWS);
-  
-  loop();
-  backCanvas.loop();
-}
-
-function resizeWindow(){
-  let frontWidth = document.getElementById('front-div').getBoundingClientRect();
-  let colWidth = frontWidth.right - frontWidth.left;
-  
-  // if the canvas is bigger then the column width resize tiles 
-  if ( masterTileSize*COLS >= colWidth){
-    tileSize = (colWidth-20)/COLS;
-  }  else if ( colWidth >= masterTileSize*COLS  ){
-    tileSize = masterTileSize;
-  }
-  
-  for (let i = 0; i < tiles.length; i++) {
-    tiles[i].size = tileSize  
-  }
- 
-  resizeCanvas(tileSize * COLS, tileSize * ROWS);
-  backCanvas.resizeCanvas(tileSize * COLS, tileSize * ROWS);
-}
-
-function windowResized() {
-  resizeWindow()
 }
 */

@@ -176,7 +176,7 @@ button.bg-dark:focus {
   margin-left: -15px;  
 }
 
-.col-1, .col-6 {
+.col-1, .col-2, .col-3, .col-4, .col-6 {
   position: relative;
   width: 100%;
   min-height: 1px;
@@ -189,13 +189,27 @@ button.bg-dark:focus {
   max-width: 8.3333333333%;
 }
 
+.col-2 {
+  flex: 0 0 16.6666666667%;
+  max-width: 16.6666666667%;
+}
+
+.col-3 {
+  flex: 0 0 25%;
+  max-width: 25%;
+}
+
+.col-4 {
+  flex: 0 0 33.3333333333%;
+  max-width: 33.3333333333%;
+}
+
 .col-6 {
   flex: 0 0 50%;
   max-width: 50%;
 }
 
 .hidden {
-  visibility: hidden;
   display: none;  
 }
 
