@@ -21,7 +21,7 @@ for (const name of Object.keys(nets)) {
 console.log(results);
 
 const http = require('http');
-const hostname = results.en0[0]; // || '127.0.0.1';
+const hostname = results?.en0?.[0] || '127.0.0.1';
 const port = 3000;
 
 let json = {};

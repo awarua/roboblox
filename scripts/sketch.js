@@ -2,7 +2,6 @@ var app = {
   ROWS: 6,
   COLS: 8,
   MARGIN: 0,
-  WIREFRAME: false,
   masterTileSize: 1,
   paramsChanged: true,
   isTileSelected: false,
@@ -17,10 +16,24 @@ var app = {
   board3D: null,
   showFront: null,
   showBack: null,
+  settingsVisible: false,
 }
 
-app.front = new Board(app.ROWS, app.COLS);
-app.back = new Board(app.ROWS, app.COLS);
+var exampleTile = {
+  ROWS: 1,
+  COLS: 1,
+  MARGIN: 0,
+  masterTileSize: 1,
+  paramsChanged: true,
+  isTileSelected: false,
+  tileParams: null,
+  tiles: null,
+  front: new Board(1, 1, () => app.tiles),
+  back: new Board(1, 1, () => app.tiles),
+}
+
+app.front = new Board(app.ROWS, app.COLS, () => app.tiles);
+app.back = new Board(app.ROWS, app.COLS, () => app.tiles);
 
 app.p1 = new p5((s) => {
 
@@ -28,6 +41,7 @@ app.p1 = new p5((s) => {
     s.noCanvas();
 
     app.tileParams = new TileParameters();
+    exampleTile.tileParams = app.tileParams;
 
     // Initialise the collection of tiles.
     app.tiles = new Array(256);
@@ -39,6 +53,11 @@ app.p1 = new p5((s) => {
       app.tiles[i].calculateData(1);
     }
 
+    // Hook up the example tile too
+    exampleTile.tiles = app.tiles;
+    exampleTile.front.fillRandomly();
+    exampleTile.back.fillRandomly();
+    
     // Just once - at setup, loop over all the tiles and figure out which are compatibile
     for (let ta of app.tiles) {
       for (let tb of app.tiles) {
@@ -52,9 +71,31 @@ app.p1 = new p5((s) => {
   }
 
   s.draw = () => {
+    // Update curves if params have changed
+    if (app.paramsChanged){
+      for (let i = 0; i < 256; i++) {
+        app.tiles[i].calculateData(1);
+      }
+      app.frontBoard2D.loop();
+      app.backBoard2D.loop();
+      app?.board3D?.doSetupBricks();
+      app?.projector?.window?.board3D?.doSetupBricks();
+      app?.exampleTile?.doSetupBricks();
+      app.paramsChanged = false;  
+    }
+
+    if (app.settingsVisible){
+      console.log("settings visible");
+      // app?.board3D.noLoop();
+      app?.board3D.setDoOrbit(false);
+    } else {
+      // app?.board3D.loop();
+      app?.board3D.setDoOrbit(true);
+    }
+
     // s.clearGrid();
-    if (app.board3D._setupDone){
-      let rot = app.board3D.getCamRot();
+    if (app?.board3D?._setupDone){
+      let rot = app?.board3D.getCamRot() || 0;
 
       //console.log(rot);
       
@@ -68,14 +109,14 @@ app.p1 = new p5((s) => {
     // Set up the buttons that toggle screens
     let btnShowFront = app.p1.select('#btn-show-front');
     btnShowFront.mouseClicked(() => {
-      app.board3D.setCamFront();
-      app.projector.window.board3D.setCamFront();
+      app?.board3D.setCamFront();
+      app?.projector?.window?.board3D?.setCamFront();
     })
 
     let btnShowBack = app.p1.select('#btn-show-back');
     btnShowBack.mouseClicked(() => {
-      app.board3D.setCamBack();
-      app.projector.window.board3D.setCamBack();
+      app?.board3D.setCamBack();
+      app?.projector?.window?.board3D.setCamBack();
     })
 
     let btnJSON = app.p1.select('#btn-json');
@@ -86,10 +127,23 @@ app.p1 = new p5((s) => {
     let btnProjector = app.p1.select('#btn-projector');
     btnProjector.mouseClicked(() => {
       app.projector = window.open('projector.html');
-      app.projector.addEventListener('load', () => {
-        app.projector.setParent(window);
+      app?.projector?.addEventListener('load', () => {
+        app?.projector?.setParent(window);
       }, true);
     })
+
+    let btnShowControls = app.p1.select('#btn-show-settings');
+    btnShowControls.mouseClicked(() => {
+      console.log('show settings');
+      app.p1.select('#settings-row').addClass('isShown');
+      app.settingsVisible = true;
+    });
+
+    let btnHideControls = app.p1.select('#btn-close-params');
+    btnHideControls.mouseClicked(() => {
+      app.p1.select('#settings-row').removeClass('isShown');
+      app.settingsVisible = false;
+    });
 
   }
 
@@ -136,6 +190,12 @@ app.frontBoard2D = new p5(makeBoard('#canvas-holder-front', app,
 app.backBoard2D = new p5(makeBoard('#canvas-holder-back', app, 
   app.back, true));
 app.board3D = new p5(make3DBoard('#canvas-holder-3d', () => app, false, 1));
+
+app.exampleTile = new p5(make3DBoard('#example-tile-holder', 
+  () => exampleTile, false, 0.8))
+// setTimeout(() => {
+//   app.p1.select('#settings-row').addClass('hidden');
+// }, 100);
 
 app.showFront = () => {
   app.frontBoard2D.setVisible(true);
@@ -208,21 +268,9 @@ function _setup() {
   btnClearTile.parent('#btnClearTile-holder');
   btnClearTile.elt.addEventListener("click", clearTile);
 
-  btnView3D = createButton('View 3D');
-  btnView3D.parent('#btnView3D-holder')
-  btnView3D.elt.addEventListener("click", view3D);
-
-  btnExit3D = createButton('Exit 3D');
-  btnExit3D.parent('#btnExit3D-holder')
-  btnExit3D.elt.addEventListener("click", exit3D);
-
   btnSaveJSON = createButton('Save JSON');
   btnSaveJSON.parent('#btnSaveJSON-holder');
   btnSaveJSON.elt.addEventListener("click", saveJSONBoard);
-
-  btnMakeJSON = createButton('Make JSON');
-  btnMakeJSON.parent('#btnMakeJSON-holder');
-  btnMakeJSON.elt.addEventListener("click", makeJSON);
   
   rowSlider = createSlider(1, 100, 3);
   rowSlider.parent(select('#sldRows-holder'));
@@ -238,15 +286,6 @@ function _setup() {
   colsTxt = select("#txtCols-holder");
   colsTxt.html(colsSlider.value());
   
-  //"btnReset-holder"
-  
-  btnReset = createButton('Reset Grid');
-  btnReset.parent('#btnReset-holder')
-  btnReset.elt.addEventListener("click", reGrid);
-  
-  // change the JSON button text 
-  selJSONEvent()
-
   // let btnLoadJSON = createButton('Load JSON');
   // btnLoadJSON.parent('#btnLoadJSON-holder');
   // btnLoadJSON.elt.addEventListener("click", loadJSON2);
@@ -255,10 +294,7 @@ function _setup() {
   // btnSaveSVG.parent('#btnSaveSVG-holder');
   // btnSaveSVG.elt.addEventListener("click", saveSVG);
 
-  // btnSaveNextTile = createButton('Save Tile: ' + nextTileToSave);
-  // btnSaveNextTile.parent('#btnSaveTileJSON-holder');
-  // btnSaveNextTile.elt.addEventListener("click", saveTileJSON);
-
+  
   // slideRotate = createSlider(0, 360, 180);
   // slideRotate.parent(select('#rotate-holder'));
   // slideRotate.mouseMoved(rotateDisplay);
@@ -563,129 +599,6 @@ function clearTile() {
   }
 }
 
-function view3D() {
-  if ( ROWS * 100 >400){
-    let a = 700 + (ROWS*100)
-    easycam.setDistanceMax(a);
-    
-    let b = -50-(ROWS*30)
-     camState.center= [0,b,0]
-    easycam.setState(camState)
-   
-  } else {
-    easycam.setDistanceMax(700);
-    easycam.center= [0,-50,0]
-  }
-  
-  fullBrickCheck()
-
-  if (fullBrickCheck() === true) {
-    hideBackCanvas();
-
-    resizeCanvas(900, 400)
-    viewer.display = true
-
-    btnClearTile.elt.disabled = true;
-    btnClearBoard.elt.disabled = true;
-    btnFillBoard.elt.disabled = true;
-    btnView3D.elt.disabled = true;
-    btnExit3D.elt.disabled = false;
-    btnReset.elt.disabled = true;
-
-    // this loop creates the bricks from the tiles in the board
-    bricks = new Array(COLS);
-    for (let c = 0; c < COLS; c++) {
-      bricks[c] = new Array(ROWS);
-      for (let r = 0; r < ROWS; r++) {
-        if (board[c][r] > -1) {
-          let a = (COLS - 1) - c
-          // q is the tile num for the front tile
-          let q = board[c][r]
-          //s is the tile num for the back tile
-          let s = boardBack[a][r]
-
-          // front is the drawing data for the front tile
-
-          tiles[q].drawingData.sides = tiles[q].sides
-          let front = tiles[q];
-
-          // back is for the back tile drawing data 
-          let back = tiles[s];
-
-          // center is for the center of the brick
-          let center = createVector(c * tileSize, r * tileSize);
-
-          // size is the size of the tile
-          let size = tiles[q].size;
-
-          bricks[c][r] = new Brick(front, back, center, size);
-          // print(bricks[c][r].frontPoints.length)
-          // print(bricks[c][r].backPoints.length)
-        }
-      }
-    }
-  } else {
-    window.alert("Please fill yellow spaces to make a full brick");
-  }
-  loop()
-}
-
-function exit3D() {
-  showBackCanvas();
-
-  resizeCanvas(tileSize * COLS, tileSize * ROWS);
-  viewer.display = false;
-
-  btnClearTile.elt.disabled = false;
-  btnClearBoard.elt.disabled = false;
-  btnFillBoard.elt.disabled = false;
-  btnView3D.elt.disabled = false;
-  btnExit3D.elt.disabled = true;
-  btnReset.elt.disabled = false;
-}
-
-// check to see if there are matching front and back tils pairs to make a full brick
-function fullBrickCheck() {
-  let t = true
-  // Iterate over the BoardBack and display on the fontCanvas the missing tiles to make a brick.
-  for (let c = 0; c < COLS; c++) {
-    for (let r = 0; r < ROWS; r++) {
-      let a = (COLS - 1) - c
-
-
-      if (board[c][r] >= 0 && boardBack[a][r] == -1) {
-        t = false
-      }
-      if (board[a][r] == -1 && boardBack[c][r] >= 0) {
-        t = false
-      }
-    }
-  }
-
-  return t
-}
-
-// selectedCnv = true is the front canvase 
-//selectedCnv = false is the back canvas 
-function selectCnv (){
-  
-  // change buttons to front canvas 
-  if (selectedCnv == true) { 
-    btnClearBoard.elt.innerHTML  = "Clear Front Board"
-    btnFillBoard.elt.innerHTML  = "Fill Front Board"
-  } 
-
-  //change buttons to back canvas
-  if(selectedCnv == false ) {
-    btnFillBoard.elt.innerHTML  = "Fill Back Board"
-    btnClearBoard.elt.innerHTML  = "Clear Back Board"   
-  }
-  
-  if (selectedCnv == null) { 
-    btnClearBoard.elt.innerHTML  = "Clear Boards"
-    btnFillBoard.elt.innerHTML  = "Fill Boards 3"
-  }
-}
 
 function selJSONEvent(){
   //   let btnSaveJSON = createButton('Save JSON');

@@ -80,6 +80,61 @@
       </div>
     </div>
 
+    <div class="row" id="settings-row">
+      <div id="settings-bg"></div>
+      <div id="controls-holder">
+        <button id="btn-close-params" class="bg-secondary">X</button>
+        <div class="row">
+          <div class="col-6">
+
+            <h4>Shape Parameters</h4>
+            <table>
+              <tr>
+                <td class="first-col">
+                  <strong>Rotation:</strong>
+                  <span id="txtRotation-holder"></span>
+                </td>
+                <td>
+                  <span id="sldRotation-holder"></span>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <strong>Mag:</strong>
+                  <span id="txtMag-holder"></span>
+                </td>
+                <td>
+                  <span id="sldMag-holder"></span>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <strong>Pull:</strong>
+                  <span id="txtPull-holder"></span>
+                </td>
+                <td>
+                  <span id="sldPull-holder"></span>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <strong>Side Pull:</strong>
+                  <span id="txtSidePull-holder"></span>
+                </td>
+                <td>
+                  <span id="sldSidePull-holder"></span>
+                </td>
+              </tr>
+            </table>
+          </div>
+          <div class="col-6">
+            <h4>Example tile</h4>
+            <div id="example-tile-holder"></div>
+          </div>  
+        </div>
+      </div>
+    </div>
+
     <div class="row hidden">
       <h4>Allowed Tiles</h4>
       <div id="allowedTiles-holder"></div>
@@ -101,49 +156,7 @@
       <div id="btnSaveTileJSON-holder"></div>
     </div>
 
-    <div class="row hidden" id="settings-row">
-      <h4>Shape Parameters</h4>
-      <div id="controls-holder">
-        <table>
-          <tr>
-            <td class="first-col">
-              <strong>Rotation:</strong>
-              <span id="txtRotation-holder"></span>
-            </td>
-            <td>
-              <span id="sldRotation-holder"></span>
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <strong>Mag:</strong>
-              <span id="txtMag-holder"></span>
-            </td>
-            <td>
-              <span id="sldMag-holder"></span>
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <strong>Pull:</strong>
-              <span id="txtPull-holder"></span>
-            </td>
-            <td>
-              <span id="sldPull-holder"></span>
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <strong>Side Pull:</strong>
-              <span id="txtSidePull-holder"></span>
-            </td>
-            <td>
-              <span id="sldSidePull-holder"></span>
-            </td>
-          </tr>
-        </table>
-      </div>
-
+    <div class="row hidden" id="settings-2-row">
       <h4>Grid Setup </h4>
       <div id="btnReset-holder" class="holder"></div>
       

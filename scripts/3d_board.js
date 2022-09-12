@@ -18,6 +18,7 @@ function make3DBoard(domParentId, appFn, makeFull, zoom){
     let defaultCamZ;
     let rows = appFn().ROWS
     let cols = appFn().COLS
+    let doOrbit = true;
     // zoom = 0.75;
 
     s.preload = () => {
@@ -89,6 +90,8 @@ function make3DBoard(domParentId, appFn, makeFull, zoom){
     }
 
     s.draw = () => {
+      // console.log(domParentId);
+
       // TODO: This doesn't need to be done every time, but I will leave it
       //       for now.
       if (doSetupBricks){
@@ -101,12 +104,12 @@ function make3DBoard(domParentId, appFn, makeFull, zoom){
       // whether to display the front or back tile layout. 
       if (cam.eyeZ < 0){
         if (isShowingFront){
-          appFn().showBack();
+          appFn()?.showBack && appFn().showBack();
           isShowingFront = false;
         }
       } else {
         if (!isShowingFront){
-          appFn().showFront();
+          appFn()?.showFront && appFn().showFront();
           isShowingFront = true;
         }
       } 
@@ -114,7 +117,9 @@ function make3DBoard(domParentId, appFn, makeFull, zoom){
       // TODO: Re-implement 'momentum' effect for rotation?
 
       s.clear();
-      s.orbitControl(4, 0, 0);
+      if (doOrbit){
+        s.orbitControl(4, 0, 0);
+      }
       
       s.lightFalloff(0, 0.00015, 0);
       s.pointLight(255, 255, 255, 
@@ -130,6 +135,8 @@ function make3DBoard(domParentId, appFn, makeFull, zoom){
     //////////////////////////////////////////////////////////
     // Drawing helpers
     // 
+
+
 
     // Draw the grid of all the bricks to the board
     s.drawBricks = () => {
@@ -172,6 +179,7 @@ function make3DBoard(domParentId, appFn, makeFull, zoom){
           let backTileNum = backB.getTile(a, r);
 
           // Get front and back tiles
+          // debugger;
           let front = appFn().tiles[frontTileNum];
           let back = appFn().tiles[backTileNum];
 
@@ -196,6 +204,14 @@ function make3DBoard(domParentId, appFn, makeFull, zoom){
     s.backBoardChanged = (lineNo) => {
       // console.log('back board changed', lineNo);
       doSetupBricks = true;
+    }
+
+    s.doSetupBricks = () => {
+      doSetupBricks = true;
+    }
+
+    s.setDoOrbit = (newDoOrbit) => {
+      doOrbit = newDoOrbit;
     }
 
     s.setCamFront = () => {
