@@ -141,8 +141,8 @@ function make3DBoard(domParentId, appFn, makeFull, zoom){
     // back boards
     s.setupBricks = () => {      
       // Get a copy of the front and back boards
-      frontB = appFn().frontBoard.getBoard();
-      backB = appFn().backBoard.getBoard();
+      frontB = appFn().frontBoard2D.getBoard();
+      backB = appFn().backBoard2D.getBoard();
   
       // this loop creates the bricks from the tiles in the board
       bricks = new Array(cols);

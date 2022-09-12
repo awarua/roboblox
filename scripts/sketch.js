@@ -10,8 +10,10 @@ var app = {
   tiles: null,
   projector: null,
   p1: null,
-  frontBoard: null,
-  backBoard: null,
+  front: null,
+  back: null,
+  frontBoard2D: null,
+  backBoard2D: null,
   board3D: null,
   showFront: null,
   showBack: null,
@@ -105,8 +107,8 @@ app.p1 = new p5((s) => {
   s.toJSON = (includeCurves) => {
     let morpholo = {
       tileParams: app.tileParams.toJSON(),
-      front: app.frontBoard.getBoard(),
-      back: app.backBoard.getBoard(),
+      front: app.frontBoard2D.getBoard(),
+      back: app.backBoard2D.getBoard(),
       tiles: app.tiles.map(e => e.toJSON()),
     };
     
@@ -114,18 +116,20 @@ app.p1 = new p5((s) => {
   }
 })
  
-app.frontBoard = new p5(makeBoard('#canvas-holder-front', app, false));
-app.backBoard = new p5(makeBoard('#canvas-holder-back', app, true));
+app.frontBoard2D = new p5(makeBoard('#canvas-holder-front', app, 'frontBoard',
+  false));
+app.backBoard2D = new p5(makeBoard('#canvas-holder-back', app, 'backBoard',
+  true));
 app.board3D = new p5(make3DBoard('#canvas-holder-3d', () => app, false, 1));
 
 app.showFront = () => {
-  app.frontBoard.setVisible(true);
-  app.backBoard.setVisible(false);
+  app.frontBoard2D.setVisible(true);
+  app.backBoard2D.setVisible(false);
 }
 
 app.showBack = () => {
-  app.backBoard.setVisible(true);
-  app.frontBoard.setVisible(false);
+  app.backBoard2D.setVisible(true);
+  app.frontBoard2D.setVisible(false);
 }
 
 //////
