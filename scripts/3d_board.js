@@ -3,6 +3,9 @@ function make3DBoard(domParentId, appFn, makeFull, zoom){
     let bricks;
     let frontB;
     let backB;
+    let frontBData = null;
+    let backBData = null;
+    let doSetupBricks = false;
     let isShowingFront = true;
     let tileSize = appFn().masterTileSize;
     let marginL = 20;
@@ -73,12 +76,26 @@ function make3DBoard(domParentId, appFn, makeFull, zoom){
       cam = s.createCamera();
       defaultCamZ = cam.eyeZ + tileSize / 2;
       s.setCamFront();
+
+      // Keep a copy of the front and back boards.
+      frontB = appFn().front;
+      backB = appFn().back;
+
+      s.setupBricks();
+
+      // Register listeners
+      frontB.registerListener(s.frontBoardChanged);
+      backB.registerListener(s.backBoardChanged);
     }
 
     s.draw = () => {
       // TODO: This doesn't need to be done every time, but I will leave it
       //       for now.
-      s.setupBricks();
+      if (doSetupBricks){
+        s.setupBricks();
+        doSetupBricks = false;
+        // console.log('set up bricks');
+      }
 
       // Figure out the current amount of rotation and use this to decide
       // whether to display the front or back tile layout. 
@@ -141,8 +158,8 @@ function make3DBoard(domParentId, appFn, makeFull, zoom){
     // back boards
     s.setupBricks = () => {      
       // Get a copy of the front and back boards
-      frontB = appFn().frontBoard2D.getBoard();
-      backB = appFn().backBoard2D.getBoard();
+      // frontBData = frontB.copyData();
+      // backBData = backB.copyData();
   
       // this loop creates the bricks from the tiles in the board
       bricks = new Array(cols);
@@ -151,8 +168,8 @@ function make3DBoard(domParentId, appFn, makeFull, zoom){
         for (let r = 0; r < rows; r++) {
           let a = (cols - 1) - c
           // Get the tile num for the front and tile
-          let frontTileNum = frontB[c][r]
-          let backTileNum = backB[a][r]
+          let frontTileNum = frontB.getTile(c, r);
+          let backTileNum = backB.getTile(a, r);
 
           // Get front and back tiles
           let front = appFn().tiles[frontTileNum];
@@ -171,13 +188,42 @@ function make3DBoard(domParentId, appFn, makeFull, zoom){
       }
     }
 
+    s.frontBoardChanged = (lineNo) => {
+      // console.log('front board changed', lineNo);
+      doSetupBricks = true;
+    }
+
+    s.backBoardChanged = (lineNo) => {
+      // console.log('back board changed', lineNo);
+      doSetupBricks = true;
+    }
+
     s.setCamFront = () => {
       cam.setPosition(0, 0, defaultCamZ);
       cam.lookAt(0, 0, 0);
     }
 
     s.setCamBack = () => {
+      // console.log('set cam back');
       cam.setPosition(0, 0, -defaultCamZ);
+      cam.lookAt(0, 0, 0);
+    }
+
+    s.getCamRot = () => {
+      let rotVec = s.createVector(cam.eyeX, cam.eyeZ);
+      // console.log('get dz', s.floor(defaultCamZ), 
+      //   'h', s.floor(rotVec.heading()),
+      //   'x', s.floor(rotVec.x), 'y', s.floor(rotVec.y));
+      return (rotVec.heading());
+    }
+
+    s.setCamRot = (rot) => {
+      let rotVec = s.createVector(defaultCamZ, 0);
+      rotVec.rotate(rot);
+      // console.log('set dz', s.floor(defaultCamZ), 
+      //   'h', s.floor(rotVec.heading()),
+      //   'x', s.floor(rotVec.x), 'y', s.floor(rotVec.y));
+      cam.setPosition(rotVec.x, 0, rotVec.y);
       cam.lookAt(0, 0, 0);
     }
 

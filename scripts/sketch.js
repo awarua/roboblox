@@ -1,6 +1,6 @@
 var app = {
-  ROWS: 5,
-  COLS: 6,
+  ROWS: 6,
+  COLS: 8,
   MARGIN: 0,
   WIREFRAME: false,
   masterTileSize: 1,
@@ -18,6 +18,9 @@ var app = {
   showFront: null,
   showBack: null,
 }
+
+app.front = new Board(app.ROWS, app.COLS);
+app.back = new Board(app.ROWS, app.COLS);
 
 app.p1 = new p5((s) => {
 
@@ -45,7 +48,20 @@ app.p1 = new p5((s) => {
 
     s.setupInputs();
     s.clearGrid();
-    s.noLoop();
+    // s.noLoop();
+  }
+
+  s.draw = () => {
+    // s.clearGrid();
+    if (app.board3D._setupDone){
+      let rot = app.board3D.getCamRot();
+
+      //console.log(rot);
+      
+      if (app?.projector?.window?.board3D?._setupDone){
+        app?.projector?.window?.board3D.setCamRot(rot);
+      }
+    }
   }
 
   s.setupInputs = () => {
@@ -53,11 +69,13 @@ app.p1 = new p5((s) => {
     let btnShowFront = app.p1.select('#btn-show-front');
     btnShowFront.mouseClicked(() => {
       app.board3D.setCamFront();
+      app.projector.window.board3D.setCamFront();
     })
 
     let btnShowBack = app.p1.select('#btn-show-back');
     btnShowBack.mouseClicked(() => {
       app.board3D.setCamBack();
+      app.projector.window.board3D.setCamBack();
     })
 
     let btnJSON = app.p1.select('#btn-json');
@@ -75,10 +93,6 @@ app.p1 = new p5((s) => {
 
   }
 
-  s.draw = () => {
-    s.clearGrid();
-  }
-
   s.clearGrid = () => {
     // Set up markup for grid of allowed tiles
     s.select('#allowedTiles-holder').elt.innerHTML = generateGridMarkup(8, 32);
@@ -87,8 +101,9 @@ app.p1 = new p5((s) => {
   // HELPERS
 
   s.showJSON = () => {
-    console.log(s.toJSON());
     const json = s.toJSON();
+    console.log('showJSON', json);
+    // debugger;
     window.electronAPI.updateJSON(json);
     
     // jQuery('#json-holder').get(0).value = JSON.stringify(toJSONBoard(false));
@@ -107,8 +122,8 @@ app.p1 = new p5((s) => {
   s.toJSON = (includeCurves) => {
     let morpholo = {
       tileParams: app.tileParams.toJSON(),
-      front: app.frontBoard2D.getBoard(),
-      back: app.backBoard2D.getBoard(),
+      front: app.frontBoard2D.getBoard().toJSON(),
+      back: app.backBoard2D.getBoard().toJSON(),
       tiles: app.tiles.map(e => e.toJSON()),
     };
     
@@ -116,10 +131,10 @@ app.p1 = new p5((s) => {
   }
 })
  
-app.frontBoard2D = new p5(makeBoard('#canvas-holder-front', app, 'frontBoard',
-  false));
-app.backBoard2D = new p5(makeBoard('#canvas-holder-back', app, 'backBoard',
-  true));
+app.frontBoard2D = new p5(makeBoard('#canvas-holder-front', app, 
+  app.front, false));
+app.backBoard2D = new p5(makeBoard('#canvas-holder-back', app, 
+  app.back, true));
 app.board3D = new p5(make3DBoard('#canvas-holder-3d', () => app, false, 1));
 
 app.showFront = () => {
