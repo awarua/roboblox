@@ -31,8 +31,10 @@ setParent = (_parent) => {
 document.addEventListener(
   'fullscreenchange', (event) => {
      console.log('fullscreen');
-     let appFn = () => parent.app;
-     board3D = new p5(make3DBoard('#canvas-holder-3d', appFn, true))  
+    //  setTimeout(() => {
+      let appFn = () => parent.app;
+      board3D = new p5(make3DBoard('#canvas-holder-3d', appFn, true))   
+    //  }, 1000);
 });
 
 function toggleFullscreen() {
