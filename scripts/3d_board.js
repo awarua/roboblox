@@ -1,4 +1,4 @@
-function make3DBoard(domParentId, appFn, makeFull){
+function make3DBoard(domParentId, appFn, makeFull, zoom){
   return (s) => {
     let bricks;
     let frontB;
@@ -15,7 +15,7 @@ function make3DBoard(domParentId, appFn, makeFull){
     let defaultCamZ;
     let rows = appFn().ROWS
     let cols = appFn().COLS
-    let zoom = 0.75;
+    // zoom = 0.75;
 
     s.preload = () => {
       f = s.loadFont('styles/iconsolata/Inconsolata.otf');

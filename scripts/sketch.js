@@ -86,6 +86,9 @@ app.p1 = new p5((s) => {
 
   s.showJSON = () => {
     console.log(s.toJSON());
+    const json = s.toJSON();
+    window.electronAPI.updateJSON(json);
+    
     // jQuery('#json-holder').get(0).value = JSON.stringify(toJSONBoard(false));
 
     //   let a = selJSON.value()
@@ -113,16 +116,16 @@ app.p1 = new p5((s) => {
  
 app.frontBoard = new p5(makeBoard('#canvas-holder-front', app, false));
 app.backBoard = new p5(makeBoard('#canvas-holder-back', app, true));
-app.board3D = new p5(make3DBoard('#canvas-holder-3d', () => app));
+app.board3D = new p5(make3DBoard('#canvas-holder-3d', () => app, false, 1));
 
 app.showFront = () => {
-  app.p1.select('#front-row').removeClass('hidden');
-  app.p1.select('#back-row').addClass('hidden');
+  app.frontBoard.setVisible(true);
+  app.backBoard.setVisible(false);
 }
 
 app.showBack = () => {
-  app.p1.select('#back-row').removeClass('hidden');
-  app.p1.select('#front-row').addClass('hidden');
+  app.backBoard.setVisible(true);
+  app.frontBoard.setVisible(false);
 }
 
 //////

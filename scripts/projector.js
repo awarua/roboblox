@@ -33,7 +33,7 @@ document.addEventListener(
      console.log('fullscreen');
     //  setTimeout(() => {
       let appFn = () => parent.app;
-      board3D = new p5(make3DBoard('#canvas-holder-3d', appFn, true))   
+      board3D = new p5(make3DBoard('#canvas-holder-3d', appFn, true, 0.8))   
     //  }, 1000);
 });
 

@@ -6,6 +6,7 @@ function makeBoard(domParentId, _app, hideAfter, initialTile){
     let toggles; 
     let scaleFactor = 1;
     let margin = 20;
+    let isVisible = true;
   
     s.setup = () => {
       // Get the parent dom element and figure out width
@@ -30,7 +31,7 @@ function makeBoard(domParentId, _app, hideAfter, initialTile){
 
       // Hide the board if asked to.
       if (hideAfter){
-        domParent.elt.parentElement.parentElement.classList.add('hidden');
+        s.setVisible(false);
       }
 
       s.noLoop();
@@ -222,8 +223,25 @@ function makeBoard(domParentId, _app, hideAfter, initialTile){
       }
     }
 
+    s.setVisible = (newIsVisible) => {
+      // console.log('s.setVisible', newIsVisible, isVisible, domParentId);
+      isVisible = newIsVisible;
+      let domParent = s.select(domParentId);
+      if (isVisible){
+        domParent.elt.parentElement.parentElement.classList.remove('hidden');
+      } else {
+        lastClicked = null;
+        domParent.elt.parentElement.parentElement.classList.add('hidden');
+      }
+    }  
+  
+
+    //////////////////////////////////////////////////////////////////////////
+    // Event handlers
+    // 
+
     s.keyPressed = () => {
-      if (lastClicked){
+      if (lastClicked && isVisible){
         if (s.keyCode == s.UP_ARROW){
           lastClicked.r = s.max(lastClicked.r - 1, 0);
         } else if (s.keyCode == s.DOWN_ARROW){
@@ -258,7 +276,7 @@ function makeBoard(domParentId, _app, hideAfter, initialTile){
       // console.log(domParentId, s.mouseX, s.mouseY, 
       //  `${s.isInside(s.mouseX, s.mouseY)}`);
 
-      if (s.isInside(s.mouseX, s.mouseY)) {
+      if (s.isInside(s.mouseX, s.mouseY) && isVisible) {
         // Take account of the scale factor
         let xMargin = s.width * (1 - scaleFactor) / 2;
         let yMargin = s.height * (1 - scaleFactor) / 2;
