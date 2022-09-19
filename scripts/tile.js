@@ -109,8 +109,6 @@ class Tile {
 
     // Deal with special case of tile number 255 (black tile)
     if (this.num == 255){
-
-
       for (let i = 0; i < this.vertices.length; i++){
         let endIdx = (i + 1) % this.vertices.length;
         let startVx = app.p1.createVector(
@@ -119,8 +117,8 @@ class Tile {
         let endVx = app.p1.createVector(
           this.vertices[endIdx][0] - this.center.x, 
           this.vertices[endIdx][1] - this.center.y);
-        startVx.setMag(0.1);
-        endVx.setMag(0.1);
+        startVx.setMag(0.001);
+        endVx.setMag(0.001);
         startVx.add(this.center);
         endVx.add(this.center);
         let p = this.pathFromLineData([startVx, endVx]);
@@ -293,7 +291,7 @@ class Tile {
     s.scale(tileSize, tileSize);
     s.textAlign(s.CENTER, s.CENTER);
     s.textStyle(s.BOLD);
-    s.textSize(0.4);
+    s.textSize(0.35);
     s.noFill();
     s.fill(150, 200);
     s.stroke(120);
