@@ -1,11 +1,11 @@
 class Brick {
-  constructor(fTile, bTile, center, viewer) {
+  constructor(fTile, bTile, center, viewer, steps) {
     this.fTile = fTile
     this.bTile = bTile
     this.frontTile = fTile.drawingData;
     this.backTile = bTile.drawingData;
     this.center = center;
-    this.steps = 15;
+    this.steps = steps;
     this.frontPoints = this.findPoints(this.frontTile, viewer)
     this.backPoints = this.findPoints(this.backTile, viewer, true);
 

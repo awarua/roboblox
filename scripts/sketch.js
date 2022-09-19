@@ -1,7 +1,8 @@
 var app = {
-  ROWS: 6,
-  COLS: 8,
+  ROWS: 5,
+  COLS: 6,
   MARGIN: 0,
+  brickSteps: 7,
   masterTileSize: 1,
   paramsChanged: true,
   isTileSelected: false,
@@ -208,10 +209,11 @@ app.frontBoard2D = new p5(makeBoard('#canvas-holder-front', app,
   app.front, false));
 app.backBoard2D = new p5(makeBoard('#canvas-holder-back', app, 
   app.back, true));
-app.board3D = new p5(make3DBoard('#canvas-holder-3d', () => app, false, 1));
+app.board3D = new p5(make3DBoard('#canvas-holder-3d', () => app, false, 1, 
+  app.brickSteps));
 
 app.exampleTile = new p5(make3DBoard('#example-tile-holder', 
-  () => exampleTile, false, 0.8))
+  () => exampleTile, false, 0.8, app.brickSteps))
 // setTimeout(() => {
 //   app.p1.select('#settings-row').addClass('hidden');
 // }, 100);

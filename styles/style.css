@@ -269,5 +269,7 @@ button.bg-dark:focus {
   height: 40px;
   border-radius: 20px;
   font-size: 1rem;
+  font-weight: bold;
   text-align: center;
+  color: white;
 }

@@ -291,14 +291,28 @@ class Tile {
     s.push();
     s.translate(x, y);
     s.scale(tileSize, tileSize);
+    s.textAlign(s.CENTER, s.CENTER);
+    s.textStyle(s.BOLD);
+    s.textSize(0.4);
     s.noFill();
     s.fill(150, 200);
     s.stroke(120);
     s.strokeWeight(2 / tileSize);
 
     // Draw each of the button centres to the screen.
-    for(let c of this.buttonCentres){
+    for(let i = 0; i < this.buttonCentres.length; i++){
+      let c = this.buttonCentres[i];
       s.circle(c.x, c.y, this.r);
+      s.push();
+      s.noStroke();
+      if (this.sides[i]){
+        s.fill(255);
+        s.text('+', c.x, c.y);
+      } else {
+        s.fill(0);
+        s.text('-', c.x, c.y);
+      }
+      s.pop();
     }
 
     s.pop();

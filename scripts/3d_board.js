@@ -1,4 +1,4 @@
-function make3DBoard(domParentId, appFn, makeFull, zoom){
+function make3DBoard(domParentId, appFn, makeFull, zoom, brickSteps){
   return (s) => {
     let bricks;
     let frontB;
@@ -191,7 +191,7 @@ function make3DBoard(domParentId, appFn, makeFull, zoom){
           // size is the size of the tile
           let size = appFn().tiles[frontTileNum].size;
 
-          bricks[c][r] = new Brick(front, back, center, s);
+          bricks[c][r] = new Brick(front, back, center, s, brickSteps);
         }
       }
     }

@@ -40,7 +40,7 @@ setParent = (_parent) => {
       let appFn = () => parent.app;
 
       window.board3D = new p5(make3DBoard('#canvas-holder-3d-projector',
-      appFn, false, 1))
+      appFn, false, 1, appFn().brickSteps))
     }
   )  
 
@@ -51,7 +51,7 @@ document.addEventListener(
     console.log('fullscreen');
     let appFn = () => parent.app;
     window.board3D = new p5(make3DBoard('#canvas-holder-3d-projector',
-      appFn, true, 0.8))   
+      appFn, true, 0.8, appFn().brickSteps))   
 });
 
 function toggleFullscreen() {
