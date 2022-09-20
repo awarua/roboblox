@@ -18,16 +18,20 @@ for (const name of Object.keys(nets)) {
   }
 }
 
-console.log(results);
+// console.log(results);
 
 const http = require('http');
 const hostname = results?.en0?.[0] || '127.0.0.1';
 const port = 3000;
 
+function handleGetServerUrl() {
+  return `http://${hostname}:${port}/`;
+}
+
 let json = {};
 
 const createWindow = () => {
-  const win = new BrowserWindow({
+  win = new BrowserWindow({
     width: 800,
     height: 617,
     webPreferences: {
@@ -35,20 +39,35 @@ const createWindow = () => {
     },
   })
 
-  ipcMain.on('updateJSON', (event, updatedJSON) => {
-    // const webContents = event.sender;
-    // const win = BrowserWindow.fromWebContents(webContents);
-    json = updatedJSON;
-    console.log('updateJSON', updatedJSON);
-  })
-
-  win.loadFile('index.html')
-  win.maximize()
+  win.loadFile('index.html');
+  win.maximize();
+  // win.webContents.openDevTools();
 }
 
 app.whenReady().then(() => {
+
+  ipcMain.on('updateJSON', (_event, updatedJSON) => {
+    json = updatedJSON;
+    console.log('updateJSON'); // , updatedJSON);
+  })
+
+  ipcMain.handle('get-server-url', handleGetServerUrl);
+
   createWindow()
+
+  app.on('activate', () => {
+    if (BrowserWindow.getAllWindows().length === 0) createWindow();
+  })
 })
+
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') app.quit();
+})
+
+//////////////////////////////////////////////////////////////////
+// 
+// Set up server to host JSON files for wall
+// 
 
 const server = http.createServer((req, res) => {
   res.statusCode = 200;
