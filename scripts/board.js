@@ -23,7 +23,8 @@ class Board {
   // Set the tile number at the provided col, row
   setTile(c, r, n){
     this._data[c + r * this.cols] = n;
-    this.alertListeners('26');
+    // Alert any listeners that the data has changed.
+    this.alertListeners();
   }
 
   // Return a copy of the internal data for this array

@@ -48,7 +48,7 @@ app.whenReady().then(() => {
 
   ipcMain.on('updateJSON', (_event, updatedJSON) => {
     json = updatedJSON;
-    console.log('updateJSON'); // , updatedJSON);
+    // console.log('updateJSON' , updatedJSON);
   })
 
   ipcMain.handle('get-server-url', handleGetServerUrl);

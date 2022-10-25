@@ -1,6 +1,6 @@
 {
   "name": "roboblox",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "description": "Design program for roboblox project",
   "main": "main.js",
   "scripts": {

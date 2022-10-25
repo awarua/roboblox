@@ -1,6 +1,6 @@
 var app = {
-  ROWS: 5,
-  COLS: 6,
+  ROWS: 2,
+  COLS: 2,
   MARGIN: 0,
   brickSteps: 7,
   masterTileSize: 1,
@@ -76,6 +76,10 @@ app.p1 = new p5((s) => {
       app.serverURL = url;
       s.select('#server-url-link').attribute('href', url).html(url);
     })
+
+    // Listen for changes in the front and back tiles
+    app.front.registerListener(s.showJSON);
+    app.back.registerListener(s.showJSON);
   }
 
   s.draw = () => {
@@ -84,6 +88,7 @@ app.p1 = new p5((s) => {
       for (let i = 0; i < 256; i++) {
         app.tiles[i].calculateData(1);
       }
+
       s.showJSON();
       app.frontBoard2D.loop();
       app.backBoard2D.loop();
@@ -177,7 +182,7 @@ app.p1 = new p5((s) => {
 
   s.showJSON = () => {
     const json = s.toJSON();
-    // console.log('showJSON', json);
+    console.log('showJSON', json);
     // debugger;
     window.electronAPI.updateJSON(json);
     
