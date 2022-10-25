@@ -10,12 +10,31 @@ function makeBoard(domParentId, _app, _board, hideAfter, initialTile){
     s.setup = () => {
       // Get the parent dom element and figure out width
       let domParent = s.select(domParentId);
-      let w = domParent.width;
-      tileSize = w / _app.COLS;
-      scaleFactor = (w - 2 * margin) / w;
+      let mainDiv = s.select('#main-area');
+      let h4Selector = `#${domParent.elt.parentElement.parentElement.id} h4`;
+      console.log(h4Selector);
+      let headerDiv = s.select(h4Selector);
 
-      let canvasHeight = margin * 2 + tileSize * _app.ROWS * scaleFactor;
-      let cnv = s.createCanvas(w, canvasHeight);
+      let w = domParent.width;
+      let h = mainDiv.height - headerDiv.height;
+
+      // console.log('makeBoard', 'w', w, 'h', h, 'mainDiv.h', mainDiv.height);
+
+      let sideL = s.min(w, h);
+
+      tileSize = sideL / _app.COLS;
+      scaleFactor = (sideL - 2 * margin) / sideL;
+
+      let canvasW = margin * 2 + tileSize * _app.COLS * scaleFactor;
+      let canvasH = h;
+
+      // if (w < h){
+      //   canvasHeight = margin * 2 + tileSize * _app.ROWS * scaleFactor;
+      // } else {
+      //   canvasWidth = margin
+      // }
+      
+      let cnv = s.createCanvas(canvasW, canvasH);
       cnv.parent(domParent);
 
       if (typeof(initialTile) != "undefined"){

@@ -29,7 +29,8 @@
         {
           "name": "@electron-forge/maker-squirrel",
           "config": {
-            "name": "roboblox"
+            "name": "roboblox",
+            "msi": true
           }
         },
         {

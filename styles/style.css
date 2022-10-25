@@ -280,10 +280,31 @@ main {
   color: white;
 }
 
+#top-menu {
+  background: red;
+  position: absolute;
+  left: 20px;
+  right: 20px;
+  top: 0;
+  height: 50px;
+}
+
+#main-area {
+  background: blue;
+  position: absolute;
+  left: 20px;
+  right: 20px;
+  top: 50px;
+  bottom: 50px;
+}
+  
 #server-url {
   position: absolute;
-  left: 0;
+  left: 20px;
+  right: 20px;
   bottom: 0;
+  height: 50px;
+  background: green;
   padding: 4px 4px;
   color: #666;
   font-size: 1rem;
@@ -293,3 +314,4 @@ main {
   color: #888;
   font-size: 1rem;
 }
+
