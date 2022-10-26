@@ -216,10 +216,13 @@ function makeBoard(domParentId, _app, _board, hideAfter, initialTile, _label){
       // console.log(domParentId, s.mouseX, s.mouseY, 
       //  `${s.isInside(s.mouseX, s.mouseY)}`);
 
+      // console.log(isVisible, s.isInside(s.mouseX, s.mouseY), 
+      //   scaleFactor, tileSize, tileSize * scaleFactor, s.width);
+
       if (s.isInside(s.mouseX, s.mouseY) && isVisible) {
         // Take account of the scale factor
-        let xMargin = s.width * (1 - scaleFactor) / 2;
-        let yMargin = s.height * (1 - scaleFactor) / 2;
+        let xMargin = (s.width - (_app.COLS * tileSize * scaleFactor)) / 2;
+        let yMargin = (s.height - (_app.ROWS * tileSize * scaleFactor)) / 2;
 
         let scaledX = (s.mouseX - xMargin) / scaleFactor;
         let scaledY = (s.mouseY - yMargin) / scaleFactor;

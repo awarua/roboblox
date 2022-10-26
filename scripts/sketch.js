@@ -57,8 +57,8 @@ app.p1 = new p5((s) => {
 
     // Hook up the example tile too
     exampleTile.tiles = app.tiles;
-    exampleTile.front.fillRandomly();
-    exampleTile.back.fillRandomly();
+    exampleTile.front.fill(234); // fillRandomly();
+    exampleTile.back.fill(213); // fillRandomly();
     
     // Just once - at setup, loop over all the tiles and figure out which are compatibile
     for (let ta of app.tiles) {
