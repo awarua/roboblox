@@ -138,14 +138,14 @@ app.p1 = new p5((s) => {
     //   s.showJSON();
     // })
 
-    let btnProjector = s.select('#btn-projector');
-    btnProjector.mouseClicked(() => {
-      app.projector = window.open('projector.html', 'projector', 
-        'width=900,height=627');
-      app?.projector?.addEventListener('load', () => {
-        app?.projector?.setParent(window);
-      }, true);
-    })
+    // let btnProjector = s.select('#btn-projector');
+    // btnProjector.mouseClicked(() => {
+    //   app.projector = window.open('projector.html', 'projector', 
+    //     'width=900,height=627');
+    //   app?.projector?.addEventListener('load', () => {
+    //     app?.projector?.setParent(window);
+    //   }, true);
+    // })
 
     let btnShowControls = s.select('#btn-show-settings');
     btnShowControls.mouseClicked(() => {

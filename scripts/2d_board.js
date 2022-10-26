@@ -6,7 +6,7 @@ function makeBoard(domParentId, _app, _board, hideAfter, initialTile, _label){
     let lastClicked = null;
     let tileSize = _app.masterTileSize;
     let scaleFactor = 1;
-    let margin = 20;
+    let margin = 35;
     let isVisible = true;
     let label = _label;
     let showLabel = true;
@@ -82,7 +82,7 @@ function makeBoard(domParentId, _app, _board, hideAfter, initialTile, _label){
         s.push();
         s.fill(255, 150);
         s.textAlign(s.LEFT, s.TOP);
-        s.text(label, 20, s.height - 15);
+        s.text(label, margin, s.height - margin + 6);
         s.pop();
       }
       s.noLoop();

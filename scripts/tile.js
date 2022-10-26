@@ -32,20 +32,7 @@ class Tile {
 
     // UI properties
     this.r = 0.3;
-    this.m = 0.3;
-
-    // Order of button centres. Note - order matters because these 
-    // correspond to the openings in the tile.
-    this.buttonCentres = [
-      {x: this.m,     y: 0},
-      {x: 1 - this.m, y: 0},
-      {x: 1,          y: this.m},
-      {x: 1,          y: 1 - this.m},  
-      {x: 1 - this.m, y: 1},
-      {x: this.m,     y: 1},
-      {x: 0,          y: 1 - this.m},
-      {x: 0,          y: this.m},
-    ];
+    this.maxR = 64; // 0000000000;
 
     this.markCol = this.markCols[this.currentMarkCol];
 
@@ -77,6 +64,33 @@ class Tile {
     ];
 
     this.center = app.p1.createVector(0.5, 0.5);
+  }
+
+  getM(tileSize){
+    let scaledR = this.getR(tileSize);
+    return (1 - 2 * scaledR) / 3 + scaledR / 2;    
+  }
+
+  getR(tileSize){
+    return Math.min(this.r, this.maxR / tileSize)
+  }
+
+  getButtonCentres(tileSize){
+    let m = this.getM(tileSize);
+    // Order of button centres. Note - order matters because these 
+    // correspond to the openings in the tile.
+    let buttonCentres = [
+      {x: m,     y: 0},
+      {x: 1 - m, y: 0},
+      {x: 1,     y: m},
+      {x: 1,     y: 1 - m},  
+      {x: 1 - m, y: 1},
+      {x: m,     y: 1},
+      {x: 0,     y: 1 - m},
+      {x: 0,     y: m},
+    ];   
+    
+    return buttonCentres;
   }
 
   calculateData(tileSize){
@@ -258,14 +272,20 @@ class Tile {
     let x = (mx - tx) / tileSize;
     let y = (my - ty) / tileSize;
 
+    let scaledR = this.getR(tileSize);
+
     // console.log(x, y);
 
     let sideClicked = -1;
 
+    // let scaledR = 
+
+    let buttonCentres = this.getButtonCentres(tileSize);
+
     // Check distance to first circle
-    for (let i = 0; i < this.buttonCentres.length; i++){
-      let c = this.buttonCentres[i];
-      if (s.dist(c.x, c.y, x, y) < this.r){ 
+    for (let i = 0; i < buttonCentres.length; i++){
+      let c = buttonCentres[i];
+      if (s.dist(c.x, c.y, x, y) < scaledR / 2){ 
         sideClicked = i;
       }
     }
@@ -286,11 +306,13 @@ class Tile {
   }
 
   showUI(x, y, s, tileSize) {
+    let scaledR = this.getR(tileSize);
+    let scaledT = scaledR / 4.6;
+
     s.push();
     s.translate(x, y);
     s.scale(tileSize, tileSize);
-    s.textAlign(s.CENTER, s.CENTER);
-    s.textStyle(s.BOLD);
+    s.rectMode(s.CENTER);
     s.textSize(0.35);
     s.noFill();
     s.fill(150, 200);
@@ -298,17 +320,19 @@ class Tile {
     s.strokeWeight(2 / tileSize);
 
     // Draw each of the button centres to the screen.
-    for(let i = 0; i < this.buttonCentres.length; i++){
-      let c = this.buttonCentres[i];
-      s.circle(c.x, c.y, this.r);
+    let buttonCentres = this.getButtonCentres(tileSize);
+    for(let i = 0; i < buttonCentres.length; i++){
+      let c = buttonCentres[i];
+      s.circle(c.x, c.y, scaledR);
       s.push();
       s.noStroke();
       if (this.sides[i]){
         s.fill(255);
-        s.text('+', c.x, c.y);
+        s.rect(c.x, c.y, scaledT, 2.6 * scaledT);
+        s.rect(c.x, c.y, 2.6 * scaledT, scaledT);
       } else {
         s.fill(0);
-        s.text('-', c.x, c.y);
+        s.rect(c.x, c.y, 2.6 * scaledT, scaledT);
       }
       s.pop();
     }

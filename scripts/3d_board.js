@@ -8,7 +8,7 @@ function make3DBoard(domParentId, appFn, makeFull, zoom, brickSteps){
     let doSetupBricks = false;
     let isShowingFront = true;
     let tileSize = appFn().masterTileSize;
-    let marginT = 20;
+    let marginT = 35;
     let marginL = marginT;
     let scaleFactor = 1;
     let w;
