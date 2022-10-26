@@ -1,4 +1,6 @@
-function makeBoard(domParentId, _app, _board, hideAfter, initialTile){
+function makeBoard(domParentId, _app, _board, hideAfter, initialTile, _label){
+  console.log('makeBoard', domParentId, _app, _board, hideAfter, initialTile, _label);
+
   return (s) => {
     let board = _board;
     let lastClicked = null;
@@ -6,19 +8,19 @@ function makeBoard(domParentId, _app, _board, hideAfter, initialTile){
     let scaleFactor = 1;
     let margin = 20;
     let isVisible = true;
+    let label = _label;
+    let showLabel = true;
   
     s.setup = () => {
       // Get the parent dom element and figure out width
       let domParent = s.select(domParentId);
       let mainDiv = s.select('#main-area');
-      let h4Selector = `#${domParent.elt.parentElement.parentElement.id} h4`;
-      console.log(h4Selector);
-      let headerDiv = s.select(h4Selector);
-
       let w = domParent.width;
-      let h = mainDiv.height - headerDiv.height;
+      // debugger;
+      // let t = domParent.elt.offsetTop + domParent.elt.offsetParent.offsetTop;
+      let h = mainDiv.height; // - t;
 
-      // console.log('makeBoard', 'w', w, 'h', h, 'mainDiv.h', mainDiv.height);
+      // console.log('makeBoard', 'w', w, 't', t, 'h', h, 'mainDiv.h', mainDiv.height);
 
       let sideL = s.min(w, h);
 
@@ -33,11 +35,14 @@ function makeBoard(domParentId, _app, _board, hideAfter, initialTile){
       // } else {
       //   canvasWidth = margin
       // }
+
+      // canvasW = 100;
+      // canvasH = 100;
       
       let cnv = s.createCanvas(canvasW, canvasH);
       cnv.parent(domParent);
 
-      if (typeof(initialTile) != "undefined"){
+      if (typeof(initialTile) != "undefined" && initialTile !== null){
         board.fill(initialTile);        
       } else {
         board.fillRandomly();
@@ -72,6 +77,14 @@ function makeBoard(domParentId, _app, _board, hideAfter, initialTile){
       // s.fill(255, 0, 0);
       // s.text(domParentId, 20, 20);
       s.pop();
+
+      if (showLabel){
+        s.push();
+        s.fill(255, 150);
+        s.textAlign(s.LEFT, s.TOP);
+        s.text(label, 20, s.height - 15);
+        s.pop();
+      }
       s.noLoop();
     };
 

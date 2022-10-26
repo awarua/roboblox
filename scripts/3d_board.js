@@ -8,8 +8,8 @@ function make3DBoard(domParentId, appFn, makeFull, zoom, brickSteps){
     let doSetupBricks = false;
     let isShowingFront = true;
     let tileSize = appFn().masterTileSize;
-    let marginL = 20;
-    let marginT = marginL;
+    let marginT = 20;
+    let marginL = marginT;
     let scaleFactor = 1;
     let w;
     let h;
@@ -30,10 +30,10 @@ function make3DBoard(domParentId, appFn, makeFull, zoom, brickSteps){
       let cnv;
 
       if (makeFull){
-        console.log('make full');
+        // console.log('make full');
   
-        w = window.innerWidth; // s.windowWidth;
-        h = window.innerHeight; // s.windowHeight;
+        let w = window.innerWidth; // s.windowWidth;
+        let h = window.innerHeight; // s.windowHeight;
 
         // console.log('w', w, 'h', h, 
         //   's.windowWidth', s.windowWidth, 
@@ -58,17 +58,31 @@ function make3DBoard(domParentId, appFn, makeFull, zoom, brickSteps){
           marginT = (h - (rows * tileSize * scaleFactor)) / 2;
         }
 
-        console.log('w', w, 'h', h, 'ts', tileSize, 
-          'ml', marginL, 'mt', marginT, 'sf', scaleFactor);
-
+        // console.log('w', w, 'h', h, 'ts', tileSize, 
+        //   'ml', marginL, 'mt', marginT, 'sf', scaleFactor);
         cnv = s.createCanvas(w, h, s.WEBGL);
       } else {
-        w = domParent.width;
-        tileSize = w / cols;
-        h = tileSize * rows;
-        scaleFactor = (w - 2 * marginL) / w;
-        let canvasHeight = marginL * 2 + tileSize * rows * scaleFactor;
-         cnv = s.createCanvas(tileSize * cols, canvasHeight, s.WEBGL);
+        // Get the parent dom element and figure out width
+        let mainDiv = s.select('#main-area');
+        let w = domParent.width;
+        // debugger;
+        let t = domParent.elt.offsetTop + domParent.elt.offsetParent.offsetTop;
+        let h = mainDiv.height; // - t;
+
+        // console.log('makeBoard 3D', 'w', w, 't', t, 'h', h, 'mainDiv.h', mainDiv.height);
+
+        let sideL = s.min(w, h);
+
+        tileSize = sideL / cols;
+        scaleFactor = (sideL - 2 * marginT) / sideL;
+
+        let canvasW = marginL * 2 + tileSize * cols * scaleFactor;
+        let canvasH = h;
+
+        // canvasW = 100;
+        // canvasH = 100;
+
+        cnv = s.createCanvas(canvasW, canvasH, s.WEBGL);
       }
       cnv.parent(domParent);
       s.angleMode(s.DEGREES);

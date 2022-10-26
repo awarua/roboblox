@@ -281,7 +281,7 @@ main {
 }
 
 #top-menu {
-  background: red;
+  /* background: red; */
   position: absolute;
   left: 20px;
   right: 20px;
@@ -290,12 +290,28 @@ main {
 }
 
 #main-area {
-  background: blue;
+  /* background: blue; */
   position: absolute;
   left: 20px;
   right: 20px;
   top: 50px;
   bottom: 50px;
+  margin-bottom: 20px;
+}
+
+#main-area .row {
+  /* background: yellow; */
+  height: 100%;
+}
+
+#front-row, #back-row, #threed-row {
+  height: 100%;
+  /* background: purple; */
+}
+
+#main-area canvas {
+  display: block;
+  margin: 0 auto;
 }
   
 #server-url {
@@ -304,7 +320,7 @@ main {
   right: 20px;
   bottom: 0;
   height: 50px;
-  background: green;
+  /* background: green; */
   padding: 4px 4px;
   color: #666;
   font-size: 1rem;

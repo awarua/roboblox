@@ -182,7 +182,7 @@ app.p1 = new p5((s) => {
 
   s.showJSON = () => {
     const json = s.toJSON();
-    console.log('showJSON', json);
+    // console.log('showJSON', json);
     // debugger;
     window.electronAPI.updateJSON(json);
     
@@ -218,9 +218,9 @@ app.p1 = new p5((s) => {
 })
  
 app.frontBoard2D = new p5(makeBoard('#canvas-holder-front', app, 
-  app.front, false));
+  app.front, false, null, 'Front Side'));
 app.backBoard2D = new p5(makeBoard('#canvas-holder-back', app, 
-  app.back, true));
+  app.back, true, null, 'Back Side'));
 app.board3D = new p5(make3DBoard('#canvas-holder-3d', () => app, false, 1, 
   app.brickSteps));
 
