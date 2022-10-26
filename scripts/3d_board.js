@@ -62,14 +62,17 @@ function make3DBoard(domParentId, appFn, makeFull, zoom, brickSteps){
         //   'ml', marginL, 'mt', marginT, 'sf', scaleFactor);
         cnv = s.createCanvas(w, h, s.WEBGL);
       } else {
-        // Get the parent dom element and figure out width
-        let mainDiv = s.select('#main-area');
         let w = domParent.width;
-        // debugger;
-        let t = domParent.elt.offsetTop + domParent.elt.offsetParent.offsetTop;
-        let h = mainDiv.height; // - t;
+        let t, h;
 
-        // console.log('makeBoard 3D', 'w', w, 't', t, 'h', h, 'mainDiv.h', mainDiv.height);
+        // Get the parent dom element and figure out width
+        if (domParentId === '#example-tile-holder'){
+          h = domParent.height;
+          // debugger;
+        } else {
+          let mainDiv = s.select('#main-area');
+          h = mainDiv.height;
+        }
 
         let sideL = s.min(w, h);
 
@@ -79,8 +82,8 @@ function make3DBoard(domParentId, appFn, makeFull, zoom, brickSteps){
         let canvasW = marginL * 2 + tileSize * cols * scaleFactor;
         let canvasH = h;
 
-        // canvasW = 100;
-        // canvasH = 100;
+        //canvasW = 100;
+        //canvasH = 100;
 
         cnv = s.createCanvas(canvasW, canvasH, s.WEBGL);
       }
