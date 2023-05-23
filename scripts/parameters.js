@@ -1,6 +1,6 @@
 
 class TileParameters {
-  constructor(rotation, mag, pull, sidePull) {
+  constructor(rotation, mag, pull, sidePull, cols, rows) {
 
     const MIN_ROTATION = -60;       // -180
     const MAX_ROTATION = 60;        //  180
@@ -24,6 +24,23 @@ class TileParameters {
     this.mag = mag || DEFAULT_MAG;
     this.pull = pull || DEFAULT_PULL;
     this.sidePull = sidePull || DEFAULT_SIDE_PULL;
+    this.cols = cols || app.COLS;
+    this.rows = rows || app.ROWS;
+
+    this.sldNumCols = app.p1.createSlider(2, 10, this.cols);
+    this.sldNumCols.parent(app.p1.select("#sldNumCols-holder"));
+    this.sldNumCols.mouseClicked(fnFalse);
+    this.sldNumCols.mouseMoved(sldNumColsChanged)
+    this.txtNumCols = app.p1.select('#txtNumCols-holder');
+    this.txtNumCols.html(this.cols);
+
+    this.sldNumRows = app.p1.createSlider(2, 10, this.rows);
+    this.sldNumRows.parent(app.p1.select("#sldNumRows-holder"));
+    this.sldNumRows.mouseClicked(fnFalse);
+    this.sldNumRows.mouseMoved(sldNumRowsChanged)
+    this.txtNumRows = app.p1.select('#txtNumRows-holder');
+    this.txtNumRows.html(this.rows);
+
 
     this.sldRotation = app.p1.createSlider(MIN_ROTATION, MAX_ROTATION,
       this.rotation);
@@ -58,6 +75,31 @@ class TileParameters {
     function fnFalse(e) {
       e.stopPropagation();
       return false;
+    }
+
+    /**
+     * Event handler for slider that adjusts the number of cols
+     */
+    function sldNumColsChanged() {
+      // console.log(_that.sldNumCols.value());
+      if (_that.sldNumCols.value() != _that.cols){
+        _that.cols = _that.sldNumCols.value();
+        _that.txtNumCols.html(_that.cols);
+        app.paramsChanged = true;
+      }
+    }
+
+    /**
+     * Event handler for slider that adjusts the number of rows
+     */
+    function sldNumRowsChanged() {
+      // console.log(_that.sldNumRows.value());
+      if (_that.sldNumRows.value() != _that.rows){
+        _that.rows = _that.sldNumRows.value();
+        _that.txtNumRows.html(_that.rows);
+        // TODO
+        // app.paramsChanged = true;
+      }
     }
     
     /**

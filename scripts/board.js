@@ -5,32 +5,29 @@ class Board {
     this.cols = cols;
     this.rows = rows;
     this.tilesFn = tilesFn;
-    this._data = new Array(this.cols * this.rows);
-    this.listeners = [];
-
-    for (let c = 0; c < this.cols; c++) {
-      for (let r = 0; r < this.rows; r++) {
-        this.setTile(c, r, 0);
-      }
+    this._data = new Array(this.rows);
+    for (let r = 0; r < this.rows; r++){
+      this._data[r] = new Array(this.cols).fill(0);
     }
+    this.listeners = [];
   }
 
   // Return the tile number at the provided col, row
   getTile(c, r){
-    return this._data[c + r * this.cols];
+    return this._data[r][c];
   }
 
   // Set the tile number at the provided col, row
   setTile(c, r, n){
-    this._data[c + r * this.cols] = n;
+    this._data[r][c] = n;
     // Alert any listeners that the data has changed.
     this.alertListeners();
   }
 
   // Return a copy of the internal data for this array
-  copyData(){
-    return [...this._data];
-  }
+  // copyData(){
+  //   return [...this._data];
+  // }
 
   // Register a listener that will be called when the board changes
   // cbk, the callback. Should send a copy of the data
@@ -130,5 +127,5 @@ class Board {
       }
     }
     return json;
-  }
+  }   
 }

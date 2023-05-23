@@ -182,7 +182,7 @@ main {
   margin-left: -15px;  
 }
 
-.col-1, .col-2, .col-3, .col-4, .col-6 {
+.col-1, .col-2, .col-3, .col-4, .col-6, .col-12 {
   position: relative;
   width: 100%;
   min-height: 1px;
@@ -213,6 +213,11 @@ main {
 .col-6 {
   flex: 0 0 50%;
   max-width: 50%;
+}
+
+.col-12 {
+  flex: 0 0 100%;
+  max-width: 100%;
 }
 
 .hidden {
@@ -248,7 +253,8 @@ main {
 #controls-holder {
   position: absolute;
   padding: 20px;
-  inset: 350px 200px 200px 200px;
+  inset: 100px;
+  /* 350px 200px 200px 200px; */
   background-color: rgba(255, 255, 255, 0.5);
   color: rgb(20, 20, 20);
   font-size: 1.5rem;
@@ -263,6 +269,10 @@ main {
 
 #controls-holder table .first-col {
   width: 50%;
+}
+
+#controls-holder table .quarter-col {
+  width: 25%;
 }
 
 #controls-holder table input[type="range"] {
