@@ -24,10 +24,10 @@ class Tile {
 
     this.currentMarkCol = 0;
     this.markCols = [
-      app.p1.color(255, 0, 0),
-      app.p1.color(0, 255, 0),
-      app.p1.color(255, 100, 0),
-      app.p1.color(0, 255, 255),
+      app.mainSketch.color(255, 0, 0),
+      app.mainSketch.color(0, 255, 0),
+      app.mainSketch.color(255, 100, 0),
+      app.mainSketch.color(0, 255, 255),
     ];
 
     // UI properties
@@ -44,7 +44,7 @@ class Tile {
 
     let acc = this.num;
     for (let i = this.sides.length - 1; i >= 0; i--) {
-      let p = app.p1.pow(2, i);
+      let p = app.mainSketch.pow(2, i);
       if (acc >= p) {
         acc -= p;
         this.sides[i] = true;
@@ -63,7 +63,7 @@ class Tile {
       [0, 1], [  0, 0.5],
     ];
 
-    this.center = app.p1.createVector(0.5, 0.5);
+    this.center = app.mainSketch.createVector(0.5, 0.5);
   }
 
   getM(tileSize){
@@ -104,7 +104,6 @@ class Tile {
     }
 
     this.drawToCanvas(x, y, s, tileSize);
-
   }
 
   makeBinStr(sideArray){
@@ -125,10 +124,10 @@ class Tile {
     if (this.num == 255){
       for (let i = 0; i < this.vertices.length; i++){
         let endIdx = (i + 1) % this.vertices.length;
-        let startVx = app.p1.createVector(
+        let startVx = app.mainSketch.createVector(
           this.vertices[i][0] - this.center.x, 
           this.vertices[i][1] - this.center.y);
-        let endVx = app.p1.createVector(
+        let endVx = app.mainSketch.createVector(
           this.vertices[endIdx][0] - this.center.x, 
           this.vertices[endIdx][1] - this.center.y);
         startVx.setMag(0.001);
@@ -155,8 +154,6 @@ class Tile {
       // If the path covers more than one edge, then we need to split it.
       if (path.numEdges > 1){
         let paths = this.splitPath(path, path.numEdges);
-
-      
         
         //debugger;
 
@@ -168,16 +165,12 @@ class Tile {
         this.drawingData[openingIndex] = path;
       }
       
-    // this data will be used to spread the loft points across the paths
-        this.openings[i] = {
-          
-        //
+      // this data will be used to spread the loft points across the paths
+      this.openings[i] = {
         numEdges : path.numEdges,  
         startIndex: openingIndex,
         endIndex:closingIndex
-        } 
-      
-      
+      } 
     }
 
     // Now add the straight edges in
@@ -201,14 +194,14 @@ class Tile {
     let cVx = this.vertices[cIdx];
 
     let middleVertex = this.avgVertex(oIdx, cIdx);
-    let magVec = app.p1.createVector(oVx[0] - cVx[0], oVx[1] - cVx[1])
-    magVec.setMag(magVec.mag() * (app.tileParams.mag / 100));
-    magVec.rotate(app.p1.radians(app.tileParams.rotation));
+    let magVec = app.mainSketch.createVector(oVx[0] - cVx[0], oVx[1] - cVx[1])
+    magVec.setMag(magVec.mag() * (app.params.mag / 100));
+    magVec.rotate(app.mainSketch.radians(app.params.rotation));
 
     // Create a vector for control point from opening edge of tile towards centre
     // Scale the control vector according to user input
-    let openSideCxVec = app.p1.createVector(this.center.x - oVx[0], this.center.y - oVx[1]);
-    openSideCxVec.setMag(openSideCxVec.mag() * (app.tileParams.sidePull / 100));
+    let openSideCxVec = app.mainSketch.createVector(this.center.x - oVx[0], this.center.y - oVx[1]);
+    openSideCxVec.setMag(openSideCxVec.mag() * (app.params.sidePull / 100));
     let openSideCxVx = [oVx[0] + openSideCxVec.x, oVx[1] + openSideCxVec.y];
 
     pathData.addPart('C', [
@@ -217,13 +210,13 @@ class Tile {
       middleVertex[0],             middleVertex[1]    
     ]);
 
-    magVec.rotate(app.p1.radians(180));
+    magVec.rotate(app.mainSketch.radians(180));
 
     // Create a vector for control point from closing edge of tile towards centre
     // Scale the control vector according to user input
-    let closeSideCxVec = app.p1.createVector(this.center.x - cVx[0], this.center.y - cVx[1]);
+    let closeSideCxVec = app.mainSketch.createVector(this.center.x - cVx[0], this.center.y - cVx[1]);
     closeSideCxVec.setMag(
-      closeSideCxVec.mag() * (app.tileParams.sidePull / 100));
+      closeSideCxVec.mag() * (app.params.sidePull / 100));
     let closeSideCxVx = [cVx[0] + closeSideCxVec.x, cVx[1] + closeSideCxVec.y];
 
     pathData.addPart('C', [
@@ -415,9 +408,9 @@ class Tile {
 
     let mP = [(oV[0] + cV[0]) / 2, (oV[1] + cV[1]) / 2];
 
-    let vec = app.p1.createVector(this.center.x - mP[0], this.center.y - mP[1]);
+    let vec = app.mainSketch.createVector(this.center.x - mP[0], this.center.y - mP[1]);
 
-    vec.setMag(vec.mag() * (app.tileParams.pull / 100));
+    vec.setMag(vec.mag() * (app.params.pull / 100));
 
     return [mP[0] + vec.x, mP[1] + vec.y];
   }
@@ -492,7 +485,7 @@ class Tile {
     let numSplits = numPieces - 1;
 
     let a = this.splitPathDataToPieces(path.start, path.pathParts[0], numPieces);
-    let startB = app.p1.createVector(path.pathParts[0].params[4], path.pathParts[0].params[5]);
+    let startB = app.mainSketch.createVector(path.pathParts[0].params[4], path.pathParts[0].params[5]);
     let b = this.splitPathDataToPieces(startB, path.pathParts[1], numPieces);
     
 
@@ -520,7 +513,7 @@ class Tile {
   }
 
   splitPathDataToPieces(v0, pathPart, numHalfPieces){
-    let numSplits = app.p1.floor((numHalfPieces - 1) / 2);
+    let numSplits = app.mainSketch.floor((numHalfPieces - 1) / 2);
 
     let a;
     let b;
@@ -532,9 +525,9 @@ class Tile {
 
     if (numHalfPieces == 2){
       return [[v0, 
-        app.p1.createVector(pathParams[0], pathParams[1]),
-        app.p1.createVector(pathParams[2], pathParams[3]),
-        app.p1.createVector(pathParams[4], pathParams[5])
+        app.mainSketch.createVector(pathParams[0], pathParams[1]),
+        app.mainSketch.createVector(pathParams[2], pathParams[3]),
+        app.mainSketch.createVector(pathParams[4], pathParams[5])
       ]];
     }
 
@@ -552,9 +545,9 @@ class Tile {
   }
 
   splitPathData(v0, pathParams, t){
-    let v1 = app.p1.createVector(pathParams[0], pathParams[1]);
-    let v2 = app.p1.createVector(pathParams[2], pathParams[3]);
-    let v3 = app.p1.createVector(pathParams[4], pathParams[5]);  
+    let v1 = app.mainSketch.createVector(pathParams[0], pathParams[1]);
+    let v2 = app.mainSketch.createVector(pathParams[2], pathParams[3]);
+    let v3 = app.mainSketch.createVector(pathParams[4], pathParams[5]);  
     let v4 = p5.Vector.lerp(v0, v1, t);
     let v5 = p5.Vector.lerp(v1, v2, t);
     let v6 = p5.Vector.lerp(v2, v3, t);

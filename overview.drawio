@@ -1,0 +1,19 @@
+<mxfile host="65bd71144e">
+    <diagram id="OHT0SHDp_O8CRAUnaS3n" name="Page-1">
+        <mxGraphModel dx="752" dy="922" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="2" value="board.js&lt;br&gt;&lt;br&gt;(stores / manipulates data for one side of a wall)" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="420" y="120" width="120" height="170" as="geometry"/>
+                </mxCell>
+                <mxCell id="4" value="sketch.js&lt;br&gt;&lt;br&gt;# variables&lt;br&gt;app&lt;br&gt;&amp;nbsp; .front&lt;br&gt;&lt;div style=&quot;&quot;&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;&amp;nbsp; .back&lt;/span&gt;&lt;/div&gt;&lt;div style=&quot;&quot;&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;&amp;nbsp; .p1&lt;/span&gt;&lt;/div&gt;exampleTile" style="rounded=0;whiteSpace=wrap;html=1;align=left;" vertex="1" parent="1">
+                    <mxGeometry x="60" y="70" width="120" height="290" as="geometry"/>
+                </mxCell>
+                <mxCell id="5" value="p1&lt;br&gt;&lt;br&gt;'parent sketch' that is declared in sketch.js and is responsible for handling overall user input and visibility of the other sketches." style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="390" y="370" width="120" height="150" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>

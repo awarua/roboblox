@@ -5,19 +5,19 @@
 window.board3D = null;
 let parent;
 
-let p1 = new p5((s) => {
+let projectorSketch = new p5((sketchProjector) => {
   let parent;
 
-  s.setup = () => {
-    s.noCanvas();
+  sketchProjector.setup = () => {
+    sketchProjector.noCanvas();
   }
 
-  s.hideFullscreenBtn = () => {
-    s.select('#btn-fullscreen').hide();
+  sketchProjector.hideFullscreenBtn = () => {
+    sketchProjector.select('#btn-fullscreen').hide();
   }
 
-  s.hideWindowedBtn = () => {
-    s.select('#btn-windowed').hide();
+  sketchProjector.hideWindowedBtn = () => {
+    sketchProjector.select('#btn-windowed').hide();
   }
 
 })
@@ -26,16 +26,16 @@ setParent = (_parent) => {
   parent = _parent;
   document.querySelector('#btn-fullscreen').addEventListener(
     'click', () => {
-      p1.hideFullscreenBtn();
-      p1.hideWindowedBtn();
+      projectorSketch.hideFullscreenBtn();
+      projectorSketch.hideWindowedBtn();
       toggleFullscreen();
     }
   )  
 
   document.querySelector('#btn-windowed').addEventListener(
     'click', () => {
-      p1.hideFullscreenBtn();
-      p1.hideWindowedBtn();
+      projectorSketch.hideFullscreenBtn();
+      projectorSketch.hideWindowedBtn();
 
       let appFn = () => parent.app;
 

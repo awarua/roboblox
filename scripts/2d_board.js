@@ -1,7 +1,7 @@
 function makeBoard(domParentId, _app, _board, hideAfter, initialTile, _label){
-  console.log('makeBoard', domParentId, _app, _board, hideAfter, initialTile, _label);
+  console.log('make2DBoard', domParentId, _app, _board, hideAfter, initialTile, _label);
 
-  return (s) => {
+  return (sketch2DBoard) => {
     let board = _board;
     let lastClicked = null;
     let tileSize = _app.masterTileSize;
@@ -11,10 +11,10 @@ function makeBoard(domParentId, _app, _board, hideAfter, initialTile, _label){
     let label = _label;
     let showLabel = true;
   
-    s.setup = () => {
+    sketch2DBoard.setup = () => {
       // Get the parent dom element and figure out width
-      let domParent = s.select(domParentId);
-      let mainDiv = s.select('#main-area');
+      let domParent = sketch2DBoard.select(domParentId);
+      let mainDiv = sketch2DBoard.select('#main-area');
       let w = domParent.width;
       // debugger;
       // let t = domParent.elt.offsetTop + domParent.elt.offsetParent.offsetTop;
@@ -22,16 +22,16 @@ function makeBoard(domParentId, _app, _board, hideAfter, initialTile, _label){
 
       // console.log('makeBoard', 'w', w, 't', t, 'h', h, 'mainDiv.h', mainDiv.height);
 
-      let sideL = s.min(w, h);
+      let sideL = sketch2DBoard.min(w, h);
 
-      tileSize = sideL / _app.COLS;
+      tileSize = sideL / _app.params.cols;
       scaleFactor = (sideL - 2 * margin) / sideL;
 
-      let canvasW = margin * 2 + tileSize * _app.COLS * scaleFactor;
+      let canvasW = margin * 2 + tileSize * _app.params.cols * scaleFactor;
       let canvasH = h;
 
       // if (w < h){
-      //   canvasHeight = margin * 2 + tileSize * _app.ROWS * scaleFactor;
+      //   canvasHeight = margin * 2 + tileSize * _app.params.rows * scaleFactor;
       // } else {
       //   canvasWidth = margin
       // }
@@ -39,7 +39,7 @@ function makeBoard(domParentId, _app, _board, hideAfter, initialTile, _label){
       // canvasW = 100;
       // canvasH = 100;
       
-      let cnv = s.createCanvas(canvasW, canvasH);
+      let cnv = sketch2DBoard.createCanvas(canvasW, canvasH);
       cnv.parent(domParent);
 
       if (typeof(initialTile) != "undefined" && initialTile !== null){
@@ -50,57 +50,57 @@ function makeBoard(domParentId, _app, _board, hideAfter, initialTile, _label){
 
       // Hide the board if asked to.
       if (hideAfter){
-        s.setVisible(false);
+        sketch2DBoard.setVisible(false);
       }
 
-      s.noLoop();
+      sketch2DBoard.noLoop();
     };
   
-    s.draw = () => {
+    sketch2DBoard.draw = () => {
       // console.log(domParentId, 'draw()', 'lastClicked', lastClicked);
-      s.push();
-      s.background(0);
-      s.translate(s.width / 2, s.height / 2);
-      s.scale(scaleFactor);
-      s.translate(-tileSize * _app.COLS / 2, -tileSize * _app.ROWS / 2);
+      sketch2DBoard.push();
+      sketch2DBoard.background(0);
+      sketch2DBoard.translate(sketch2DBoard.width / 2, sketch2DBoard.height / 2);
+      sketch2DBoard.scale(scaleFactor);
+      sketch2DBoard.translate(-tileSize * _app.params.cols / 2, -tileSize * _app.params.rows / 2);
 
-      s.displayTiles();
+      sketch2DBoard.displayTiles();
 
       // s.stroke(0, 255, 255);
       // s.line(0, 20, s.width, 20);
       // s.translate(s.width / 2, s.height / 2);
       // s.scale(scaleFactor);
-      // s.translate(-tileSize * _app.COLS / 2, -tileSize * _app.ROWS / 2);
-      s.displayGrid();
+      // s.translate(-tileSize * _app.params.cols / 2, -tileSize * _app.params.rows / 2);
+      sketch2DBoard.displayGrid();
 
-      s.displayLastClicked();
+      sketch2DBoard.displayLastClicked();
       // s.fill(255, 0, 0);
       // s.text(domParentId, 20, 20);
-      s.pop();
+      sketch2DBoard.pop();
 
       if (showLabel){
-        s.push();
-        s.fill(255, 150);
-        s.textAlign(s.LEFT, s.TOP);
-        s.text(label, margin, s.height - margin + 6);
-        s.pop();
+        sketch2DBoard.push();
+        sketch2DBoard.fill(255, 150);
+        sketch2DBoard.textAlign(sketch2DBoard.LEFT, sketch2DBoard.TOP);
+        sketch2DBoard.text(label, margin, sketch2DBoard.height - margin + 6);
+        sketch2DBoard.pop();
       }
-      s.noLoop();
+      sketch2DBoard.noLoop();
     };
 
     // Iterate over the tiles in the board and display them
-    s.displayTiles = () => {
-      for (let c = 0; c < _app.COLS; c++){
-        for (let r = 0; r < _app.ROWS; r++){
+    sketch2DBoard.displayTiles = () => {
+      for (let c = 0; c < _app.params.cols; c++){
+        for (let r = 0; r < _app.params.rows; r++){
           // Draw the tile (if one has been placed)
           if (board.getTile(c, r) >= 0){
             let n = board.getTile(c, r);
             let x = c * tileSize + (tileSize / 2);
             let y = r * tileSize + (tileSize / 2);
 
-            s.noStroke();
-            s.fill(255);
-            _app.tiles[n].display(x, y, s, tileSize);
+            sketch2DBoard.noStroke();
+            sketch2DBoard.fill(255);
+            _app.tiles[n].display(x, y, sketch2DBoard, tileSize);
 
             // Display the tile number at the top left corner.
             // s.push();
@@ -113,60 +113,60 @@ function makeBoard(domParentId, _app, _board, hideAfter, initialTile, _label){
       }
     };
 
-    s.displayGrid = () => {
-      s.push();
-      s.strokeWeight(1);
-      s.stroke(100, 200);
-      for (let c = 0; c < _app.COLS + 1; c++) {
-        s.line(c * tileSize, 0, c * tileSize, _app.ROWS * tileSize);
+    sketch2DBoard.displayGrid = () => {
+      sketch2DBoard.push();
+      sketch2DBoard.strokeWeight(1);
+      sketch2DBoard.stroke(100, 200);
+      for (let c = 0; c < _app.params.cols + 1; c++) {
+        sketch2DBoard.line(c * tileSize, 0, c * tileSize, _app.params.rows * tileSize);
       }
-      for (let r = 0; r < _app.ROWS + 1; r++) {
-        s.line(0, r * tileSize, _app.COLS * tileSize, r * tileSize);
+      for (let r = 0; r < _app.params.rows + 1; r++) {
+        sketch2DBoard.line(0, r * tileSize, _app.params.cols * tileSize, r * tileSize);
       }
-      s.pop();
+      sketch2DBoard.pop();
     };
 
-    s.displayLastClicked = () => {
+    sketch2DBoard.displayLastClicked = () => {
       if (lastClicked){
-        s.push();
-        s.stroke(200, 200, 255);
-        s.noFill();
+        sketch2DBoard.push();
+        sketch2DBoard.stroke(200, 200, 255);
+        sketch2DBoard.noFill();
         // s.fill(255, 0, 0);
         let x = lastClicked.c * tileSize;
         let y = lastClicked.r * tileSize;
-        s.square(x, y, tileSize);
-        s.pop();
+        sketch2DBoard.square(x, y, tileSize);
+        sketch2DBoard.pop();
 
-        let n = s.getCurrentTileNumber() 
-        _app.tiles[n].showUI(x, y, s, tileSize);
+        let n = sketch2DBoard.getCurrentTileNumber() 
+        _app.tiles[n].showUI(x, y, sketch2DBoard, tileSize);
       }
     };
               
     // Returns a copy of the current board
-    s.getBoard = () => {
+    sketch2DBoard.getBoard = () => {
       return board;
     }
               
     // Returns true if a given point is inside the canvas
-    s.isInside = (x, y) => {
-      return x > 0 && x < s.width && y > 0 && y < s.height;
+    sketch2DBoard.isInside = (x, y) => {
+      return x > 0 && x < sketch2DBoard.width && y > 0 && y < sketch2DBoard.height;
     };
 
-    s.getCurrentTileNumber = () => {
+    sketch2DBoard.getCurrentTileNumber = () => {
       if (lastClicked){
-        return s.getTileNumber(lastClicked);
+        return sketch2DBoard.getTileNumber(lastClicked);
       }
       return null;
     }
 
-    s.getTileNumber = (position) => {
+    sketch2DBoard.getTileNumber = (position) => {
       return board.getTileNumber(position);
     }    
 
-    s.setVisible = (newIsVisible) => {
+    sketch2DBoard.setVisible = (newIsVisible) => {
       // console.log('s.setVisible', newIsVisible, isVisible, domParentId);
       isVisible = newIsVisible;
-      let domParent = s.select(domParentId);
+      let domParent = sketch2DBoard.select(domParentId);
       if (isVisible){
         domParent.elt.parentElement.parentElement.classList.remove('hidden');
       } else {
@@ -180,74 +180,74 @@ function makeBoard(domParentId, _app, _board, hideAfter, initialTile, _label){
     // Event handlers
     // 
 
-    s.keyPressed = () => {
+    sketch2DBoard.keyPressed = () => {
       if (lastClicked && isVisible){
-        if (s.keyCode == s.UP_ARROW){
-          lastClicked.r = s.max(lastClicked.r - 1, 0);
-        } else if (s.keyCode == s.DOWN_ARROW){
-          lastClicked.r = s.min(lastClicked.r + 1, _app.ROWS - 1);
-        } else if (s.keyCode == s.LEFT_ARROW){
-          lastClicked.c = s.max(lastClicked.c - 1, 0);
-        } else if (s.keyCode == s.RIGHT_ARROW){
-          lastClicked.c = s.min(lastClicked.c + 1, _app.COLS - 1);
-        } else if (s.key == '1'){
+        if (sketch2DBoard.keyCode == sketch2DBoard.UP_ARROW){
+          lastClicked.r = sketch2DBoard.max(lastClicked.r - 1, 0);
+        } else if (sketch2DBoard.keyCode == sketch2DBoard.DOWN_ARROW){
+          lastClicked.r = sketch2DBoard.min(lastClicked.r + 1, _app.params.rows - 1);
+        } else if (sketch2DBoard.keyCode == sketch2DBoard.LEFT_ARROW){
+          lastClicked.c = sketch2DBoard.max(lastClicked.c - 1, 0);
+        } else if (sketch2DBoard.keyCode == sketch2DBoard.RIGHT_ARROW){
+          lastClicked.c = sketch2DBoard.min(lastClicked.c + 1, _app.params.cols - 1);
+        } else if (sketch2DBoard.key == '1'){
           board.toggleSide(0, lastClicked);
-        } else if (s.key == '2'){
+        } else if (sketch2DBoard.key == '2'){
           board.toggleSide(1, lastClicked);
-        } else if (s.key == '3'){
+        } else if (sketch2DBoard.key == '3'){
           board.toggleSide(2, lastClicked);
-        } else if (s.key == '4'){
+        } else if (sketch2DBoard.key == '4'){
           board.toggleSide(3, lastClicked);
-        } else if (s.key == '5'){
+        } else if (sketch2DBoard.key == '5'){
           board.toggleSide(4, lastClicked);
-        } else if (s.key == '6'){
+        } else if (sketch2DBoard.key == '6'){
           board.toggleSide(5, lastClicked);
-        } else if (s.key == '7'){
+        } else if (sketch2DBoard.key == '7'){
           board.toggleSide(6, lastClicked);
-        } else if (s.key == '8'){
+        } else if (sketch2DBoard.key == '8'){
           board.toggleSide(7, lastClicked);
         }
-        s.loop();
+        sketch2DBoard.loop();
         return false;
       }
     }
 
-    s.mouseClicked = () => {
+    sketch2DBoard.mouseClicked = () => {
       // console.log(domParentId, s.mouseX, s.mouseY, 
       //  `${s.isInside(s.mouseX, s.mouseY)}`);
 
       // console.log(isVisible, s.isInside(s.mouseX, s.mouseY), 
       //   scaleFactor, tileSize, tileSize * scaleFactor, s.width);
 
-      if (s.isInside(s.mouseX, s.mouseY) && isVisible) {
+      if (sketch2DBoard.isInside(sketch2DBoard.mouseX, sketch2DBoard.mouseY) && isVisible) {
         // Take account of the scale factor
-        let xMargin = (s.width - (_app.COLS * tileSize * scaleFactor)) / 2;
-        let yMargin = (s.height - (_app.ROWS * tileSize * scaleFactor)) / 2;
+        let xMargin = (sketch2DBoard.width - (_app.params.cols * tileSize * scaleFactor)) / 2;
+        let yMargin = (sketch2DBoard.height - (_app.params.rows * tileSize * scaleFactor)) / 2;
 
-        let scaledX = (s.mouseX - xMargin) / scaleFactor;
-        let scaledY = (s.mouseY - yMargin) / scaleFactor;
+        let scaledX = (sketch2DBoard.mouseX - xMargin) / scaleFactor;
+        let scaledY = (sketch2DBoard.mouseY - yMargin) / scaleFactor;
 
         // console.log(s.mouseX, xMargin, scaledX);
 
         // Calculate the row and column index
-        let c = s.floor(scaledX / tileSize);
-        let r = s.floor(scaledY / tileSize);
+        let c = sketch2DBoard.floor(scaledX / tileSize);
+        let r = sketch2DBoard.floor(scaledY / tileSize);
     
         // Just to be doubly-sure, use the constrain function to make sure the index is valid
-        c = s.constrain(c, 0, _app.COLS - 1);
-        r = s.constrain(r, 0, _app.ROWS - 1);
+        c = sketch2DBoard.constrain(c, 0, _app.params.cols - 1);
+        r = sketch2DBoard.constrain(r, 0, _app.params.rows - 1);
     
         // If it is over the last clicked tile, first check that it's not
         // over one of that tile's UI elements
         if (lastClicked){
-          let n = s.getCurrentTileNumber();
+          let n = sketch2DBoard.getCurrentTileNumber();
           let x = lastClicked.c * tileSize;
           let y = lastClicked.r * tileSize;
 
           // If one of the sides is clicked, then figure out which one
           // And toggle that side for this tile and it's neighbor.
           let sideClicked = _app.tiles[n].sideClicked(
-            scaledX, scaledY, x, y, s, tileSize);
+            scaledX, scaledY, x, y, sketch2DBoard, tileSize);
           if (sideClicked >= 0){
             // console.log('in last clicked tile. s:', sideClicked);
             board.toggleSide(sideClicked, lastClicked);
@@ -258,11 +258,11 @@ function makeBoard(domParentId, _app, _board, hideAfter, initialTile, _label){
           lastClicked = {c, r};
         }
     
-        s.loop();
+        sketch2DBoard.loop();
         return false;
       } else {
         lastClicked = null;
-        s.loop();
+        sketch2DBoard.loop();
       }
     }; 
   }
