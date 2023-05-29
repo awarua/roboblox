@@ -8,11 +8,8 @@
   <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
   <meta
     http-equiv="Content-Security-Policy"
-    content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline';"
-  />
-  <meta
-    http-equiv="X-Content-Security-Policy"
-    content="default-src 'self'; script-src 'self'"
+  content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src
+  'self' 'unsafe-inline';"
   />
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -30,14 +27,16 @@
   <script src="scripts/tile.js"></script>
   <script src="scripts/brick.js"></script>
   <script src="scripts/board.js"></script>
-  <script src="scripts/2d_board.js"></script>
-  <script src="scripts/3d_board.js"></script>
+  <script src="scripts/board2D.js"></script>
+  <script src="scripts/board3D.js"></script>
   <script src="scripts/app.js"></script>
   <script src="scripts/sketch.js"></script>
 
 </head>
 
 <body>
+
+  <!--
   <main role="main" class="container">
     <div id="top-menu">
       <div class="row mt1rem">
@@ -49,9 +48,9 @@
                 id="btn-show-settings">Settings</button>
         <button class="col-2 ml1rem bg-secondary" 
                 id="btn-save-file">Save</button>
-        <!-- <span id="file-input-holder"></span> -->
-        <!-- <button class="col-2 ml1rem bg-secondary"
-                id="btn-projector">Projector</button> -->
+        < !-- <span id="file-input-holder"></span> -- >
+        < !-- <button class="col-2 ml1rem bg-secondary"
+                id="btn-projector">Projector</button> -- >
       </div>
     </div>
 
@@ -59,13 +58,13 @@
       <div class="row mt1rem">
         <div class="col-6">
           <div id="front-row">
-            <!-- <h4 id="front-canvas-title">Click to Change Front Side</h4> -->
+          < !-- <h4 id="front-canvas-title">Click to Change Front Side</h4> -- >
             <div id="front-div">
               <div  id="canvas-holder-front"></div>
             </div>  
           </div>
           <div id="back-row">
-            <!-- <h4 id="back-canvas-title">Click to Change Back Side</h4>  -->
+          < !-- <h4 id="back-canvas-title">Click to Change Back Side</h4>  -- >
             <div id="back-div">
               <div  id="canvas-holder-back"></div>
             </div>    
@@ -73,7 +72,7 @@
         </div>
         <div class="col-6">
           <div id="threed-row">
-            <!-- <h4 id="3d-canvas-title">Drag to See 3D</h4> -->
+            < !-- <h4 id="3d-canvas-title">Drag to See 3D</h4> -- >
             <div id="3d-div">
               <div id="canvas-holder-3d"></div>
             </div>
@@ -165,7 +164,7 @@
 
   </main>
 
-    <!--
+    < !--
     
     <div class="grid-div">
 
@@ -190,6 +189,7 @@
       </div>
         -- >
       
+    -- >
     -->
 </body>
 

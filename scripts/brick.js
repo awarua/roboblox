@@ -1,13 +1,22 @@
 class Brick {
-  constructor(fTile, bTile, center, viewer, steps) {
-    this.fTile = fTile
-    this.bTile = bTile
+  constructor(fTile, bTile, center, g, steps) {
+    this.fTile = fTile;
+    this.bTile = bTile;
+    this.center = center;
+    this.g = g;
+    this.steps = steps;
+
+    this.loftColor = color(20, 20, 20);
+    this.loftStroke = color(80, 80, 80);
+
+    // this.loftColor = color(80, 80, 80);
+    // this.loftStroke = color(40, 40, 40);
+
+
     this.frontTile = fTile.drawingData;
     this.backTile = bTile.drawingData;
-    this.center = center;
-    this.steps = steps;
-    this.frontPoints = this.findPoints(this.frontTile, viewer)
-    this.backPoints = this.findPoints(this.backTile, viewer, true);
+    this.frontPoints = this.findPoints(this.frontTile, false)
+    this.backPoints = this.findPoints(this.backTile, true);
 
     // sets the z location for the points 
     let l = this.frontPoints.length
@@ -20,36 +29,43 @@ class Brick {
     }
   }
 
-  display(viewer, tileSize) {
-    this.displayLoft(viewer, tileSize);
+  display(tileSize) {
+    this.displayLoft(tileSize);
+    // this.displayPoints(tileSize);
     
     // Translate and draw front tile
-    viewer.push();    
-    viewer.translate(0, 0, tileSize / 2);
-    this.displayTile(viewer, this.frontTile, tileSize, false)
+    this.g.push();
+    this.g.translate(0, 0, tileSize / 2);
+    this.g.fill(255, 255, 0);
+    this.displayTile(this.frontTile, tileSize, false)
+    this.g.pop();
 
     // Translate and draw the back tile (relative to front)
-    viewer.push();
-    viewer.translate(tileSize, 0, -tileSize);
-    this.displayTile(viewer, this.backTile, tileSize, true)
-    viewer.pop();
-    viewer.pop();
+    this.g.push();
+    this.g.translate(tileSize, 0, -tileSize / 2);
+    this.g.rotateY(radians(180));
+    this.g.fill(0, 255, 255);
+    this.displayTile(this.backTile, tileSize, true)
+    this.g.pop();
+
   }
 
-  displayTile(viewer, drawingData, tileSize, flip) {
-    viewer.push();
-    viewer.noStroke();
-    viewer.fill(255);
-    viewer.stroke(200);
-    viewer.strokeWeight(1);
-    viewer.scale(tileSize, tileSize, tileSize);
-    viewer.ambientMaterial(255);
+  displayTile(drawingData, tileSize, flip) {
+    this.g.push();
+    // this.g.noStroke();
+    // this.g.fill(255);
+    // this.g.stroke(200);
+    // this.g.strokeWeight(1);
+    this.g.scale(tileSize);
+    this.g.ambientMaterial(255, 255, 255);
 
     if (flip) {
-      viewer.rotateY(180)
+      this.g.rotateY(radians(180))   
+      // this.g.translate(-1, 0, 0); 
+      this.g.scale(-1, 1, 1);  
     }
 
-    viewer.beginShape();
+    this.g.beginShape();
 
     for (let i = 0; i < drawingData.length; i++) {
       let pathParts = drawingData[i].pathParts;
@@ -62,16 +78,16 @@ class Brick {
         if (pathType == 'L' && params.length == 2) {
           let x = params[0]
           let y = params[1]
-          viewer.vertex(x, y);
+          this.g.vertex(x, y);
       } else if (pathType == 'C' && params.length == 6) {
           if (pathParts.length == 2 && j == 1) {
             let x = pathParts[0].params[4]
             let y = pathParts[0].params[5]
-            viewer.vertex(x, y)
+            this.g.vertex(x, y)
           } else {
             let x = drawingData[i].start.x
             let y = drawingData[i].start.y
-            viewer.vertex(x, y)
+            this.g.vertex(x, y)
           }
           let a = params[0]
           let b = params[1]
@@ -79,58 +95,146 @@ class Brick {
           let d = params[3]
           let e = params[4]
           let f = params[5]
-          viewer.bezierVertex(a, b, c, d, e, f);
+          this.g.bezierVertex(a, b, c, d, e, f);
         }
       }
     }
 
-    viewer.endShape(viewer.CLOSE);
-    viewer.pop();
+    this.g.endShape(this.g.CLOSE);
+    this.g.pop();
   }
 
-  displayLoft(viewer, tileSize) {
-    viewer.push();
-    viewer.scale(tileSize, tileSize, tileSize);
-    viewer.ambientMaterial(20, 20, 20);
-    viewer.noStroke();
+  displayPoints(tileSize){
+    this.g.push();
+    this.g.scale(tileSize);
+    this.g.noStroke();
 
-    let maxPoints = viewer.max(this.backPoints.length, this.frontPoints.length);
+    for (let i = 0; i < this.frontPoints.length; i++){
+      let p = this.frontPoints[i];
+      this.g.push();
+      this.g.fill(0, 255, 255);
+      this.g.translate(p.x, p.y, p.z);
+      this.g.box(0.1);
+
+      // Draw the number of the point.
+      let tY = i % 2 ? 0.025 : -0.025;
+      this.g.push();
+      this.g.translate(0, tY, 0.06);
+      this.g.fill(0);
+      this.g.text(i, 0, 0, 0);
+      this.g.pop();
+
+      this.g.pop();
+    }
+
+    for (let i = 0; i < this.backPoints.length; i++){
+      let p = this.backPoints[i];
+      this.g.push();
+      this.g.fill(255, 255, 0);
+      this.g.translate(p.x, p.y, p.z);
+      this.g.box(0.1);
+
+      // Draw the number of the point.
+      let tY = i % 2 ? 0.025 : -0.025;
+      this.g.push();
+      this.g.translate(0, tY, -0.06);
+      this.g.rotateY(radians(180));
+      this.g.fill(0);
+      this.g.text(i, 0, 0, 0);
+      this.g.pop();
+      
+      this.g.pop();
+    }
+
+    this.g.pop();
+  }
+
+  displayLoft(tileSize) {
+    this.g.push();
+    this.g.scale(tileSize);
+    this.g.ambientMaterial(this.loftColor);
+    this.g.noStroke();
+    // this.g.stroke(255, 100);
+
+    let maxPoints = max(this.backPoints.length, this.frontPoints.length);
 
     for (let pointIdx = 0; pointIdx < maxPoints; pointIdx++) {
-      let nextPointIdx = pointIdx + 1;
-      if (nextPointIdx >= maxPoints) {
-        nextPointIdx = 0;
+      let frontPointIdx = pointIdx;
+      if (frontPointIdx >= this.frontPoints.length){
+        frontPointIdx = 0;
+      }
+      let backPointIdx = pointIdx;
+      if (backPointIdx >= this.backPoints.length){
+        backPointIdx = 0;
       }
 
-      let a = this.frontPoints[pointIdx];
-      let b = this.backPoints[pointIdx];
-      let c = this.frontPoints[nextPointIdx];
-      let d = this.backPoints[nextPointIdx];
-
-      viewer.beginShape();
-      viewer.vertex(a.x, a.y, a.z);
-      viewer.vertex(b.x, b.y, b.z);
-      viewer.vertex(c.x, c.y, c.z);
-      viewer.endShape(viewer.CLOSE);
-
-      viewer.beginShape();
-      viewer.vertex(b.x, b.y, b.z);
-      viewer.vertex(c.x, c.y, c.z);
-      viewer.vertex(d.x, d.y, d.z);
-      viewer.endShape(viewer.CLOSE);
-
-      if (pointIdx % 3 == 0){
-        viewer.push();
-        viewer.strokeWeight(tileSize / 250);
-        viewer.stroke(255, 100);
-        viewer.line(a.x, a.y, a.z, b.x, b.y, b.z);
-        viewer.pop();
+      let nextFrontPointIdx = pointIdx + 1;
+      if (nextFrontPointIdx >= this.frontPoints.length){
+        nextFrontPointIdx = 0;
       }
+      let nextBackPointIdx = pointIdx + 1;
+      if (nextBackPointIdx >= this.backPoints.length){
+        nextBackPointIdx = 0;
+      }
+
+      let a = this.frontPoints[frontPointIdx];
+      let b = this.backPoints[backPointIdx];
+      let c = this.frontPoints[nextFrontPointIdx];
+      let d = this.backPoints[nextBackPointIdx];
+
+      // Draw triangle a, b, c
+      this.g.beginShape();
+      this.g.vertex(a.x, a.y, a.z);
+      this.g.vertex(b.x, b.y, b.z);
+      this.g.vertex(c.x, c.y, c.z);
+      this.g.endShape(CLOSE);
+
+      // Drag triangle b, c, d
+      this.g.beginShape();
+      this.g.vertex(b.x, b.y, b.z);
+      this.g.vertex(c.x, c.y, c.z);
+      this.g.vertex(d.x, d.y, d.z);
+      this.g.endShape(CLOSE);
+
+      // Every third point, draw a stroked line
+      // if (pointIdx % 3 == 0){
+        this.g.push();
+        this.g.strokeWeight(tileSize / 250);
+        this.g.stroke(this.loftStroke);
+        this.g.line(a.x, a.y, a.z, b.x, b.y, b.z);
+        this.g.pop();
+      // }
     }
-    viewer.pop();
+
+    // // Draw the outline of the front points.
+    // this.g.push();
+    // this.g.stroke(0, 255, 0);
+    // this.g.strokeWeight(4);
+    // this.g.beginShape();
+    // for (let i = 0; i < this.frontPoints.length; i++){
+    //   let p = this.frontPoints[i];
+    //   this.g.vertex(p.x, p.y, p.z);
+    // }
+    // this.g.endShape(CLOSE);
+    // this.g.pop();
+
+    // // Draw the outline of the back points.
+    // this.g.push();
+    // this.g.stroke(255, 0, 0);
+    // this.g.strokeWeight(4);
+    // this.g.beginShape();
+    // for (let i = 0; i < this.backPoints.length; i++){
+    //   let p = this.backPoints[i];
+    //   this.g.vertex(p.x, p.y, p.z);
+    // }
+    // this.g.endShape(CLOSE);
+    // this.g.pop();
+
+
+    this.g.pop();
   }
 
-  findPoints(drawingData, viewer, flip) {
+  findPoints(drawingData, flip) {
     let points = []
 
     // for every path of drawingData
@@ -151,9 +255,9 @@ class Brick {
           let c = drawingData[i].start.y;
           let d = drawingData[i].pathParts[0].params[1];
 
-          let bezPointX = viewer.bezierPoint(a, a, b, b, t);
-          let bezPointY = viewer.bezierPoint(c, c, d, d, t);
-          let point = viewer.createVector(bezPointX, bezPointY);
+          let bezPointX = bezierPoint(a, a, b, b, t);
+          let bezPointY = bezierPoint(c, c, d, d, t);
+          let point = createVector(bezPointX, bezPointY);
           points.push(point);
         }
       }
@@ -176,10 +280,10 @@ class Brick {
           let c2 = drawingData[i].pathParts[0].params[3];
           let d2 = drawingData[i].pathParts[0].params[5];
 
-          let bezPointX = viewer.bezierPoint(a, b, c, d, t);
-          let bezPointY = viewer.bezierPoint(a2, b2, c2, d2, t);
+          let bezPointX = bezierPoint(a, b, c, d, t);
+          let bezPointY = bezierPoint(a2, b2, c2, d2, t);
 
-          let point = viewer.createVector(bezPointX, bezPointY);
+          let point = createVector(bezPointX, bezPointY);
           points.push(point);
         }
       }
@@ -208,10 +312,10 @@ class Brick {
               let c2 = drawingData[i].pathParts[j].params[3]
               let d2 = drawingData[i].pathParts[j].params[5]
 
-              let bezPointX = viewer.bezierPoint(a, b, c, d, t)
-              let bezPointY = viewer.bezierPoint(a2, b2, c2, d2, t)
+              let bezPointX = bezierPoint(a, b, c, d, t)
+              let bezPointY = bezierPoint(a2, b2, c2, d2, t)
 
-              let point = viewer.createVector(bezPointX, bezPointY)
+              let point = createVector(bezPointX, bezPointY)
               points.push(point);
             }
           }
@@ -229,10 +333,10 @@ class Brick {
               let c2 = drawingData[i].pathParts[j].params[3]
               let d2 = drawingData[i].pathParts[j].params[5]
 
-              let bezPointX = viewer.bezierPoint(a, b, c, d, t)
-              let bezPointY = viewer.bezierPoint(a2, b2, c2, d2, t)
+              let bezPointX = bezierPoint(a, b, c, d, t)
+              let bezPointY = bezierPoint(a2, b2, c2, d2, t)
 
-              let point = viewer.createVector(bezPointX, bezPointY)
+              let point = createVector(bezPointX, bezPointY)
               points.push(point);
             }
           }

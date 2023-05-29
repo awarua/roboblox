@@ -63,7 +63,7 @@ function draw2D() {
 
   noLoop();
 
-  paramsChanged = false;
+  params.hasChanges = false;
  
 }
 

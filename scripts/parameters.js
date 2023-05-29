@@ -1,5 +1,5 @@
 
-class TileParameters {
+class Parameters {
 
   static defaults = {
     MIN_ROTATION:     -60,
@@ -23,6 +23,13 @@ class TileParameters {
   };
 
   constructor({rotation, mag, pull, sidePull, cols, rows}) {
+    this.rotation = rotation || Parameters.defaults.ROTATION;
+    this.mag = mag           || Parameters.defaults.MAG;
+    this.pull = pull         || Parameters.defaults.PULL;
+    this.sidePull = sidePull || Parameters.defaults.SIDE_PULL;
+    this.cols = cols         || Parameters.defaults.COLS;
+    this.rows = rows         || Parameters.defaults.ROWS;
+    
     // Dom elements that will be initialized later
     this.sldNumCols = null;
     this.txtNumCols = null;
@@ -36,70 +43,64 @@ class TileParameters {
     this.txtPull = null;
     this.sldSidePull = null;
     this.txtSidePull = null;
+    this.hasChanges = false;
 
-    this.rotation = rotation || TileParameters.defaults.ROTATION;
-    this.mag = mag           || TileParameters.defaults.MAG;
-    this.pull = pull         || TileParameters.defaults.PULL;
-    this.sidePull = sidePull || TileParameters.defaults.SIDE_PULL;
-    this.cols = cols         || TileParameters.defaults.COLS;
-    this.rows = rows         || TileParameters.defaults.ROWS;
-  }
-
-  // Function to initialize dom elements once p5 is ready.
-  init(){
-    this.sldNumCols = app.mainSketch.createSlider(2, 10, this.cols);
-    this.sldNumCols.parent(app.mainSketch.select("#sldNumCols-holder"));
+    /* TODO: Figure out the UI for the parameters.
+    // Function to initialize dom elements once p5 is ready.
+    this.sldNumCols = createSlider(2, 10, this.cols);
+    this.sldNumCols.parent(select("#sldNumCols-holder"));
     this.sldNumCols.mouseClicked(this.fnFalse);
     this.sldNumCols.mouseMoved(this.sldNumColsChanged)
-    this.txtNumCols = app.mainSketch.select('#txtNumCols-holder');
+    this.txtNumCols = select('#txtNumCols-holder');
     this.txtNumCols.html(this.cols);
 
-    this.sldNumRows = app.mainSketch.createSlider(2, 10, this.rows);
-    this.sldNumRows.parent(app.mainSketch.select("#sldNumRows-holder"));
+    this.sldNumRows = createSlider(2, 10, this.rows);
+    this.sldNumRows.parent(select("#sldNumRows-holder"));
     this.sldNumRows.mouseClicked(this.fnFalse);
     this.sldNumRows.mouseMoved(this.sldNumRowsChanged)
-    this.txtNumRows = app.mainSketch.select('#txtNumRows-holder');
+    this.txtNumRows = select('#txtNumRows-holder');
     this.txtNumRows.html(this.rows);
 
-    this.sldRotation = app.mainSketch.createSlider(
-      TileParameters.defaults.MIN_ROTATION,
-      TileParameters.defaults.MAX_ROTATION,
+    this.sldRotation = createSlider(
+      Parameters.defaults.MIN_ROTATION,
+      Parameters.defaults.MAX_ROTATION,
       this.rotation);
-    this.sldRotation.parent(app.mainSketch.select('#sldRotation-holder'));
+    this.sldRotation.parent(select('#sldRotation-holder'));
     this.sldRotation.mouseMoved(this.sldRotationChanged);
     this.sldRotation.mouseClicked(this.fnFalse);
-    this.txtRotation = app.mainSketch.select('#txtRotation-holder');
+    this.txtRotation = select('#txtRotation-holder');
     this.txtRotation.html(this.rotation);
 
-    this.sldMag = app.mainSketch.createSlider(
-      TileParameters.defaults.MIN_MAG, 
-      TileParameters.defaults.MAX_MAG, 
+    this.sldMag = createSlider(
+      Parameters.defaults.MIN_MAG, 
+      Parameters.defaults.MAX_MAG, 
       this.mag);
-    this.sldMag.parent(app.mainSketch.select('#sldMag-holder'));
+    this.sldMag.parent(select('#sldMag-holder'));
     this.sldMag.mouseMoved(this.sldMagChanged);
     this.sldMag.mouseClicked(this.fnFalse);
-    this.txtMag = app.mainSketch.select('#txtMag-holder');
+    this.txtMag = select('#txtMag-holder');
     this.txtMag.html(this.mag);
 
-    this.sldPull = app.mainSketch.createSlider(
-      TileParameters.defaults.MIN_PULL, 
-      TileParameters.defaults.MAX_PULL, 
+    this.sldPull = createSlider(
+      Parameters.defaults.MIN_PULL, 
+      Parameters.defaults.MAX_PULL, 
       this.pull);
-    this.sldPull.parent(app.mainSketch.select('#sldPull-holder'));
+    this.sldPull.parent(select('#sldPull-holder'));
     this.sldPull.mouseMoved(this.sldPullChanged);
     this.sldPull.mouseClicked(this.fnFalse);
-    this.txtPull = app.mainSketch.select('#txtPull-holder');
+    this.txtPull = select('#txtPull-holder');
     this.txtPull.html(this.pull);
 
-    this.sldSidePull = app.mainSketch.createSlider(
-      TileParameters.defaults.MIN_SIDE_PULL, 
-      TileParameters.defaults.MAX_SIDE_PULL, 
+    this.sldSidePull = createSlider(
+      Parameters.defaults.MIN_SIDE_PULL, 
+      Parameters.defaults.MAX_SIDE_PULL, 
       this.sidePull);
-    this.sldSidePull.parent(app.mainSketch.select('#sldSidePull-holder'));
+    this.sldSidePull.parent(select('#sldSidePull-holder'));
     this.sldSidePull.mouseMoved(this.sldSidePullChanged);
     this.sldSidePull.mouseClicked(this.fnFalse);
-    this.txtSidePull = app.mainSketch.select('#txtSidePull-holder');
+    this.txtSidePull = select('#txtSidePull-holder');
     this.txtSidePull.html(this.sidePull);
+    */
   }
 
   /**
@@ -118,7 +119,7 @@ class TileParameters {
     if (this.sldNumCols.value() != this.cols){
       this.cols = this.sldNumCols.value();
       this.txtNumCols.html(this.cols);
-      app.paramsChanged = true;
+      this.hasChanges = true;
     }
   }
 
@@ -131,7 +132,7 @@ class TileParameters {
       this.rows = this.sldNumRows.value();
       this.txtNumRows.html(this.rows);
       // TODO
-      // app.paramsChanged = true;
+      // this.hasChanges = true;
     }
   }
     
@@ -142,8 +143,8 @@ class TileParameters {
     if (this.sldRotation.value() != this.rotation) {
       this.rotation = this.sldRotation.value();
       this.txtRotation.html(this.rotation);
-      app.paramsChanged = true;
-      // app.mainSketch.loop();
+      this.hasChanges = true;
+      // loop();
     }
   }
 
@@ -154,8 +155,8 @@ class TileParameters {
     if (this.sldMag.value() != this.mag) {
       this.mag = this.sldMag.value();
       this.txtMag.html(this.mag);
-      app.paramsChanged = true;
-      // app.mainSketch.loop();
+      this.hasChanges = true;
+      // loop();
     }
   }
 
@@ -166,8 +167,8 @@ class TileParameters {
     if (this.sldPull.value() != this.pull) {
       this.pull = this.sldPull.value();
       this.txtPull.html(this.pull);
-      app.paramsChanged = true;
-      // app.mainSketch.loop();
+      this.hasChanges = true;
+      // loop();
     }
   }
 
@@ -178,8 +179,8 @@ class TileParameters {
     if (this.sldSidePull.value() != this.sidePull) {
       this.sidePull = this.sldSidePull.value();
       this.txtSidePull.html(this.sidePull);
-      app.paramsChanged = true;
-      // app.mainSketch.loop();
+      this.hasChanges = true;
+      // loop();
     }
   }
 
@@ -188,7 +189,7 @@ class TileParameters {
     this.mag = params.mag;
     this.pull = params.mag;
     this.sidePull = params.sidePull;
-    app.paramsChanged = true;
+    this.hasChanges = true;
     this.updateUI();
   }
   

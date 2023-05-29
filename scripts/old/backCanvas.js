@@ -120,7 +120,7 @@ let sketch = function(p) {
     showFrontSelected(p);
 
     p.noLoop();
-    //paramsChanged = false;
+    //params.hasChanges = true;
 
     //end of draw
   };
@@ -210,7 +210,7 @@ function displayTile(drawingData, p) {
 
 
   // This updates the params for the tiles
-  // if (paramsChanged) {
+  // if (params.hasChanges) {
   //   for (let c = 0; c < COLS; c++) {
   //     for (let r = 0; r < ROWS; r++) {
   //       boardBack[c][r].calculateGroup();

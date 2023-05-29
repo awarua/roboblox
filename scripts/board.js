@@ -1,10 +1,9 @@
 class Board {
 
   // Initialize the board with zero tiles
-  constructor(rows, cols, tilesFn){
+  constructor(rows, cols){
     this.cols = cols;
     this.rows = rows;
-    this.tilesFn = tilesFn;
     this._data = new Array(this.rows);
     for (let r = 0; r < this.rows; r++){
       this._data[r] = new Array(this.cols).fill(0);
@@ -48,7 +47,8 @@ class Board {
       for (let r = 0; r < this.rows; r++){
         this.setTile(c, r, tileNum);
       }
-    }      
+    }   
+    return this;   
   }
 
   // Fill the board with random tiles (making sure they all fit)
@@ -61,6 +61,7 @@ class Board {
         }
       }
     }
+    return this;
   }
 
   // Adjust tiles so they can stand up!
@@ -69,7 +70,7 @@ class Board {
   stabilize(){
     for (let r = 0; r < this.rows; r++){
       for (let c = 0; c < this.cols; c++){
-        let t = this.tilesFn()[this.getTile(c, r)]; 
+        let t = tiles[this.getTile(c, r)]; 
         if (t.sides[4] && t.sides[5]){
           let sideNum = (Math.random() < 0.5) ? 4 : 5;
           this.toggleSide(sideNum, {c, r});
@@ -102,7 +103,7 @@ class Board {
     ];
 
     // Toggle the tile side and the neighbor tile's side
-    let newN = this.tilesFn()[n].toggleSide(sideNum);
+    let newN = tiles[n].toggleSide(sideNum);
     this.setTile(position.c, position.r, newN);
 
     // Check that the neighbor is on the board
@@ -112,7 +113,7 @@ class Board {
 
     if (nc >= 0 && nc < this.cols && nr >= 0 && nr < this.rows){
       let neighborN = this.getTile(nc, nr);
-      let newNeighborN = this.tilesFn()[neighborN].toggleSide(
+      let newNeighborN = tiles[neighborN].toggleSide(
         neighbor.sideNum);   
       this.setTile(nc, nr, newNeighborN);      
     }

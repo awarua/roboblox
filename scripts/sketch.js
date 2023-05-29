@@ -1,16 +1,185 @@
-var app = new App();
+var app;
+let params;
+let uiParams = {
+  margin: 10,
+  brickSteps: 6,
+  masterTileSize: 1,
+};
+let tiles;
+let front;
+let back;
+let front2D;
+let back2D;
+let currentBoard2D;
+let board3D;
+let fnt;
 
+/*
 var exampleTile = {
   ROWS: 1,
   COLS: 1,
   MARGIN: 0,
   masterTileSize: 1,
-  paramsChanged: true,
   isTileSelected: false,
   tileParams: null,
   tiles: null,
-  front: new Board(1, 1, () => app.tiles),
-  back: new Board(1, 1, () => app.tiles),
+  front: new Board(1, 1, () => tiles),
+  back: new Board(1, 1, () => tiles),
+}
+*/
+
+// Need to load a font to use text in WebGL mode
+function preload(){
+  fnt = loadFont("styles/iconsolata/Inconsolata.otf");
+}
+
+function setup(){
+  createCanvas(windowWidth, windowHeight);
+
+  params = new Parameters({rows: 4, cols: 6});
+  // params = new Parameters({rows: 1, cols: 1});
+
+  // Initialise the collection of tiles.
+  tiles = new Array(256);
+  for (let i = 0; i < 256; i++) {
+    tiles[i] = new Tile(i);
+  }
+
+  // Loop over the tiles and figure out which are compatibile
+  for (let ta of tiles) {
+    for (let tb of tiles) {
+      ta.checkCompatability(tb);
+    }
+  }  
+
+  // Calculate the drawing data for the tiles
+  for (let i = 0; i < 256; i++) {
+    tiles[i].calculateData(1);
+  }
+
+  front = new Board(params.rows, params.cols).fillRandomly();
+  back = new Board(params.rows, params.cols).fillRandomly();
+
+  // Listen for changes in the front and back tiles
+  front.registerListener(showJSON);
+  back.registerListener(showJSON); 
+
+  front2D = new Board2D({
+    x: uiParams.margin,
+    y: 100,
+    width: 600, 
+    height: 300,
+    board: front, 
+    isVisible: true,
+    label: "Front",
+  });
+
+  back2D = new Board2D({
+    x: 2 * uiParams.margin + front2D.width,
+    y: 100,
+    width: 600,
+    height: 300,
+    board: back, 
+    isVisible: true,
+    label: "Back",
+  });
+
+  currentBoard2D = front2D;
+  // app = new App();
+
+  board3D = new Board3D({
+    x: uiParams.margin,
+    y: front2D.y + front2D.height + uiParams.margin,
+    width: front2D.width + uiParams.margin + back2D.width, 
+    height: 600,
+    front,
+    back,
+    isVisible: true,
+    label: "3D Board",
+  });
+  // this.board3D = new p5(make3DBoard('#canvas-holder-3d', () => this, 
+  // false, 1, this.brickSteps));
+
+  // Set up the electron server to serve json to network
+  // (must be running as an electron app for this to work)
+  window?.electronAPI?.getServerURL().then((url) => {
+    console.log('got server url', url);
+    app.serverURL = url;
+    sketchMain.select('#server-url-link').attribute('href', url).html(url);
+  })
+}
+
+function draw(){
+  background(50, 125, 50);
+  text(`width: ${width}, height: ${height}, fc: ${frameCount}, 
+    fr: ${floor(frameRate())}`, 20, 40);
+
+  front2D.show();
+  back2D.show();
+
+  // Visual debugging to check layout. 
+  // push();
+  // fill(255, 0, 0);
+  // noStroke();
+  // translate(front2D.x, front2D.y);
+  // rect(0, 0, front2D.width / 2, 35);
+  // rect(0, 0, 35, front2D.height / 2)
+  // pop();
+
+  board3D.show();
+}
+
+/////////////////////////////////////////////////
+// Event handlers
+
+function mouseClicked(){
+  // console.log('mc');
+  front2D.mouseClicked(mouseX, mouseY);
+  back2D.mouseClicked(mouseX, mouseY);
+}
+
+function mousePressed(){
+  board3D.mousePressed(mouseX, mouseY);
+}
+
+function mouseDragged(){
+  board3D.mouseDragged(mouseX, mouseY);
+}
+
+function mouseReleased(){
+  board3D.mouseReleased(mouseX, mouseY);
+}
+
+/////////////////////////////////////////////////
+// Helpers
+
+function showJSON() {
+  const json = toJSON();
+  // console.log('showJSON', json);
+  // debugger;
+  window?.electronAPI?.updateJSON(json);
+  
+  // select('#json-holder').get(0).value = JSON.stringify(toJSONBoard(false));
+
+  //   let a = selJSON.value()
+  //   saveJSON(toJSONBoard(true), a + '-Pattern-JSON-' + formatDate());
+  
+  // function formatDate() {
+  //   let d = new Date();
+  //   let retStr = `${d.getFullYear()}${nf(d.getMonth() + 1, 2, 0)}${nf(d.getDate(),2, 0)}-${nf(d.getHours(), 2, 0)}${nf(d.getMinutes(), 2, 0)}.${nf(d.getSeconds(), 2, 0)}`;
+  //   return retStr;
+  // }
+}
+
+function toJSON(includeCurves) {
+  let morpholo = {
+    tileParams: params.toJSON(),
+    front: front.toJSON(),
+    back: back.toJSON(),
+    tiles: tiles.map(e => e.toJSON()),
+  };
+  
+  return morpholo;
 }
 
 function initMainSketch(){
@@ -21,10 +190,10 @@ function initMainSketch(){
 
       app.init();
 
-      exampleTile.tileParams = app.params;
+      exampleTile.tileParams = params;
 
       // Hook up the example tile too
-      exampleTile.tiles = app.tiles;
+      exampleTile.tiles = tiles;
       exampleTile.front.fill(234); // fillRandomly();
       exampleTile.back.fill(213); // fillRandomly();
 
@@ -32,16 +201,11 @@ function initMainSketch(){
       sketchMain.clearGrid();
       // s.noLoop();
 
-      window.electronAPI.getServerURL().then((url) => {
-        console.log('got server url', url);
-        app.serverURL = url;
-        sketchMain.select('#server-url-link').attribute('href', url).html(url);
-      })
     }
 
     sketchMain.draw = () => {
       // Update curves if params have changed
-      if (app.paramsChanged){
+      if (params.hasChanges){
         app.processChangedParams();
         sketchMain.showJSON();
       }
@@ -110,43 +274,12 @@ function initMainSketch(){
 
     // HELPERS
 
-    sketchMain.showJSON = () => {
-      const json = sketchMain.toJSON();
-      // console.log('showJSON', json);
-      // debugger;
-      window.electronAPI.updateJSON(json);
-      
-      // jQuery('#json-holder').get(0).value = JSON.stringify(toJSONBoard(false));
-
-      //   let a = selJSON.value()
-      //   saveJSON(toJSONBoard(true), a + '-Pattern-JSON-' + formatDate());
-      
-      // function formatDate() {
-      //   let d = new Date();
-      //   let retStr = `${d.getFullYear()}${nf(d.getMonth() + 1, 2, 0)}${nf(d.getDate(),2, 0)}-${nf(d.getHours(), 2, 0)}${nf(d.getMinutes(), 2, 0)}.${nf(d.getSeconds(), 2, 0)}`;
-      //   return retStr;
-      // }
-    
-    }
-
     sketchMain.formatDate = () => {
       let d = new Date();
       let retStr = `${d.getFullYear()}${sketchMain.nf(d.getMonth() + 1, 2, 0)}${sketchMain.nf(d.getDate(),2, 0)}-${sketchMain.nf(d.getHours(), 2, 0)}${sketchMain.nf(d.getMinutes(), 2, 0)}.${sketchMain.nf(d.getSeconds(), 2, 0)}`;
       return retStr;
     }
-    
-    sketchMain.toJSON = (includeCurves) => {
-      let morpholo = {
-        tileParams: app.params.toJSON(),
-        front: app.frontBoard2D.getBoard().toJSON(),
-        back: app.backBoard2D.getBoard().toJSON(),
-        tiles: app.tiles.map(e => e.toJSON()),
-      };
-      
-      return morpholo;
-    }
-  })
-}
+})};
 
 //////
 // Returns html markup for a grid.
@@ -166,7 +299,7 @@ function generateGridMarkup(gridRows, gridCols) {
         className = ' class="selected" ';
       }
 
-      let svgString = app.tiles[tileNum].svgString
+      let svgString = tiles[tileNum].svgString
 
       markupString += '    <td id="grid_' + tileNum + '" ' +
         className +
