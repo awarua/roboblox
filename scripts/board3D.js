@@ -11,6 +11,11 @@ class Board3D {
     this.rotX = 0;
     this.rotSpeed = 0.5;
     this.drag = false;
+    this.lastClicked = null;
+
+    // UI properties
+    this.r = 0.15; // 0.3;
+    this.maxR = 64; // 0000000000;
 
     this.margin = 35;
 
@@ -32,9 +37,14 @@ class Board3D {
     // of the 'g' object will be.
 
     this.g = createGraphics(this.width, this.height, WEBGL);
-    this.g.textFont(fnt);
-    this.g.textAlign(CENTER, CENTER);
-    this.g.textSize(0.05);
+    // this.g.textFont(fnt);
+    // this.g.textAlign(CENTER, CENTER);
+    // this.g.textSize(0.05);
+
+    // A 'picker' graphics object that we can use to detect mouse clicks
+    this.picker = createGraphics(this.width, this.height, WEBGL);   
+    this.pickerImg = this.picker.get(
+      0, 0, this.picker.width, this.picker.height); 
 
     // this.cam = this.g.createCamera();
     // this.defaultCamZ = this.cam.eyeZ + this.tileSize / 2;
@@ -45,7 +55,6 @@ class Board3D {
 
     this.front.registerListener(() => this.setupBricks());
     this.back.registerListener(() => this.setupBricks());
-
 
     /* TODO - Can I use the following to handle clicks? (from perspective() ref)
     // If no parameters are given, the following default is used: 
@@ -73,180 +82,104 @@ class Board3D {
         [this.height - this.margin, params.rows] ;
 
     this.tileSize = shortSide / divisions;
-    this.scaleFactor = (shortSide - 2 * this.margin) / shortSide;
+    this.scaleFactor = 0.8 * (shortSide - 2 * this.margin) / shortSide;
     // console.log('this.scaleFactor', this.scaleFactor);
   }
 
   show(){
+    let tX = 0.5 * this.tileSize * sin(radians(2 * this.rotY));
+
+    // Draw the picker
+    this.picker.push();
+    this.picker.clear();
+    this.picker.background(255);
+
+    this.picker.translate(tX, 0, 0);
+
+    this.picker.rotateY(radians(this.rotY));
+    this.picker.scale(this.scaleFactor);
+    this.showPickerGrid();
+    if (this.lastClicked && this.lastClicked.side == this.getSide()){
+      this.showLastClickedPicker();
+    }
+    this.picker.pop();
+
+    // Draw the bricks.
     this.g.push();
-    // this.g.clear(100, 100, 100);
-    this.g.clear(40, 40, 50);
+    this.g.clear(0);
     this.g.background(40, 40, 50);
 
-    // this.g.ortho();
-    // this.g.rotateY(millis() / 2000);
-    this.g.rotateY(radians(this.rotY));
+    this.g.translate(tX, 0, 0);
 
+    this.g.rotateY(radians(this.rotY));
     this.g.scale(this.scaleFactor);
-    // this.g.scale(0.5);
 
     // Set up lights
-    // this.g.pointLight(255, 255, 255, 
-    //   cam.eyeX + cam.eyeZ * 0.8, 
-    //   cam.eyeY - this.height / 2, 1.5 * cam.eyeZ);   
-    
     this.g.ambientLight(150, 150, 150);
-    
-    
     let spotX = 0;
     let spotY = -this.tileSize * 0.5;
     let spotZ = this.tileSize * 100;
-
     let spotV = createVector(spotX, spotZ);
     spotV = spotV.rotate(radians(this.rotY));
-
     spotX = spotV.x;
     spotZ = spotV.y;
-
     let lookV = createVector(-spotX, -spotY, -spotZ).setMag(1);
-
     this.g.lightFalloff(0.5, 0.00001, 0);
-
     this.g.directionalLight(255, 255, 255, lookV.x, lookV.y, lookV.z);
-    // this.g.spotLight(255, 255, 255, 
-    //   spotX, spotY, spotZ,
-    //   lookV.x, lookV.y, lookV.z,
-    //   radians(90), 30);
-    // this.g.pointLight(255, 255, 255, 
-    //   spotX,
-    //   spotY,
-    //   spotZ);
-
-    // console.log({
-    //   sX: floor(spotX), 
-    //   sY: floor(spotY), 
-    //   sZ: floor(spotZ), 
-    //   lX: nf(lookV.x, 0, 2), 
-    //   lY: nf(lookV.y, 0, 2),
-    //   lZ: nf(lookV.z, 0, 2),
-    // });
-
-    // this.g.rotateX(radians(this.rotX));
-    // this.g.rotateX(radians(90));
-
-      // sketch3DBoard.pointLight(255, 255, 255, 
-      //   cam.eyeX + cam.eyeZ * 0.8, 
-      //   cam.eyeY - sketch3DBoard.height / 2, 1.5 * -cam.eyeZ);
-      
-
-    
-    // // Draw bounding box
-    // this.g.push();
-    // this.g.stroke(255, 0, 0);
-    // this.g.strokeWeight(5);
-    // this.g.noFill();
-    // this.g.translate(-this.g.width / 2, -this.g.height / 2);
-    // this.g.beginShape();
-    // this.g.vertex(           0,             0, 0);
-    // this.g.vertex(this.g.width,             0, 0);
-    // this.g.vertex(this.g.width, this.g.height, 0);
-    // this.g.vertex(           0, this.g.height, 0);
-    // this.g.endShape(CLOSE);
-    // this.g.pop();
-
-    // // Draw x, y axes
-    // this.g.push();
-    // this.g.stroke(0, 0, 255);
-    // this.g.strokeWeight(1);
-    // this.g.line(0, -this.g.height, 0, 0, this.g.height, 0);
-    // this.g.line(-this.g.width, 0, 0, this.g.width, 0, 0);
-    // this.g.pop();
-
-    // Draw the bricks
-    this.drawBricks();
-
-    // this.g.ambientMaterial(255, 255, 255);
-    // this.g.beginShape();
-    // this.g.vertex(-this.tileSize / 2, -this.tileSize / 2, 0);
-    // this.g.vertex(this.tileSize / 2, -this.tileSize / 2, 0);
-    // this.g.vertex(this.tileSize / 2, this.tileSize / 2, 0);  
-    // this.g.endShape(CLOSE);
-
-    // // Draw the camera.
-    // this.g.push();
-    // this.g.noLights();
-    // this.g.fill(0, 255, 0);
-    // this.g.noStroke();
-    // this.g.translate(spotX, spotY, spotZ);
-    // this.g.sphere(10);
-    // this.g.stroke(255, 0, 0);
-    // this.g.strokeWeight(10);
-    // this.g.line(0, 0, 0, lookV.x * 100, lookV.y * 100, lookV.z * 100);
-    // this.g.pop();
-
+  
+    this.showBricks();
+    if (this.lastClicked && this.lastClicked.side == this.getSide()){
+      this.showLastClicked();
+    }    
     this.g.pop();
 
     // Draw to the main canvas.
     push();
     translate(this.x, this.y);
     noStroke();
-    fill(40, 40, 50);
+    fill(255, 255, 0);
     rect(0, 0, this.width, this.height);
-
-    // // Draw the axes
-    // push();
-    // translate(this.width / 2, this.height / 2);
-    // stroke(255);
-    // strokeWeight(4);
-    // line(0, -this.height / 2, 0, this.height / 2);
-    // line(-this.width / 2, 0, this.width / 2, 0);
-
-    // strokeWeight(2);
-    // let gridSize = 50;
-    // let gridRows = floor(this.height / gridSize);
-    // let gridCols = floor(this.width / gridSize);
-
-    // for (let i = 0; i < gridCols; i++){
-    //   let x = (i - gridCols / 2) * gridSize;
-    //   line(x, -this.height / 2, x, this.height / 2);
-    // }
-    // for (let i = 0; i < gridRows; i++){
-    //   let y = (i - gridRows / 2) * gridSize;
-    //   line(-this.width / 2, y, this.width / 2, y);
-    // }
-    // pop();
-
-    // push();
     imageMode(CENTER);
-    // tint(255, 200);
-    image(this.g, this.width / 2, this.height / 2); // , 
-    //   this.width / 2, this.height / 2);
-    // pop();
+    // image(this.picker, this.width / 2, this.height / 2);
+    image(this.g, this.width / 2, this.height / 2);
 
-    // this.g.push();
-    // this.g.rotateX(radians(90));
-    // translate(this.width / 2, 0);
-    // image(this.g, this.width / 4, this.height / 4, 
-    //   this.width / 2, this.height / 2);
-    // this.g.pop();
+    noStroke();
+    fill(150);
+    // text(`drag: ${this.drag}, didDrag: ${this.drag?.didDrag || false}`, 10, 20);
+    text(`sin(this.rotY): ${sin(radians(2 * this.rotY))}`, 10, 20);
 
     pop();
+
+    this.pickerImg = this.picker.get(
+      0, 0, this.picker.width, this.picker.height); 
   }
 
-  // setDoOrbit(newDoOrbit) {
-  //   doOrbit = newDoOrbit;
-  // }
+  // Function for visual debugging. Show the bounding box.
+  showBoundingBox(){
+    this.g.push();
+    this.g.stroke(255, 0, 0);
+    this.g.strokeWeight(5);
+    this.g.noFill();
+    this.g.translate(-this.g.width / 2, -this.g.height / 2);
+    this.g.beginShape();
+    this.g.vertex(           0,             0, 0);
+    this.g.vertex(this.g.width,             0, 0);
+    this.g.vertex(this.g.width, this.g.height, 0);
+    this.g.vertex(           0, this.g.height, 0);
+    this.g.endShape(CLOSE);
+    this.g.pop();
+  }
 
-  // setCamFront() {
-  //   this.cam.setPosition(0, 0, this.defaultCamZ);
-  //   this.cam.lookAt(0, 0, 0);
-  // }
-
-  // setCamBack() {
-  //   // console.log('set cam back');
-  //   this.cam.setPosition(0, 0, -this.defaultCamZ);
-  //   this.cam.lookAt(0, 0, 0);
-  // }
+  // Function for visual debugging. Show the x, y axes.
+  showAxes(){
+    // Draw x, y axes
+    this.g.push();
+    this.g.stroke(0, 0, 255);
+    this.g.strokeWeight(1);
+    this.g.line(0, -this.g.height, 0, 0, this.g.height, 0);
+    this.g.line(-this.g.width, 0, 0, this.g.width, 0, 0);
+    this.g.pop();
+  }
 
   getRot() {
     return this.rotY;
@@ -293,26 +226,9 @@ class Board3D {
   }
 
   // Draw the grid of all the bricks to the board
-  drawBricks() {
+  showBricks() {
     this.g.push();
-
-    // Draw the bounding box
-    // this.g.push();
-    // this.g.strokeWeight(6);
-    // this.g.stroke(0, 255, 0);
-    // this.g.noFill();
-    // this.g.translate(
-    //   -this.tileSize * params.cols / 2, -this.tileSize * params.rows / 2, 0);
-    // this.g.beginShape();
-    // this.g.vertex(                          0,                           0, 0);
-    // this.g.vertex(this.tileSize * params.cols,                           0, 0);
-    // this.g.vertex(this.tileSize * params.cols, this.tileSize * params.rows, 0);
-    // this.g.vertex(                          0, this.tileSize * params.rows, 0);
-    // this.g.endShape(CLOSE);
-    // this.g.pop();
-
     this.g.stroke(200);
-    // this.g.noFill();
     this.g.translate(
       -this.tileSize * params.cols / 2, -this.tileSize * params.rows / 2);
 
@@ -321,13 +237,6 @@ class Board3D {
       for (let r = 0; r < params.rows; r++) {
         this.g.push();
         this.g.translate(c * this.tileSize, r * this.tileSize, 0);
-
-        // // Draw a bounding box for the tile
-        // this.g.push();
-        // this.g.translate(this.tileSize / 2, this.tileSize / 2, 0);
-        // this.g.box(this.tileSize);
-        // this.g.pop();
-
         this.bricks[c][r].display(this.tileSize);
         this.g.pop();
       }
@@ -335,41 +244,339 @@ class Board3D {
     this.g.pop();
   }
 
+  // Draw the grid of all the brickcs for the picker
+  showPickerGrid(){
+    this.picker.push();
+    this.picker.background(0);
+    this.picker.stroke(0);
+    this.picker.translate(
+      -this.tileSize * params.cols / 2, -this.tileSize * params.rows / 2);
+
+    let isFront = this.getSide() == "front"
+
+    // Iterate over the columns and rows and draw each brick
+    for (let c = 0; c < params.cols; c++) {
+      for (let r = 0; r < params.rows; r++) {
+        this.picker.push();
+        this.picker.translate(c * this.tileSize, r * this.tileSize, 0);
+        if (isFront){
+          this.picker.translate(0, 0, this.tileSize / 2)
+        } else {
+          this.picker.translate(0, 0, -this.tileSize / 2);
+        }
+
+        // let re = map(r, 0, params.rows - 1, 0, 255);
+        // let gr = map(c, 0, params.cols - 1, 0, 255);
+        // TODO: The following assumes no more than 255/pickerBand rows & cols
+        let re = r * uiParams.pickerBand;
+        let gr = c * uiParams.pickerBand;
+
+        this.picker.noStroke();
+        this.picker.fill(re, gr, 255);
+        
+        this.picker.push();
+        this.picker.scale(this.tileSize);
+        this.picker.beginShape();
+        this.picker.vertex(0, 0, 0);
+        this.picker.vertex(1, 0, 0);
+        this.picker.vertex(1, 1, 0);
+        this.picker.vertex(0, 1, 0);
+        this.picker.endShape(CLOSE);
+        this.picker.pop();
+
+        // this.picker.fill(0, 255, 255);
+        // this.picker.box(10);
+        // this.bricks[c][r].display(this.tileSize);
+        this.picker.pop();
+      }
+    }
+    this.picker.pop();
+  }
+
+  // Show the picker for the last clicked tile
+  showLastClickedPicker(){
+    let buttonCentres = this.getButtonCentres();
+    let scaledR = this.getR();
+    // console.log('scaledR', scaledR);
+    let scaledT = scaledR / 4.6;
+
+    this.picker.push();
+    this.picker.translate(
+      -this.tileSize * params.cols / 2, -this.tileSize * params.rows / 2);
+    let isFront = this.getSide() == "front"
+    
+    this.picker.translate(
+      this.lastClicked.c * this.tileSize, 
+      this.lastClicked.r * this.tileSize, 0);
+    if (isFront){
+      this.picker.translate(0, 0, this.tileSize / 2)
+    } else {
+      this.picker.translate(0, 0, -this.tileSize / 2);
+    }
+    this.picker.scale(this.tileSize);
+    this.picker.noStroke();
+    // this.picker.ambientLight(255, 255, 255);
+    // this.picker.ambientMaterial(0, 255, 0);
+
+    for(let i = 0; i < buttonCentres.length; i++){
+      let c = buttonCentres[i];
+
+      let gr = i * uiParams.pickerBand;
+      this.picker.fill(255, gr, 255);
+
+      this.picker.push();
+      this.picker.translate(c.x, c.y);
+      this.picker.ellipsoid(scaledR, scaledR, 0.01);
+      this.picker.pop();
+    }
+
+    this.picker.pop();
+  }
+
+  // Show the picker for the last clicked tile
+  showLastClicked(){
+    let buttonCentres = this.getButtonCentres();
+    let scaledR = this.getR();
+    // console.log('scaledR', scaledR);
+    let scaledT = scaledR / 4.6;
+
+    this.g.push();
+    this.g.translate(
+      -this.tileSize * params.cols / 2, -this.tileSize * params.rows / 2);
+    let isFront = this.getSide() == "front"
+    
+    this.g.translate(
+      this.lastClicked.c * this.tileSize, 
+      this.lastClicked.r * this.tileSize, 0);
+    if (isFront){
+      this.g.translate(0, 0, this.tileSize / 2)
+    } else {
+      this.g.translate(0, 0, -this.tileSize / 2);
+    }
+    this.g.scale(this.tileSize);
+    this.g.noStroke();
+
+    for(let i = 0; i < buttonCentres.length; i++){
+      let c = buttonCentres[i];
+
+      let gr = i * uiParams.pickerBand;
+      this.g.noLights();
+      this.g.fill(2, 117, 255);
+      // this.g.ambientMaterial(255, 0, 255);
+
+      this.g.push();
+      this.g.translate(c.x, c.y);
+      this.g.ellipsoid(scaledR, scaledR, 0.01);
+
+      let currentTileNum = this.getCurrentTile();
+
+      let z = this.getSide() == "front" ? 0.01 : -0.01;
+
+      let sideNum = this.getTileSide(i);
+
+      if (tiles[currentTileNum].sides[sideNum]){
+        this.g.fill(255);
+        this.g.beginShape();        
+        this.g.vertex(-scaledT * 0.8, -scaledT * 0.8, z);
+        this.g.vertex(-scaledT * 0.8, -scaledT * 2  , z);
+        this.g.vertex( scaledT * 0.8, -scaledT * 2  , z);
+        this.g.vertex( scaledT * 0.8, -scaledT * 0.8, z);
+        this.g.vertex( scaledT * 2  , -scaledT * 0.8, z);
+        this.g.vertex( scaledT * 2  ,  scaledT * 0.8, z);
+        this.g.vertex( scaledT * 0.8,  scaledT * 0.8, z);
+        this.g.vertex( scaledT * 0.8,  scaledT * 2  , z);
+        this.g.vertex(-scaledT * 0.8,  scaledT * 2  , z);
+        this.g.vertex(-scaledT * 0.8,  scaledT * 0.8, z);
+        this.g.vertex(-scaledT * 2  ,  scaledT * 0.8, z);
+        this.g.vertex(-scaledT * 2  , -scaledT * 0.8, z);
+        this.g.endShape(CLOSE);
+      } else {
+        this.g.fill(0);
+        this.g.beginShape();
+        this.g.vertex(-scaledT * 2, -scaledT * 0.8, z);
+        this.g.vertex( scaledT * 2, -scaledT * 0.8, z);
+        this.g.vertex( scaledT * 2,  scaledT * 0.8, z);
+        this.g.vertex(-scaledT * 2,  scaledT * 0.8, z);
+        this.g.endShape(CLOSE);
+      }
+
+
+      // this.g.rect(c.x, c.y, 2.6 * scaledT, scaledT);
+      // } else {
+      //   s.fill(0);
+      //   s.rect(c.x, c.y, 2.6 * scaledT, scaledT);
+      // }
+
+      this.g.pop();
+    }
+
+    this.g.pop();
+  }  
+
+  getCurrentTile(){
+    if (this.lastClicked){
+      if (this.lastClicked.side === "front"){
+        return this.front.getTile(this.lastClicked.c, this.lastClicked.r)
+      } else {
+        return this.back.getTile(
+          (params.cols - 1) - this.lastClicked.c, this.lastClicked.r)        
+      }
+    }
+  }
+
+  getTileSide(s){
+    if (this.getSide() == "front"){
+      return s;
+    }
+    return [1, 0, 7, 6, 5, 4, 3, 2][s];
+  }
+
+  getM(){
+    let scaledR = this.getR();
+    return (1 - 2 * scaledR) / 3 + scaledR / 2;    
+  }
+
+  getR(){
+    return Math.min(this.r, this.maxR / this.tileSize)
+  }
+
+  getButtonCentres(){
+    let m = this.getM();
+    // Order of button centres. Note - order matters because these 
+    // correspond to the openings in the tile.
+    let buttonCentres = [
+      {x: m,     y: 0},
+      {x: 1 - m, y: 0},
+      {x: 1,     y: m},
+      {x: 1,     y: 1 - m},  
+      {x: 1 - m, y: 1},
+      {x: m,     y: 1},
+      {x: 0,     y: 1 - m},
+      {x: 0,     y: m},
+    ];   
+    
+    return buttonCentres;
+  }
+
   isInside(x, y){
     return (x > this.x && x < this.x + this.width &&
       y > this.y && y < this.y + this.height);
   }
 
+  toLocalCoords(x, y){
+    return {
+      lX: x - (this.x),
+      lY: y - (this.y),
+    };
+  }
+
+  getSide(r){
+    if (typeof(r) == 'undefined'){
+      r = this.rotY;
+    }
+    return r <= 90 || r > 270 ? "front" : "back";
+  }
+
+  setLastClicked({c, r, side}){
+    this.lastClicked = {
+      c,
+      r,
+      side,
+    }
+  }
+
+  clearLastClicked(){
+    this.lastClicked = null;
+  }
+
+  mouseClicked(mX, mY){
+    if (this.isInside(mX, mY)){
+      // console.log('mc');
+      // If not dragging, test for clicks.
+      if (!this.drag || !this.drag.didDrag){
+        let {lX, lY} = this.toLocalCoords(mX, mY); 
+        let side = this.getSide();
+        
+        let mouseColor = this.pickerImg.get(lX , lY);
+        let isClickedUI = mouseColor[0] === 255;
+        let isClickedGrid = mouseColor[2] === 255;
+        let r = mouseColor[0] / uiParams.pickerBand;
+        let c = mouseColor[1] / uiParams.pickerBand;
+        
+        let rValid = r === floor(r);
+        let cValid = c === floor(c);
+
+        // console.log('  ', {mouseColor, isClickedUI, isClickedGrid})
+
+        if (isClickedUI &&  c >= 0 && c < 8 && cValid){
+          // Get the button clicked
+          let sideClicked = this.getTileSide(c);
+          // console.log('  side clicked', c, this.lastClicked);
+          if (this.lastClicked.side == "front"){
+            this.front.toggleSide(c, this.lastClicked);
+          } else {
+            this.back.toggleSide(
+              sideClicked, 
+              {c: (params.cols - 1) - this.lastClicked.c,
+              r: this.lastClicked.r,
+              side: this.lastClicked.side
+            });
+          }
+        }
+        else if (isClickedGrid 
+          && r >= 0 && r < params.rows && rValid
+          && c >= 0 && c < params.cols && cValid){
+          if (side == "front"){
+            this.setLastClicked({c, r, side});
+          } else {
+            this.setLastClicked({c, r, side});      
+          }
+        } else {
+          this.clearLastClicked();
+        }
+      } 
+    } else {
+      this.clearLastClicked();
+    }
+    this.drag = false;       
+  }
+
   mousePressed(mX, mY){
+    // console.log('mp');
     if (this.isInside(mX, mY)){
       // console.log('mp');
-      this.drag = {sRot: this.rotY, sX: mX, sY: mY, eX: mX, eY: mY};
+      this.drag = {
+        sRot: this.rotY, sX: mX, sY: mY, eX: mX, eY: mY, didDrag: false};
     }
   }
 
   mouseDragged(mX, mY){
+    console.log("bo mm");
     if (this.drag){
+      // console.log('md');
       // console.log('md');
       this.drag.eX = mX;
       this.drag.eY = mY;
+      this.drag.didDrag = this.drag.didDrag || mX !== this.drag.sX;
       this.processDrag();
     }
   }
 
-  mouseReleased(){
-    this.drag = false;
-  }
+  // mouseReleased(){
+  //   console.log('mr');
+  //   this.drag = false;
+  // }
 
   processDrag(){
     let rotDelta = (this.drag.eX - this.drag.sX) * this.rotSpeed;
     let newRotY = (360 + this.drag.sRot + rotDelta) % 360;
 
-    let newSide =  newRotY   <= 90 || newRotY   > 270 ? "front" : "back"
-    let currSide = this.rotY <= 90 || this.rotY > 270 ? "front" : "back"
+    let newSide =  this.getSide(newRotY);
+    let currSide = this.getSide();
 
-    if (newSide !== currSide){
-      sideChanged(newSide, false);
-    }
+    // if (newSide !== currSide){
+    //   sideChanged(newSide, false);
+    // }
 
     this.rotY = newRotY;
     // console.log({rotDelta, rot: this.rot})

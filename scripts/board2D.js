@@ -83,8 +83,8 @@ class Board2D {
       //   -this.tileSize * params.rows / 2
       // );
 
-      this.displayGrid();
-      this.displayLastClicked();
+      this.showGrid();
+      this.showLastClicked();
 
       // this.g.fill(255, 0, 0);
       // this.g.text(this.domParentId, 20, 20);
@@ -144,7 +144,7 @@ class Board2D {
     }
   }
 
-  displayGrid() {
+  showGrid() {
     this.g.push();
     this.g.strokeWeight(1);
     this.g.stroke(100, 200);
@@ -159,8 +159,9 @@ class Board2D {
     this.g.pop();
   }
 
-  displayLastClicked() {
+  showLastClicked() {
     if (this.lastClicked){
+      console.log("LAST CLICKED:", this.lastClicked);
       this.g.push();
       this.g.stroke(200, 200, 255);
       this.g.noFill();
@@ -182,16 +183,16 @@ class Board2D {
             
   // Returns true if a given point is inside the canvas
   isInside(x, y) {
-    let {gX, gY} = this.toGCoords(x, y);
+    let {gX, gY} = this.toLocalCoords(x, y);
     return gX > 0 && gX < this.g.width 
       && gY > 0 && gY < this.g.height;
   }
 
   // Convert a given x, y to coordinates within 'g'
-  toGCoords(x, y) {
+  toLocalCoords(x, y) {
     return {
-      gX: x - (this.x + this.marginL),
-      gY: y - (this.y + this.marginT),
+      lX: x - (this.x + this.marginL),
+      lY: y - (this.y + this.marginT),
     };
   }
 
@@ -264,7 +265,7 @@ class Board2D {
     if (this.isInside(mX, mY) && this.isVisible) {
 
       // Translate mX, mY into 'g' coordinates
-      let {gX, gY} = this.toGCoords(mX, mY);
+      let {lX, lY} = this.toLocalCoords(mX, mY);
 
       // console.log(`  mc: ${this.label} is inside`, {mX, mY, gX, gY});
 

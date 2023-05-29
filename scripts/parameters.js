@@ -32,6 +32,8 @@ class Parameters {
     this.cols = cols         || Parameters.defaults.COLS;
     this.rows = rows         || Parameters.defaults.ROWS;
 
+    this.domParent = select("#params");
+
     this.hasChanges = false;
 
     // Set up UI elements.
@@ -51,6 +53,7 @@ class Parameters {
     sldY += uiParams.sldSpaceY;
 
     this.sldMag = new LabelSlider({
+      parent: this.domParent,
       x: sldX,
       y: sldY, 
       min: Parameters.defaults.MIN_MAG, 
@@ -63,6 +66,7 @@ class Parameters {
     sldY += uiParams.sldSpaceY;
 
     this.sldPull = new LabelSlider({
+      parent: this.domParent,
       x: sldX,
       y: sldY, 
       min: Parameters.defaults.MIN_PULL, 
@@ -75,6 +79,7 @@ class Parameters {
     sldY += uiParams.sldSpaceY;
 
     this.sldSidePull = new LabelSlider({
+      parent: this.domParent,
       x: sldX,
       y: sldY, 
       min: Parameters.defaults.MIN_SIDE_PULL, 
@@ -87,6 +92,7 @@ class Parameters {
     sldY += uiParams.sldSpaceY;
 
     this.sldNumCols = new LabelSlider({
+      parent: this.domParent,
       x: sldX,
       y: sldY,
       min: Parameters.defaults.MIN_COLS, 
@@ -99,6 +105,7 @@ class Parameters {
     sldY += uiParams.sldSpaceY;
 
     this.sldNumRows = new LabelSlider({
+      parent: this.domParent,
       x: sldX,
       y: sldY,
       min: Parameters.defaults.MIN_ROWS, 
@@ -131,12 +138,17 @@ class Parameters {
    * Event handler for slider that adjusts central rotation
    */
   sldRotationChanged() {
+    console.log('mm sld');
     if (this.sldRotation.value() != this.rotation) {
       this.rotation = this.sldRotation.value();
       // this.txtRotation.html(this.rotation);
       this.hasChanges = true;
       // loop();
+      event.preventDefault();
+      event.stopPropagation();
+      return false;
     }
+    return false;
   }
 
   /**
@@ -182,6 +194,7 @@ class Parameters {
     // console.log(this.sldNumCols.value());
     if (this.sldNumCols.value() != this.cols){
       this.cols = this.sldNumCols.value();
+      board3D.clearLastClicked();
       // this.txtNumCols.html(this.cols);
       this.hasChanges = true;
     }
@@ -194,6 +207,7 @@ class Parameters {
     // console.log(this.sldNumRows.value());
     if (this.sldNumRows.value() != this.rows){
       this.rows = this.sldNumRows.value();
+      board3D.clearLastClicked();
       // this.txtNumRows.html(this.rows);
       this.hasChanges = true;
     }
