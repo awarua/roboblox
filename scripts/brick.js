@@ -6,12 +6,8 @@ class Brick {
     this.g = g;
     this.steps = steps;
 
-    this.loftColor = color(20, 20, 20);
-    this.loftStroke = color(80, 80, 80);
-
-    // this.loftColor = color(80, 80, 80);
-    // this.loftStroke = color(40, 40, 40);
-
+    this.loftColor = color(120, 120, 120);
+    this.loftStroke = color(20, 20, 20);
 
     this.frontTile = fTile.drawingData;
     this.backTile = bTile.drawingData;

@@ -32,17 +32,41 @@ class Parameters {
     this.cols = cols         || Parameters.defaults.COLS;
     this.rows = rows         || Parameters.defaults.ROWS;
 
-    this.domParent = select("#params");
+    this.parent = createDiv().id("params");
+
+    this.parent.mousePressed((e) => {
+      e.stopPropagation();
+      // e.preventDefault();
+      return false;
+    })
+    this.parent.mouseMoved((e) => {
+      e.stopPropagation();
+      // e.preventDefault();
+      return false;
+    })
+    this.parent.mouseClicked((e) => {
+      e.stopPropagation();
+      // e.preventDefault();
+      return false;
+    })
+
+    // Hook up the close button
+    let closeDiv = createDiv().parent(this.parent).addClass("top_row");
+    this.btnClose = createButton("△").parent(closeDiv);
+    this.btnClose.mouseClicked(() => {
+      this.parent.toggleClass("open");
+      if (this.parent.hasClass("open")){
+        this.btnClose.html("▽");
+      } else {
+        this.btnClose.html("△");
+      }
+    })
 
     this.hasChanges = false;
 
     // Set up UI elements.
-    let sldX = this.x;
-    let sldY = this.y;
-
     this.sldRotation = new LabelSlider({
-      x: sldX,
-      y: sldY, 
+      parent: this.parent,
       min: Parameters.defaults.MIN_ROTATION,
       max: Parameters.defaults.MAX_ROTATION,
       val: this.rotation,
@@ -50,12 +74,8 @@ class Parameters {
       mouseMoved: () => this.sldRotationChanged(),
     });
 
-    sldY += uiParams.sldSpaceY;
-
     this.sldMag = new LabelSlider({
-      parent: this.domParent,
-      x: sldX,
-      y: sldY, 
+      parent: this.parent,
       min: Parameters.defaults.MIN_MAG, 
       max: Parameters.defaults.MAX_MAG, 
       val: this.mag,
@@ -63,12 +83,8 @@ class Parameters {
       mouseMoved: () => this.sldMagChanged(),
     });
 
-    sldY += uiParams.sldSpaceY;
-
     this.sldPull = new LabelSlider({
-      parent: this.domParent,
-      x: sldX,
-      y: sldY, 
+      parent: this.parent,
       min: Parameters.defaults.MIN_PULL, 
       max: Parameters.defaults.MAX_PULL, 
       val: this.pull,
@@ -76,12 +92,8 @@ class Parameters {
       mouseMoved: () => this.sldPullChanged(),
     });
 
-    sldY += uiParams.sldSpaceY;
-
     this.sldSidePull = new LabelSlider({
-      parent: this.domParent,
-      x: sldX,
-      y: sldY, 
+      parent: this.parent,
       min: Parameters.defaults.MIN_SIDE_PULL, 
       max: Parameters.defaults.MAX_SIDE_PULL, 
       val: this.sidePull,
@@ -89,12 +101,8 @@ class Parameters {
       mouseMoved: () => this.sldSidePullChanged(),
     });
 
-    sldY += uiParams.sldSpaceY;
-
     this.sldNumCols = new LabelSlider({
-      parent: this.domParent,
-      x: sldX,
-      y: sldY,
+      parent: this.parent,
       min: Parameters.defaults.MIN_COLS, 
       max: Parameters.defaults.MAX_COLS, 
       val: this.cols,
@@ -102,12 +110,8 @@ class Parameters {
       mouseMoved: () => this.sldNumColsChanged(),
     });
     
-    sldY += uiParams.sldSpaceY;
-
     this.sldNumRows = new LabelSlider({
-      parent: this.domParent,
-      x: sldX,
-      y: sldY,
+      parent: this.parent,
       min: Parameters.defaults.MIN_ROWS, 
       max: Parameters.defaults.MAX_ROWS, 
       val: this.rows,
@@ -116,24 +120,6 @@ class Parameters {
     });
   }
 
-  // Function to draw the parameters to the canvas
-  show(){
-    this.sldRotation.show();
-    this.sldMag.show();
-    this.sldPull.show();
-    this.sldSidePull.show();
-    this.sldNumCols.show();
-    this.sldNumRows.show();
-  }
-
-  /**
-   * Function to stop event propagation (used in initialisation of dom)
-   */
-  fnFalse(e) {
-    e.stopPropagation();
-    return false;
-  }
-    
   /**
    * Event handler for slider that adjusts central rotation
    */

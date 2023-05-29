@@ -11,27 +11,10 @@ let uiParams = {
 let tiles;
 let front;
 let back;
-// let front2D;
-// let back2D;
-// let currentBoard2D;
 let board3D;
 let fnt;
 
 let btn = {};
-
-/*
-var exampleTile = {
-  ROWS: 1,
-  COLS: 1,
-  MARGIN: 0,
-  masterTileSize: 1,
-  isTileSelected: false,
-  tileParams: null,
-  tiles: null,
-  front: new Board(1, 1, () => tiles),
-  back: new Board(1, 1, () => tiles),
-}
-*/
 
 // Need to load a font to use text in WebGL mode
 function preload(){
@@ -88,32 +71,6 @@ function setup(){
     label: "3D Board",
   });
 
-  // front2D = new Board2D({
-  //   x: 2 * uiParams.margin + board3D.width,
-  //   y: board3D.y,
-  //   width: board3D.width, 
-  //   height: board3D.height,
-  //   board: front, 
-  //   isVisible: true,
-  //   label: "Front",
-  // });
-
-  // back2D = new Board2D({
-  //   x: front2D.x,
-  //   y: front2D.y,
-  //   width: front2D.width,
-  //   height: front2D.height,
-  //   board: back, 
-  //   isVisible: false,
-  //   label: "Back",
-  // });
-
-  // currentBoard2D = front2D;
-  // app = new App();
-
-  // this.board3D = new p5(make3DBoard('#canvas-holder-3d', () => this, 
-  // false, 1, this.brickSteps));
-
   // Set up the electron server to serve json to network
   // (must be running as an electron app for this to work)
   window?.electronAPI?.getServerURL().then((url) => {
@@ -123,19 +80,22 @@ function setup(){
   })
 
   // Set up buttons
-  btn["showFront"] = createButton("Show Front")
-    .mousePressed(showFront)
-    .position(100, 50);
+  btn["showFront"] = createButton("Show Front").mousePressed(showFront);
   btn["showBack"] = createButton("Show Back")
-    .mousePressed(showBack)
-    .position(100 + uiParams.btnSpaceX, 50);
+    .mousePressed(showBack);
+
+  btn["showBack"].position(
+    width - btn["showBack"].width - uiParams.margin, 
+    height - btn["showBack"].height - uiParams.margin);    
+
+  btn["showFront"].position(
+    width - btn["showFront"].width - btn["showBack"].width 
+    - 2 * uiParams.margin , 
+    height - btn["showFront"].height - uiParams.margin);
+
 }
 
 function draw(){
-  background(50, 125, 50);
-  text(`width: ${width}, height: ${height}, fc: ${frameCount}, 
-    fr: ${floor(frameRate())}`, 20, 40);
-
   // Update curves if params have changed
   if (params.hasChanges){
     processChangedParams();
@@ -143,15 +103,10 @@ function draw(){
   }
 
   board3D.show();
-  params.show();
 }
 
 /////////////////////////////////////////////////
 // Event handlers
-
-function mouseClicked(){
-  board3D.mouseClicked(mouseX, mouseY);
-}
 
 function mousePressed(){
   board3D.mousePressed(mouseX, mouseY);
@@ -159,6 +114,10 @@ function mousePressed(){
 
 function mouseDragged(){
   board3D.mouseDragged(mouseX, mouseY);
+}
+
+function mouseClicked(){
+  board3D.mouseClicked(mouseX, mouseY);
 }
 
 // Event handler for 'show front' button
@@ -180,7 +139,6 @@ function processChangedParams(){
   }
   board3D.setupScale();
   board3D.setupBricks();
-  // projector?.window?.board3D?.doSetupBricks();
   params.hasChanges = false;
 }
 

@@ -14,8 +14,8 @@ class Board3D {
     this.lastClicked = null;
 
     // UI properties
-    this.r = 0.15; // 0.3;
-    this.maxR = 64; // 0000000000;
+    this.r = 0.12; // 0.3;
+    this.maxR = 48; // 0000000000;
 
     this.margin = 35;
 
@@ -89,6 +89,16 @@ class Board3D {
   show(){
     let tX = 0.5 * this.tileSize * sin(radians(2 * this.rotY));
 
+    // Process any residual rotation
+    // if (!this.drag && this.rotVel > 0){
+    //   console.log(this.rotVel);
+    //   this.rotVel *= 0.8;
+    //   this.rotY += this.rotVel;
+    //   if (this.rotVel < 0.001){
+    //     this.rotVel = 0;
+    //   }
+    // }
+
     // Draw the picker
     this.picker.push();
     this.picker.clear();
@@ -146,12 +156,16 @@ class Board3D {
     noStroke();
     fill(150);
     // text(`drag: ${this.drag}, didDrag: ${this.drag?.didDrag || false}`, 10, 20);
-    text(`sin(this.rotY): ${sin(radians(2 * this.rotY))}`, 10, 20);
+    // text(`sin(this.rotY): ${sin(radians(2 * this.rotY))}`, 10, 20);
+
+    let sideLabel = this.getSide() === "front" ? "Front" : "Back";
+    textAlign(CENTER);
+    text(sideLabel, this.width / 2, height - uiParams.margin);
 
     pop();
 
     this.pickerImg = this.picker.get(
-      0, 0, this.picker.width, this.picker.height); 
+       0, 0, this.picker.width, this.picker.height); 
   }
 
   // Function for visual debugging. Show the bounding box.
@@ -562,13 +576,14 @@ class Board3D {
     }
   }
 
-  // mouseReleased(){
-  //   console.log('mr');
-  //   this.drag = false;
-  // }
+  mouseReleased(){
+    console.log('mr');
+    this.drag = false;
+  }
 
   processDrag(){
     let rotDelta = (this.drag.eX - this.drag.sX) * this.rotSpeed;
+    // this.rotVel = (abs(rotDelta) / rotDelta) * 10;
     let newRotY = (360 + this.drag.sRot + rotDelta) % 360;
 
     let newSide =  this.getSide(newRotY);
@@ -582,166 +597,3 @@ class Board3D {
     // console.log({rotDelta, rot: this.rot})
   }
 }
-
-
-
-/*
-function make3DBoard(domParentId, appFn, makeFull, zoom, brickSteps){
-  console.log('make3DBoard', domParentId, appFn(), makeFull, zoom, brickSteps);
-
-  return (sketch3DBoard) => {
-    let frontBData = null;
-    let backBData = null;
-    let doSetupBricks = false;
-    let isShowingFront = true;
-    let tileSize = appFn().masterTileSize;
-    let f;
-    let cam;
-    let defaultCamZ;
-    let doOrbit = true;
-    // zoom = 0.75;
-
-    sketch3DBoard.preload = () => {
-      f = sketch3DBoard.loadFont('styles/iconsolata/Inconsolata.otf');
-    }
-    
-    sketch3DBoard.setup = () => {
-      // console.log('sketch3DBoard.setup()')
-
-      let domParent = sketch3DBoard.select(domParentId);
-      let cnv;
-
-      if (makeFull){
-        console.log('make full');
-  
-        let w = window.innerWidth; // s.windowWidth;
-        let h = window.innerHeight; // s.windowHeight;
-
-        // console.log('w', w, 'h', h, 
-        //   's.windowWidth', s.windowWidth, 
-        //   'window.innerWidth', window.innerWidth);
-
-        // setTimeout(() => {
-        //   console.log('s.windowWidth after timeout', s.windowWidth)
-        // }, 10000);
-
-        // console.log('w', w, 'h', h, 'ts', tileSize, 
-        //   'ml', marginL, 'mt', marginT, 'sf', scaleFactor);
-        cnv = sketch3DBoard.createCanvas(w, h, sketch3DBoard.WEBGL);
-      } else {
-        // console.log("not make full", domParent);
-        let w = domParent.width;
-        // console.log('w', w);
-        let t, h;
-
-        // Get the parent dom element and figure out width
-        if (domParentId === '#example-tile-holder'){
-          h = domParent.height;
-          // debugger;
-        } else {
-          let mainDiv = sketch3DBoard.select('#main-area');
-          h = mainDiv.height;
-        }
-
-        let sideL = sketch3DBoard.min(w, h);
-
-        tileSize = sideL / appFn().params.cols;
-        scaleFactor = (sideL - 2 * marginT) / sideL;
-
-        let canvasW = marginL * 2 + tileSize * appFn().params.cols * scaleFactor;
-
-        // console.log('canvasW', {canvasW, marginL, tileSize, 
-        //   cols: appFn().params.cols, scaleFactor})
-
-        let canvasH = h;
-
-        //canvasW = 100;
-        //canvasH = 100;
-
-        cnv = sketch3DBoard.createCanvas(canvasW, canvasH, sketch3DBoard.WEBGL);
-      }
-      cnv.parent(domParent);
-      sketch3DBoard.angleMode(sketch3DBoard.DEGREES);
-      sketch3DBoard.textFont(f);
-
-      // Keep a copy of the front and back boards.
-      frontB = appFn().front;
-      backB = appFn().back;
-
-      sketch3DBoard.setupBricks();
-
-      // Register listeners
-      frontB.registerListener(sketch3DBoard.frontBoardChanged);
-      backB.registerListener(sketch3DBoard.backBoardChanged);
-
-      // console.log('sketch3DBoard.setup() ==> at end.')
-    }
-
-    sketch3DBoard.draw = () => {
-      // console.log('sketch3DBoard.draw()', domParentId, sketch3DBoard.width, sketch3DBoard.height)
-
-      // console.log(domParentId);
-
-      // TODO: This doesn't need to be done every time, but I will leave it
-      //       for now.
-      if (doSetupBricks){
-        sketch3DBoard.setupBricks();
-        doSetupBricks = false;
-        // console.log('set up bricks');
-      }
-
-      // Figure out the current amount of rotation and use this to decide
-      // whether to display the front or back tile layout. 
-      if (cam.eyeZ < 0){
-        if (isShowingFront){
-          appFn()?.showBack && appFn().showBack();
-          isShowingFront = false;
-        }
-      } else {
-        if (!isShowingFront){
-          appFn()?.showFront && appFn().showFront();
-          isShowingFront = true;
-        }
-      } 
-
-      // TODO: Re-implement 'momentum' effect for rotation?
-
-      sketch3DBoard.clear();
-      if (doOrbit){
-        sketch3DBoard.orbitControl(4, 0, 0);
-      }
-      
-      // console.log("sketch3DBoard.draw() ==> at end");
-    }
-
-    //////////////////////////////////////////////////////////
-    // Drawing helpers
-    // 
-
-
-    //////////////////////////////////////////////////////////
-    // Helpers
-    // 
-
-    sketch3DBoard.frontBoardChanged = (lineNo) => {
-      // console.log('front board changed', lineNo);
-      doSetupBricks = true;
-    }
-
-    sketch3DBoard.backBoardChanged = (lineNo) => {
-      // console.log('back board changed', lineNo);
-      doSetupBricks = true;
-    }
-
-    sketch3DBoard.doSetupBricks = () => {
-      doSetupBricks = true;
-    }
-
-    // Returns true if a given point is inside the canvas
-    sketch3DBoard.isInside = (x, y) => {
-      return x > 0 && x < sketch3DBoard.width && y > 0 && y < sketch3DBoard.height;
-    };
-
-  }
-}
-*/

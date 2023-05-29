@@ -1,18 +1,29 @@
 class LabelSlider {
-  constructor({domParent, x, y, min, max, val, inc, label, mouseMoved}){
-    this.domParent = domParent;
+  constructor({parent, x, y, min, max, val, inc, label, mouseMoved}){
+    this.parent = parent;
     this.x = x;
     this.y = y;
-    this.label = label;
+    this._labelText = label;
 
+    this.div = createDiv().parent(this.parent).class("row");
+    this.label = createElement("label").parent(this.div);
+  
     this.sld = createSlider(min, max, val, (inc || 1));
-    this.sld.parent(this.domParent);
+    this.sld.parent(this.div);
+
     // this.sld.position(this.x + 90, this.y);
-    this.sld.mouseMoved(mouseMoved);
+    this.sld.mouseMoved(() => {
+      this.updateLabel();
+      mouseMoved();
+    });
     this.sld.mouseClicked(() => false);
+
+    this.updateLabel();
   }
 
-  show(){
+  updateLabel(){
+    this.label.html(
+      `${this._labelText}:<span class="val">${this.sld.value()}</span>`);
   }
 
   value(){
