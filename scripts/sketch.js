@@ -4,6 +4,8 @@ let uiParams = {
   margin: 10,
   brickSteps: 6,
   masterTileSize: 1,
+  btnSpaceX: 80,
+  sldSpaceY: 30,
 };
 let tiles;
 let front;
@@ -13,6 +15,9 @@ let back2D;
 let currentBoard2D;
 let board3D;
 let fnt;
+
+let btn = {};
+let sld = {};
 
 /*
 var exampleTile = {
@@ -36,7 +41,12 @@ function preload(){
 function setup(){
   createCanvas(windowWidth, windowHeight);
 
-  params = new Parameters({rows: 4, cols: 6});
+  params = new Parameters({
+    x: uiParams.margin * 2,
+    y: 550,
+    rows: 4, 
+    cols: 6
+  });
   // params = new Parameters({rows: 1, cols: 1});
 
   // Initialise the collection of tiles.
@@ -64,39 +74,40 @@ function setup(){
   front.registerListener(showJSON);
   back.registerListener(showJSON); 
 
-  front2D = new Board2D({
+  board3D = new Board3D({
     x: uiParams.margin,
     y: 100,
     width: 600, 
-    height: 300,
+    height: 400,
+    front,
+    back,
+    isVisible: true,
+    label: "3D Board",
+  });
+
+  front2D = new Board2D({
+    x: 2 * uiParams.margin + board3D.width,
+    y: board3D.y,
+    width: board3D.width, 
+    height: board3D.height,
     board: front, 
     isVisible: true,
     label: "Front",
   });
 
   back2D = new Board2D({
-    x: 2 * uiParams.margin + front2D.width,
-    y: 100,
-    width: 600,
-    height: 300,
+    x: front2D.x,
+    y: front2D.y,
+    width: front2D.width,
+    height: front2D.height,
     board: back, 
-    isVisible: true,
+    isVisible: false,
     label: "Back",
   });
 
   currentBoard2D = front2D;
   // app = new App();
 
-  board3D = new Board3D({
-    x: uiParams.margin,
-    y: front2D.y + front2D.height + uiParams.margin,
-    width: front2D.width + uiParams.margin + back2D.width, 
-    height: 600,
-    front,
-    back,
-    isVisible: true,
-    label: "3D Board",
-  });
   // this.board3D = new p5(make3DBoard('#canvas-holder-3d', () => this, 
   // false, 1, this.brickSteps));
 
@@ -107,6 +118,17 @@ function setup(){
     app.serverURL = url;
     sketchMain.select('#server-url-link').attribute('href', url).html(url);
   })
+
+  // Set up buttons
+  btn["showFront"] = createButton("Show Front")
+    .mousePressed(showFront)
+    .position(100, 50);
+  btn["showBack"] = createButton("Show Back")
+    .mousePressed(showBack)
+    .position(100 + uiParams.btnSpaceX, 50);
+
+  // Set up sliders
+  sld[""]
 }
 
 function draw(){
@@ -114,8 +136,17 @@ function draw(){
   text(`width: ${width}, height: ${height}, fc: ${frameCount}, 
     fr: ${floor(frameRate())}`, 20, 40);
 
-  front2D.show();
-  back2D.show();
+  // Update curves if params have changed
+  if (params.hasChanges){
+    processChangedParams();
+    showJSON();
+  }
+
+  board3D.show();
+
+  currentBoard2D.show();
+
+  params.show();
 
   // Visual debugging to check layout. 
   // push();
@@ -125,8 +156,6 @@ function draw(){
   // rect(0, 0, front2D.width / 2, 35);
   // rect(0, 0, 35, front2D.height / 2)
   // pop();
-
-  board3D.show();
 }
 
 /////////////////////////////////////////////////
@@ -150,8 +179,52 @@ function mouseReleased(){
   board3D.mouseReleased(mouseX, mouseY);
 }
 
+// Should be called when the side of the 3D board is set to change
+// side: string, which side ['front', 'back']
+// snap: boolean, whether other elements should snap to 0, 180 deg.
+function sideChanged(side, snap){
+  console.log('sc', side, snap);
+  let snapTo = 0;
+  if (side === "front"){
+    currentBoard2D = front2D;
+  } else if (side === "back"){
+    currentBoard2D = back2D;    
+    snapTo = 180;
+  }
+  currentBoard2D.isVisible = true;
+
+  if (snap){
+    board3D.setRotY(snapTo);
+  }
+}
+
+// Event handler for 'show front' button
+function showFront(){
+  console.log('sf');
+  sideChanged("front", true);
+}
+
+// Event handler for 'show back' button
+function showBack(){
+  console.log('sb');
+  sideChanged("back", true);
+}
+
 /////////////////////////////////////////////////
 // Helpers
+
+function processChangedParams(){
+  for (let i = 0; i < 256; i++) {
+    tiles[i].calculateData(1);
+  }
+
+  // front2D.loop();
+  // back2D.loop();
+  board3D.setupBricks();
+  // projector?.window?.board3D?.doSetupBricks();
+  // exampleTile?.doSetupBricks();
+  params.hasChanges = false;
+}
 
 function showJSON() {
   const json = toJSON();
@@ -204,12 +277,6 @@ function initMainSketch(){
     }
 
     sketchMain.draw = () => {
-      // Update curves if params have changed
-      if (params.hasChanges){
-        app.processChangedParams();
-        sketchMain.showJSON();
-      }
-
       app.show();
     }
 

@@ -7,16 +7,14 @@ class Board3D {
     this.front = front;
     this.back = back;
 
-    this.rotY = 5;
-    this.rotX = -5;
+    this.rotY = 0;
+    this.rotX = 0;
     this.rotSpeed = 0.5;
     this.drag = false;
 
     this.margin = 35;
 
-    this.scaleFactor = 1;
     this.zoom = 1;
-    this.bricks = null;
 
     // These calculations are to figure out how much we need to scale
     // things by in order to fit them into the graphics size.
@@ -24,11 +22,12 @@ class Board3D {
     let maxTileH = (this.height - (2 * this.margin)) / params.rows;
 
     let [shortSide,   divisions  ] = maxTileW < maxTileH ? 
-        [this.width,  params.cols] : 
-        [this.height, params.rows] ;
+        [this.width - this.margin,  params.cols] : 
+        [this.height - this.margin, params.rows] ;
 
     this.tileSize = shortSide / divisions;
     this.scaleFactor = (shortSide - 2 * this.margin) / shortSide;
+    console.log('this.scaleFactor', this.scaleFactor);
 
     let graphicsW = this.margin * 2 + this.tileSize * 
       params.cols; //  * this.scaleFactor;
@@ -47,6 +46,7 @@ class Board3D {
     // this.defaultCamZ = this.cam.eyeZ + this.tileSize / 2;
     // this.setCamFront();  
     
+    this.bricks = null;    
     this.setupBricks();    
 
     this.front.registerListener(() => this.setupBricks());
@@ -66,7 +66,7 @@ class Board3D {
     // this.g.rotateY(millis() / 2000);
     this.g.rotateY(radians(this.rotY));
 
-    this.g.scale(this.scaleFactor * 0.8);
+    this.g.scale(this.scaleFactor);
     // this.g.scale(0.5);
 
     // Set up lights
@@ -216,33 +216,23 @@ class Board3D {
   //   doOrbit = newDoOrbit;
   // }
 
-  setCamFront() {
-    this.cam.setPosition(0, 0, this.defaultCamZ);
-    this.cam.lookAt(0, 0, 0);
+  // setCamFront() {
+  //   this.cam.setPosition(0, 0, this.defaultCamZ);
+  //   this.cam.lookAt(0, 0, 0);
+  // }
+
+  // setCamBack() {
+  //   // console.log('set cam back');
+  //   this.cam.setPosition(0, 0, -this.defaultCamZ);
+  //   this.cam.lookAt(0, 0, 0);
+  // }
+
+  getRot() {
+    return this.rotY;
   }
 
-  setCamBack() {
-    // console.log('set cam back');
-    this.cam.setPosition(0, 0, -this.defaultCamZ);
-    this.cam.lookAt(0, 0, 0);
-  }
-
-  getCamRot() {
-    let rotVec = createVector(this.cam.eyeX, this.cam.eyeZ);
-    // console.log('get dz', s.floor(defaultCamZ), 
-    //   'h', s.floor(rotVec.heading()),
-    //   'x', s.floor(rotVec.x), 'y', s.floor(rotVec.y));
-    return (rotVec.heading());
-  }
-
-  setCamRot(rot) {
-    let rotVec = createVector(this.defaultCamZ, 0);
-    rotVec.rotate(rot);
-    // console.log('set dz', s.floor(defaultCamZ), 
-    //   'h', s.floor(rotVec.heading()),
-    //   'x', s.floor(rotVec.x), 'y', s.floor(rotVec.y));
-    this.cam.setPosition(rotVec.x, 0, rotVec.y);
-    this.cam.lookAt(0, 0, 0);
+  setRotY(rotY) {
+    this.rotY = rotY;
   }
 
   // Set up the array of bricks based off the front and 
@@ -351,7 +341,16 @@ class Board3D {
 
   processDrag(){
     let rotDelta = (this.drag.eX - this.drag.sX) * this.rotSpeed;
-    this.rotY = (360 + this.drag.sRot + rotDelta) % 360;
+    let newRotY = (360 + this.drag.sRot + rotDelta) % 360;
+
+    let newSide =  newRotY   <= 90 || newRotY   > 270 ? "front" : "back"
+    let currSide = this.rotY <= 90 || this.rotY > 270 ? "front" : "back"
+
+    if (newSide !== currSide){
+      sideChanged(newSide, false);
+    }
+
+    this.rotY = newRotY;
     // console.log({rotDelta, rot: this.rot})
   }
 }

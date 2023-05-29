@@ -22,7 +22,9 @@ class Parameters {
     COLS:               2,
   };
 
-  constructor({rotation, mag, pull, sidePull, cols, rows}) {
+  constructor({x, y, rotation, mag, pull, sidePull, cols, rows}) {
+    this.x = x;
+    this.y = y;
     this.rotation = rotation || Parameters.defaults.ROTATION;
     this.mag = mag           || Parameters.defaults.MAG;
     this.pull = pull         || Parameters.defaults.PULL;
@@ -31,76 +33,89 @@ class Parameters {
     this.rows = rows         || Parameters.defaults.ROWS;
     
     // Dom elements that will be initialized later
-    this.sldNumCols = null;
-    this.txtNumCols = null;
-    this.sldNumRows = null;
-    this.txtNumRows = null;
     this.sldRotation = null;
-    this.txtRotation = null;
     this.sldMag = null;
-    this.txtMag = null;
     this.sldPull = null;
-    this.txtPull = null;
     this.sldSidePull = null;
-    this.txtSidePull = null;
     this.hasChanges = false;
 
-    /* TODO: Figure out the UI for the parameters.
+    // this.sldNumCols = null;
+    // this.sldNumRows = null;
+
+    // * TODO: Figure out the UI for the parameters. 
     // Function to initialize dom elements once p5 is ready.
-    this.sldNumCols = createSlider(2, 10, this.cols);
-    this.sldNumCols.parent(select("#sldNumCols-holder"));
-    this.sldNumCols.mouseClicked(this.fnFalse);
-    this.sldNumCols.mouseMoved(this.sldNumColsChanged)
-    this.txtNumCols = select('#txtNumCols-holder');
-    this.txtNumCols.html(this.cols);
 
-    this.sldNumRows = createSlider(2, 10, this.rows);
-    this.sldNumRows.parent(select("#sldNumRows-holder"));
-    this.sldNumRows.mouseClicked(this.fnFalse);
-    this.sldNumRows.mouseMoved(this.sldNumRowsChanged)
-    this.txtNumRows = select('#txtNumRows-holder');
-    this.txtNumRows.html(this.rows);
+    let sldX = this.x;
+    let sldY = this.y;
 
-    this.sldRotation = createSlider(
-      Parameters.defaults.MIN_ROTATION,
-      Parameters.defaults.MAX_ROTATION,
-      this.rotation);
-    this.sldRotation.parent(select('#sldRotation-holder'));
-    this.sldRotation.mouseMoved(this.sldRotationChanged);
-    this.sldRotation.mouseClicked(this.fnFalse);
-    this.txtRotation = select('#txtRotation-holder');
-    this.txtRotation.html(this.rotation);
+    this.sldRotation = new LabelSlider({
+      x: sldX,
+      y: sldY, 
+      min: Parameters.defaults.MIN_ROTATION,
+      max: Parameters.defaults.MAX_ROTATION,
+      val: this.rotation,
+      label: "Rotation",
+      mouseMoved: () => this.sldRotationChanged(),
+    });
 
-    this.sldMag = createSlider(
-      Parameters.defaults.MIN_MAG, 
-      Parameters.defaults.MAX_MAG, 
-      this.mag);
-    this.sldMag.parent(select('#sldMag-holder'));
-    this.sldMag.mouseMoved(this.sldMagChanged);
-    this.sldMag.mouseClicked(this.fnFalse);
-    this.txtMag = select('#txtMag-holder');
-    this.txtMag.html(this.mag);
+    sldY += uiParams.sldSpaceY;
 
-    this.sldPull = createSlider(
-      Parameters.defaults.MIN_PULL, 
-      Parameters.defaults.MAX_PULL, 
-      this.pull);
-    this.sldPull.parent(select('#sldPull-holder'));
-    this.sldPull.mouseMoved(this.sldPullChanged);
-    this.sldPull.mouseClicked(this.fnFalse);
-    this.txtPull = select('#txtPull-holder');
-    this.txtPull.html(this.pull);
+    this.sldMag = new LabelSlider({
+      x: sldX,
+      y: sldY, 
+      min: Parameters.defaults.MIN_MAG, 
+      max: Parameters.defaults.MAX_MAG, 
+      val: this.mag,
+      label: "Magnitude",
+      mouseMoved: () => this.sldMagChanged(),
+    });
 
-    this.sldSidePull = createSlider(
-      Parameters.defaults.MIN_SIDE_PULL, 
-      Parameters.defaults.MAX_SIDE_PULL, 
-      this.sidePull);
-    this.sldSidePull.parent(select('#sldSidePull-holder'));
-    this.sldSidePull.mouseMoved(this.sldSidePullChanged);
-    this.sldSidePull.mouseClicked(this.fnFalse);
-    this.txtSidePull = select('#txtSidePull-holder');
-    this.txtSidePull.html(this.sidePull);
-    */
+    sldY += uiParams.sldSpaceY;
+
+    this.sldPull = new LabelSlider({
+      x: sldX,
+      y: sldY, 
+      min: Parameters.defaults.MIN_PULL, 
+      max: Parameters.defaults.MAX_PULL, 
+      val: this.pull,
+      label: "Pull",
+      mouseMoved: () => this.sldPullChanged(),
+    });
+
+    sldY += uiParams.sldSpaceY;
+
+    this.sldSidePull = new LabelSlider({
+      x: sldX,
+      y: sldY, 
+      min: Parameters.defaults.MIN_SIDE_PULL, 
+      max: Parameters.defaults.MAX_SIDE_PULL, 
+      val: this.sidePull,
+      label: "Side Pull",
+      mouseMoved: () => this.sldSidePullChanged(),
+    });
+
+    // this.sldNumCols = createSlider(2, 10, this.cols);
+    // this.sldNumCols.parent(select("#sldNumCols-holder"));
+    // this.sldNumCols.mouseClicked(this.fnFalse);
+    // this.sldNumCols.mouseMoved(this.sldNumColsChanged)
+    // this.txtNumCols = select('#txtNumCols-holder');
+    // this.txtNumCols.html(this.cols);
+
+    // this.sldNumRows = createSlider(2, 10, this.rows);
+    // this.sldNumRows.parent(select("#sldNumRows-holder"));
+    // this.sldNumRows.mouseClicked(this.fnFalse);
+    // this.sldNumRows.mouseMoved(this.sldNumRowsChanged)
+    // this.txtNumRows = select('#txtNumRows-holder');
+    // this.txtNumRows.html(this.rows);
+    /**/
+  }
+
+  // Function to draw the parameters to the canvas
+  show(){
+    this.sldRotation.show();
+    this.sldMag.show();
+    this.sldPull.show();
+    this.sldSidePull.show();
   }
 
   /**
@@ -113,7 +128,7 @@ class Parameters {
 
   /**
    * Event handler for slider that adjusts the number of cols
-   */
+   * /
   sldNumColsChanged() {
     // console.log(this.sldNumCols.value());
     if (this.sldNumCols.value() != this.cols){
@@ -125,7 +140,7 @@ class Parameters {
 
   /**
    * Event handler for slider that adjusts the number of rows
-   */
+   * /
   sldNumRowsChanged() {
     // console.log(this.sldNumRows.value());
     if (this.sldNumRows.value() != this.rows){
@@ -142,7 +157,7 @@ class Parameters {
   sldRotationChanged() {
     if (this.sldRotation.value() != this.rotation) {
       this.rotation = this.sldRotation.value();
-      this.txtRotation.html(this.rotation);
+      // this.txtRotation.html(this.rotation);
       this.hasChanges = true;
       // loop();
     }
@@ -154,7 +169,7 @@ class Parameters {
   sldMagChanged() {
     if (this.sldMag.value() != this.mag) {
       this.mag = this.sldMag.value();
-      this.txtMag.html(this.mag);
+      // this.txtMag.html(this.mag);
       this.hasChanges = true;
       // loop();
     }
@@ -166,7 +181,7 @@ class Parameters {
   sldPullChanged() {
     if (this.sldPull.value() != this.pull) {
       this.pull = this.sldPull.value();
-      this.txtPull.html(this.pull);
+      // this.txtPull.html(this.pull);
       this.hasChanges = true;
       // loop();
     }
@@ -178,11 +193,12 @@ class Parameters {
   sldSidePullChanged() {
     if (this.sldSidePull.value() != this.sidePull) {
       this.sidePull = this.sldSidePull.value();
-      this.txtSidePull.html(this.sidePull);
+      // this.txtSidePull.html(this.sidePull);
       this.hasChanges = true;
       // loop();
     }
   }
+  /**/
 
   setParams(params) {
     this.rotation = params.rotation;
