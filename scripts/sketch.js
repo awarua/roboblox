@@ -67,8 +67,12 @@ function setup(){
     tiles[i].calculateData(1);
   }
 
-  front = new Board(params.rows, params.cols).fillRandomly();
-  back = new Board(params.rows, params.cols).fillRandomly();
+  front = new Board(
+    Parameters.defaults.MAX_ROWS,
+    Parameters.defaults.MAX_COLS).fillRandomly();
+  back = new Board(
+    Parameters.defaults.MAX_ROWS,
+    Parameters.defaults.MAX_COLS).fillRandomly();
 
   // Listen for changes in the front and back tiles
   front.registerListener(showJSON);
@@ -220,6 +224,9 @@ function processChangedParams(){
 
   // front2D.loop();
   // back2D.loop();
+  front2D.setupGraphics();
+  back2D.setupGraphics();
+  board3D.setupScale();
   board3D.setupBricks();
   // projector?.window?.board3D?.doSetupBricks();
   // exampleTile?.doSetupBricks();

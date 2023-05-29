@@ -5,7 +5,7 @@ class LabelSlider {
     this.label = label;
 
     this.sld = createSlider(min, max, val, inc);
-    this.sld.position(this.x + 100, this.y);
+    this.sld.position(this.x + 90, this.y);
     this.sld.mouseMoved(mouseMoved);
     this.sld.mouseClicked(() => false);
   }
@@ -21,7 +21,7 @@ class LabelSlider {
     fill(255);
     text(this.label, 0, 2);
     textAlign(RIGHT, TOP);
-    text(this.sld.value(), 90, 2);
+    text(this.sld.value(), 80, 2);
     // text(this.sld.value(), this.sld.x + this.sld.width, 0);
     pop();
   }

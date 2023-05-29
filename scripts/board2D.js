@@ -16,10 +16,25 @@ class Board2D {
     this.labelColor = color(255, 150);
 
     this.margin = 35;
-    this.scaleFactor = 1;
     this.lastClicked = null;
     this.showLabel = true;
-  
+
+    // These fields will be set up in the setupGraphics function.
+    // For now, just initialize with some sensible defaults.
+    this.marginL = 0;
+    this.marginT = 0;
+    this.tileSize = 100;
+    this.scaleFactor = 1;
+    this.g = null;  
+
+    // Set up the graphics. This depends on the number of 
+    // rows and collumns, so will need to be redone if that changes.
+    this.setupGraphics();
+
+    // console.log({w: this.width, h: this.height, gW: this.g.width, gH: this.g.height, mL: this.marginL, mT: this.marginT});
+  }
+
+  setupGraphics(){
     let maxTileW = (this.width - (2 * this.margin)) / params.cols;
     let maxTileH = (this.height - (2 * this.margin)) / params.rows;
 
@@ -41,10 +56,6 @@ class Board2D {
     this.marginT = (this.height - graphicsH) / 2;
 
     this.g = createGraphics(graphicsW, graphicsH);
-
-    // console.log({w: this.width, h: this.height, gW: this.g.width, gH: this.g.height, mL: this.marginL, mT: this.marginT});
-
-    // sketch2DBoard.noLoop();
   }
   
   show() {

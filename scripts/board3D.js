@@ -14,25 +14,19 @@ class Board3D {
 
     this.margin = 35;
 
+    // TODO: Is this needed? 
     this.zoom = 1;
 
-    // These calculations are to figure out how much we need to scale
-    // things by in order to fit them into the graphics size.
-    let maxTileW = (this.width - (2 * this.margin)) / params.cols;
-    let maxTileH = (this.height - (2 * this.margin)) / params.rows;
+    // Set up the scale so that we can see all bricks.
+    // This needs to be redone if cols/rows change.
+    this.tileSize = 100;
+    this.scaleFactor = 1;
+    this.setupScale();
 
-    let [shortSide,   divisions  ] = maxTileW < maxTileH ? 
-        [this.width - this.margin,  params.cols] : 
-        [this.height - this.margin, params.rows] ;
-
-    this.tileSize = shortSide / divisions;
-    this.scaleFactor = (shortSide - 2 * this.margin) / shortSide;
-    console.log('this.scaleFactor', this.scaleFactor);
-
-    let graphicsW = this.margin * 2 + this.tileSize * 
-      params.cols; //  * this.scaleFactor;
-    let graphicsH = this.margin * 2 + this.tileSize *
-      params.rows; //  * this.scaleFactor;
+    // let graphicsW = this.margin * 2 + this.tileSize * 
+    //   params.cols; //  * this.scaleFactor;
+    // let graphicsH = this.margin * 2 + this.tileSize *
+    //   params.rows; //  * this.scaleFactor;
 
     // The margin between the left and right sides and where the edges
     // of the 'g' object will be.
@@ -53,7 +47,34 @@ class Board3D {
     this.back.registerListener(() => this.setupBricks());
 
 
+    /* TODO - Can I use the following to handle clicks? (from perspective() ref)
+    // If no parameters are given, the following default is used: 
+    //   perspective({
+    //     fovy: PI/3, 
+    //     aspect: width/height, 
+    //     near: eyeZ/10,
+    //     far: eyeZ*10
+    //   })
+    // where eyeZ is equal to ((height/2) / tan(PI/6)).
+    */
+
+
     // console.log('2 sf', this.scaleFactor, 'mT', this.marginT, 'mL', this.marginL);
+  }
+
+  setupScale(){
+    // These calculations are to figure out how much we need to scale
+    // things by in order to fit them into the graphics size.
+    let maxTileW = (this.width - (2 * this.margin)) / params.cols;
+    let maxTileH = (this.height - (2 * this.margin)) / params.rows;
+
+    let [shortSide,   divisions  ] = maxTileW < maxTileH ? 
+        [this.width - this.margin,  params.cols] : 
+        [this.height - this.margin, params.rows] ;
+
+    this.tileSize = shortSide / divisions;
+    this.scaleFactor = (shortSide - 2 * this.margin) / shortSide;
+    // console.log('this.scaleFactor', this.scaleFactor);
   }
 
   show(){

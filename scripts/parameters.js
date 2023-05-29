@@ -15,10 +15,10 @@ class Parameters {
     MAX_SIDE_PULL:     60,
     SIDE_PULL:         50,
     MIN_ROWS:           1,
-    MAX_ROWS:          20,
+    MAX_ROWS:          12,
     ROWS:               2,
     MIN_COLS:           1,
-    MAX_COLS:          20,
+    MAX_COLS:          12,
     COLS:               2,
   };
 
@@ -31,20 +31,10 @@ class Parameters {
     this.sidePull = sidePull || Parameters.defaults.SIDE_PULL;
     this.cols = cols         || Parameters.defaults.COLS;
     this.rows = rows         || Parameters.defaults.ROWS;
-    
-    // Dom elements that will be initialized later
-    this.sldRotation = null;
-    this.sldMag = null;
-    this.sldPull = null;
-    this.sldSidePull = null;
+
     this.hasChanges = false;
 
-    // this.sldNumCols = null;
-    // this.sldNumRows = null;
-
-    // * TODO: Figure out the UI for the parameters. 
-    // Function to initialize dom elements once p5 is ready.
-
+    // Set up UI elements.
     let sldX = this.x;
     let sldY = this.y;
 
@@ -94,20 +84,29 @@ class Parameters {
       mouseMoved: () => this.sldSidePullChanged(),
     });
 
-    // this.sldNumCols = createSlider(2, 10, this.cols);
-    // this.sldNumCols.parent(select("#sldNumCols-holder"));
-    // this.sldNumCols.mouseClicked(this.fnFalse);
-    // this.sldNumCols.mouseMoved(this.sldNumColsChanged)
-    // this.txtNumCols = select('#txtNumCols-holder');
-    // this.txtNumCols.html(this.cols);
+    sldY += uiParams.sldSpaceY;
 
-    // this.sldNumRows = createSlider(2, 10, this.rows);
-    // this.sldNumRows.parent(select("#sldNumRows-holder"));
-    // this.sldNumRows.mouseClicked(this.fnFalse);
-    // this.sldNumRows.mouseMoved(this.sldNumRowsChanged)
-    // this.txtNumRows = select('#txtNumRows-holder');
-    // this.txtNumRows.html(this.rows);
-    /**/
+    this.sldNumCols = new LabelSlider({
+      x: sldX,
+      y: sldY,
+      min: Parameters.defaults.MIN_COLS, 
+      max: Parameters.defaults.MAX_COLS, 
+      val: this.cols,
+      label: "Columns",
+      mouseMoved: () => this.sldNumColsChanged(),
+    });
+    
+    sldY += uiParams.sldSpaceY;
+
+    this.sldNumRows = new LabelSlider({
+      x: sldX,
+      y: sldY,
+      min: Parameters.defaults.MIN_ROWS, 
+      max: Parameters.defaults.MAX_ROWS, 
+      val: this.rows,
+      label: "Rows",
+      mouseMoved: () => this.sldNumRowsChanged(),
+    });
   }
 
   // Function to draw the parameters to the canvas
@@ -116,6 +115,8 @@ class Parameters {
     this.sldMag.show();
     this.sldPull.show();
     this.sldSidePull.show();
+    this.sldNumCols.show();
+    this.sldNumRows.show();
   }
 
   /**
@@ -124,31 +125,6 @@ class Parameters {
   fnFalse(e) {
     e.stopPropagation();
     return false;
-  }
-
-  /**
-   * Event handler for slider that adjusts the number of cols
-   * /
-  sldNumColsChanged() {
-    // console.log(this.sldNumCols.value());
-    if (this.sldNumCols.value() != this.cols){
-      this.cols = this.sldNumCols.value();
-      this.txtNumCols.html(this.cols);
-      this.hasChanges = true;
-    }
-  }
-
-  /**
-   * Event handler for slider that adjusts the number of rows
-   * /
-  sldNumRowsChanged() {
-    // console.log(this.sldNumRows.value());
-    if (this.sldNumRows.value() != this.rows){
-      this.rows = this.sldNumRows.value();
-      this.txtNumRows.html(this.rows);
-      // TODO
-      // this.hasChanges = true;
-    }
   }
     
   /**
@@ -198,7 +174,30 @@ class Parameters {
       // loop();
     }
   }
-  /**/
+
+  /**
+   * Event handler for slider that adjusts the number of cols
+   */
+  sldNumColsChanged() {
+    // console.log(this.sldNumCols.value());
+    if (this.sldNumCols.value() != this.cols){
+      this.cols = this.sldNumCols.value();
+      // this.txtNumCols.html(this.cols);
+      this.hasChanges = true;
+    }
+  }
+
+  /**
+   * Event handler for slider that adjusts the number of rows
+   */
+  sldNumRowsChanged() {
+    // console.log(this.sldNumRows.value());
+    if (this.sldNumRows.value() != this.rows){
+      this.rows = this.sldNumRows.value();
+      // this.txtNumRows.html(this.rows);
+      this.hasChanges = true;
+    }
+  }
 
   setParams(params) {
     this.rotation = params.rotation;
