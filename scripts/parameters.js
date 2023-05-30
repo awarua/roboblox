@@ -62,7 +62,7 @@ class Parameters {
       }
     })
 
-    this.hasChanges = false;
+    this.hasChanges = true;
 
     // Set up UI elements.
     this.sldRotation = new LabelSlider({
@@ -70,7 +70,7 @@ class Parameters {
       min: Parameters.defaults.MIN_ROTATION,
       max: Parameters.defaults.MAX_ROTATION,
       val: this.rotation,
-      label: "Rotation",
+      label: "Twist", // "Rotation",
       mouseMoved: () => this.sldRotationChanged(),
     });
 
@@ -79,7 +79,7 @@ class Parameters {
       min: Parameters.defaults.MIN_MAG, 
       max: Parameters.defaults.MAX_MAG, 
       val: this.mag,
-      label: "Magnitude",
+      label: "Curve", // "Magnitude",
       mouseMoved: () => this.sldMagChanged(),
     });
 
@@ -88,7 +88,7 @@ class Parameters {
       min: Parameters.defaults.MIN_PULL, 
       max: Parameters.defaults.MAX_PULL, 
       val: this.pull,
-      label: "Pull",
+      label: "Dilate", // "Pull",
       mouseMoved: () => this.sldPullChanged(),
     });
 
@@ -97,7 +97,7 @@ class Parameters {
       min: Parameters.defaults.MIN_SIDE_PULL, 
       max: Parameters.defaults.MAX_SIDE_PULL, 
       val: this.sidePull,
-      label: "Side Pull",
+      label: "Crimp", // "Side Pull",
       mouseMoved: () => this.sldSidePullChanged(),
     });
 
@@ -117,14 +117,14 @@ class Parameters {
       val: this.rows,
       label: "Rows",
       mouseMoved: () => this.sldNumRowsChanged(),
-    });
+    }); 
   }
 
   /**
    * Event handler for slider that adjusts central rotation
    */
   sldRotationChanged() {
-    console.log('mm sld');
+    // console.log('mm sld');
     if (this.sldRotation.value() != this.rotation) {
       this.rotation = this.sldRotation.value();
       // this.txtRotation.html(this.rotation);

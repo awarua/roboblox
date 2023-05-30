@@ -85,6 +85,7 @@ body {
 
 #params.open {
   /* height: 100px; */
+  padding-bottom: 2em;
 }
 
 #params.open div.row {
@@ -105,12 +106,27 @@ body {
   margin-right: 1em;
 }
 
-body > button {
+#buttonRow {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  height: auto;
+  width: auto;
+}
+
+#buttonRow > button, #buttonRow > a.btn {
   color: rgb(120, 120, 120);
   background: rgb(20, 20, 20);
   padding: 1em;
   border-radius: 6px;
   border: none;
+  margin-right: 10px;
+  margin-bottom: 10px;
+  display: inline-block;
+  /* padding: 2em; */
+  text-decoration: none;
+  font-size: 0.8em;
+  cursor: default;
 }
 
 /*

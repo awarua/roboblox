@@ -15,6 +15,7 @@ let board3D;
 let fnt;
 
 let btn = {};
+let serverLink = null;
 
 // Need to load a font to use text in WebGL mode
 function preload(){
@@ -71,28 +72,38 @@ function setup(){
     label: "3D Board",
   });
 
+  // Set up buttons
+
+  let buttonRow = createDiv().id("buttonRow");
+
+  btn["showFront"] = createButton("Show Front")
+    .parent(buttonRow)
+    .mousePressed(showFront);
+
+  btn["showBack"] = createButton("Show Back")
+    .parent(buttonRow)
+    .mousePressed(showBack);
+
+  serverLink = createA("#", "JSON", "_blank")
+    .parent(buttonRow)
+    .class("btn");
+
+  let btnX = width - btn["showBack"].width - uiParams.margin;
+  let btnY = height - btn["showBack"].height - uiParams.margin;
+
+  // btn["showBack"].position(btnX, btnY);    
+
+  btnX -= btn["showFront"].width + uiParams.margin;
+
+  // btn["showFront"].position(btnX, btnY);
+
+
   // Set up the electron server to serve json to network
   // (must be running as an electron app for this to work)
   window?.electronAPI?.getServerURL().then((url) => {
     console.log('got server url', url);
-    app.serverURL = url;
-    sketchMain.select('#server-url-link').attribute('href', url).html(url);
-  })
-
-  // Set up buttons
-  btn["showFront"] = createButton("Show Front").mousePressed(showFront);
-  btn["showBack"] = createButton("Show Back")
-    .mousePressed(showBack);
-
-  btn["showBack"].position(
-    width - btn["showBack"].width - uiParams.margin, 
-    height - btn["showBack"].height - uiParams.margin);    
-
-  btn["showFront"].position(
-    width - btn["showFront"].width - btn["showBack"].width 
-    - 2 * uiParams.margin , 
-    height - btn["showFront"].height - uiParams.margin);
-
+    setServerURL(url);
+  });
 }
 
 function draw(){
@@ -133,6 +144,10 @@ function showBack(){
 /////////////////////////////////////////////////
 // Helpers
 
+function setServerURL(url){
+  serverLink.attribute('href', url); // .html(url);
+}
+
 function processChangedParams(){
   for (let i = 0; i < 256; i++) {
     tiles[i].calculateData(1);
@@ -144,6 +159,7 @@ function processChangedParams(){
 
 function showJSON() {
   const json = toJSON();
+  // console.log(json);
   window?.electronAPI?.updateJSON(json);
 }
 

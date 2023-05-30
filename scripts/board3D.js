@@ -556,19 +556,14 @@ class Board3D {
   }
 
   mousePressed(mX, mY){
-    // console.log('mp');
     if (this.isInside(mX, mY)){
-      // console.log('mp');
       this.drag = {
         sRot: this.rotY, sX: mX, sY: mY, eX: mX, eY: mY, didDrag: false};
     }
   }
 
   mouseDragged(mX, mY){
-    console.log("bo mm");
     if (this.drag){
-      // console.log('md');
-      // console.log('md');
       this.drag.eX = mX;
       this.drag.eY = mY;
       this.drag.didDrag = this.drag.didDrag || mX !== this.drag.sX;
@@ -577,23 +572,17 @@ class Board3D {
   }
 
   mouseReleased(){
-    console.log('mr');
     this.drag = false;
   }
 
   processDrag(){
     let rotDelta = (this.drag.eX - this.drag.sX) * this.rotSpeed;
-    // this.rotVel = (abs(rotDelta) / rotDelta) * 10;
     let newRotY = (360 + this.drag.sRot + rotDelta) % 360;
-
-    let newSide =  this.getSide(newRotY);
-    let currSide = this.getSide();
-
+    // let newSide =  this.getSide(newRotY);
+    // let currSide = this.getSide();
     // if (newSide !== currSide){
     //   sideChanged(newSide, false);
     // }
-
     this.rotY = newRotY;
-    // console.log({rotDelta, rot: this.rot})
   }
 }

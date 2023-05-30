@@ -47,6 +47,12 @@ const createWindow = () => {
   win.loadFile('index.html');
   win.maximize();
   // win.webContents.openDevTools();
+
+  win.webContents.on('new-window', function(e, url) {
+    e.preventDefault();
+    require('electron').shell.openExternal(url);
+  });
+
 }
 
 app.whenReady().then(() => {
