@@ -503,6 +503,12 @@ class Board3D {
     this.lastClicked = null;
   }
 
+  keyPressed(k){
+    if (keyCode == LEFT_ARROW){
+      
+    }
+  }
+
   mouseClicked(mX, mY){
     if (this.isInside(mX, mY)){
       // console.log('mc');

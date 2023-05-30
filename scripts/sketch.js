@@ -52,10 +52,10 @@ function setup(){
 
   front = new Board(
     Parameters.defaults.MAX_ROWS,
-    Parameters.defaults.MAX_COLS).fillRandomly();
+    Parameters.defaults.MAX_COLS).fill(0); // fillRandomly();
   back = new Board(
     Parameters.defaults.MAX_ROWS,
-    Parameters.defaults.MAX_COLS).fillRandomly();
+    Parameters.defaults.MAX_COLS).fill(0); // fillRandomly();
 
   // Listen for changes in the front and back tiles
   front.registerListener(showJSON);
@@ -118,6 +118,10 @@ function draw(){
 
 /////////////////////////////////////////////////
 // Event handlers
+
+function keyPressed(){
+  board3D.keyPressed(key);
+}
 
 function mousePressed(){
   board3D.mousePressed(mouseX, mouseY);
