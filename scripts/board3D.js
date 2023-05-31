@@ -12,6 +12,7 @@ class Board3D {
     this.rotSpeed = 0.5;
     this.drag = false;
     this.lastClicked = null;
+    this.copy = false;
 
     // UI properties
     this.r = 0.12; // 0.3;
@@ -158,7 +159,7 @@ class Board3D {
     // text(`drag: ${this.drag}, didDrag: ${this.drag?.didDrag || false}`, 10, 20);
     // text(`sin(this.rotY): ${sin(radians(2 * this.rotY))}`, 10, 20);
 
-    let sideLabel = this.getSide() === "front" ? "Front" : "Back";
+    let sideLabel = this.isFront() ? "Front" : "Back";
     textAlign(CENTER);
     text(sideLabel, this.width / 2, height - uiParams.margin);
 
@@ -193,14 +194,6 @@ class Board3D {
     this.g.line(0, -this.g.height, 0, 0, this.g.height, 0);
     this.g.line(-this.g.width, 0, 0, this.g.width, 0, 0);
     this.g.pop();
-  }
-
-  getRot() {
-    return this.rotY;
-  }
-
-  setRotY(rotY) {
-    this.rotY = rotY;
   }
 
   // Set up the array of bricks based off the front and 
@@ -266,7 +259,7 @@ class Board3D {
     this.picker.translate(
       -this.tileSize * params.cols / 2, -this.tileSize * params.rows / 2);
 
-    let isFront = this.getSide() == "front"
+    let isFront = this.isFront();
 
     // Iterate over the columns and rows and draw each brick
     for (let c = 0; c < params.cols; c++) {
@@ -317,7 +310,7 @@ class Board3D {
     this.picker.push();
     this.picker.translate(
       -this.tileSize * params.cols / 2, -this.tileSize * params.rows / 2);
-    let isFront = this.getSide() == "front"
+    let isFront = this.isFront();
     
     this.picker.translate(
       this.lastClicked.c * this.tileSize, 
@@ -357,7 +350,7 @@ class Board3D {
     this.g.push();
     this.g.translate(
       -this.tileSize * params.cols / 2, -this.tileSize * params.rows / 2);
-    let isFront = this.getSide() == "front"
+    let isFront = this.isFront();
     
     this.g.translate(
       this.lastClicked.c * this.tileSize, 
@@ -384,9 +377,9 @@ class Board3D {
 
       let currentTileNum = this.getCurrentTile();
 
-      let z = this.getSide() == "front" ? 0.01 : -0.01;
+      let z = this.isFront() ? 0.01 : -0.01;
 
-      let sideNum = this.getTileSide(i);
+      let sideNum = this.getTileSide(i, this.lastClicked.side);
 
       if (tiles[currentTileNum].sides[sideNum]){
         this.g.fill(255);
@@ -427,22 +420,101 @@ class Board3D {
     this.g.pop();
   }  
 
-  getCurrentTile(){
-    if (this.lastClicked){
-      if (this.lastClicked.side === "front"){
-        return this.front.getTile(this.lastClicked.c, this.lastClicked.r)
-      } else {
-        return this.back.getTile(
-          (params.cols - 1) - this.lastClicked.c, this.lastClicked.r)        
-      }
+  ///////////////////////////////////////////////
+  // 
+  // Getters/setters
+  // 
+
+  getRot() {
+    return this.rotY;
+  }
+
+  setRotY(rotY) {
+    this.rotY = rotY;
+  }
+
+  getTile(position){
+    if (position.side === "front"){
+      return this.front.getTile(position.c, position.r)
+    } else {
+      return this.back.getTile(
+        (params.cols - 1) - position.c, position.r)        
     }
   }
 
-  getTileSide(s){
-    if (this.getSide() == "front"){
-      return s;
+  setTile(position, num){ 
+    if (position.side === "front"){
+      return this.front.setTile(position.c, position.r, num)
+    } else {
+      return this.back.setTile(
+        (params.cols - 1) - position.c, position.r, num)        
     }
-    return [1, 0, 7, 6, 5, 4, 3, 2][s];
+  }
+
+  getCurrentTile(){
+    if (this.lastClicked){
+      return this.getTile(this.lastClicked);
+    }
+    return null;
+  }
+
+  setCurrentTile(num){
+    if (this.lastClicked){
+      return this.setTile(this.lastClicked, num);
+    }
+    return null;
+  }
+
+  getSide(r){
+    if (typeof(r) == 'undefined'){
+      r = this.rotY;
+    }
+    return r <= 90 || r > 270 ? "front" : "back";
+  }
+
+  isFront(){
+    return this.getSide() === "front"
+  }
+
+  getCurrentBoard(){
+    return this.isFront() ? front : back;
+  }
+
+  setLastClicked({c, r, side}){
+    this.lastClicked = {
+      c,
+      r,
+      side,
+    }
+  }
+
+  clearLastClicked(){
+    this.lastClicked = null;
+  }
+
+  getTileSide(sideNum, side){
+    if (side == "front"){
+      return sideNum;
+    }
+    let correctedSideNum = [1, 0, 7, 6, 5, 4, 3, 2][sideNum];
+    return correctedSideNum;
+  }  
+
+  toggleSide(sideNum, position){
+    // Correct sideNum for back tiles.
+    sideNum = this.getTileSide(sideNum, position.side);
+
+    // Correct position for back tiles.
+    if (position.side == "front"){
+      this.front.toggleSide(sideNum, position);
+    } else {
+      this.back.toggleSide(
+        sideNum, {
+          c: (params.cols - 1) - this.lastClicked.c,
+          r: this.lastClicked.r,
+          side: this.lastClicked.side,
+      });
+    }
   }
 
   getM(){
@@ -472,6 +544,11 @@ class Board3D {
     return buttonCentres;
   }
 
+  ///////////////////////////////////////////////
+  // 
+  // Helpers
+  // 
+
   isInside(x, y){
     return (x > this.x && x < this.x + this.width &&
       y > this.y && y < this.y + this.height);
@@ -484,28 +561,85 @@ class Board3D {
     };
   }
 
-  getSide(r){
-    if (typeof(r) == 'undefined'){
-      r = this.rotY;
-    }
-    return r <= 90 || r > 270 ? "front" : "back";
-  }
-
-  setLastClicked({c, r, side}){
-    this.lastClicked = {
-      c,
-      r,
-      side,
+  moveSelectionUp(){
+    if (this.lastClicked){
+      this.lastClicked.r = max(this.lastClicked.r - 1, 0);
     }
   }
 
-  clearLastClicked(){
-    this.lastClicked = null;
+  moveSelectionDown(){
+    if (this.lastClicked){
+      this.lastClicked.r = min(this.lastClicked.r + 1, params.rows - 1);
+    }
   }
+
+  moveSelectionLeft(){
+    if (this.lastClicked){
+      if (this.isFront()){
+        this.lastClicked.c = max(this.lastClicked.c - 1, 0);
+      } else {
+        this.lastClicked.c = min(this.lastClicked.c + 1, params.cols - 1);
+      }
+    }
+  }
+
+  moveSelectionRight(){
+    if (this.lastClicked){
+      if (this.isFront()){
+        this.lastClicked.c = min(this.lastClicked.c + 1, params.cols - 1);
+      } else {
+        this.lastClicked.c = max(this.lastClicked.c - 1, 0);
+      }
+    }
+  }
+
+  paste(copyNum, position){
+    this.setTile(position, copyNum);
+  }
+
+  processDrag(){
+    let rotDelta = (this.drag.eX - this.drag.sX) * this.rotSpeed;
+    let newRotY = (360 + this.drag.sRot + rotDelta) % 360;
+    // let newSide =  this.getSide(newRotY);
+    // let currSide = this.getSide();
+    // if (newSide !== currSide){
+    //   sideChanged(newSide, false);
+    // }
+    this.rotY = newRotY;
+  }  
+
+  ///////////////////////////////////////////////
+  // 
+  // Event handlers
+  // 
 
   keyPressed(k){
-    if (keyCode == LEFT_ARROW){
-      
+    if (this.lastClicked){
+      if (keyCode == UP_ARROW){
+        this.moveSelectionUp();
+      } else if (keyCode == DOWN_ARROW){
+        this.moveSelectionDown();
+      } else if (keyCode == LEFT_ARROW){
+        this.moveSelectionLeft();
+      } else if (keyCode == RIGHT_ARROW){
+        this.moveSelectionRight();
+      } else if (['1', '2', '3', '4', '5', '6', '7', '8'].includes(key)){
+        let num = this.lastClicked.side == "front" 
+          ? parseInt(key) - 1
+          : 7 - ((parseInt(key) + 5) % 8);
+        this.toggleSide(num, this.lastClicked);
+      } else if (keyCode == 67 && keyIsDown(ALT)){ // c
+        this.copy = this.getCurrentTile();
+      } else if (keyCode == 86 && keyIsDown(ALT)){ // v
+        if (this.copy !== false){
+          this.paste(this.copy, this.lastClicked);
+        }
+      } else if (keyCode == 82 && keyIsDown(ALT)){  // r
+        this.setCurrentTile(floor(random(256)));
+      } else if (keyCode == 88 && keyIsDown(ALT) || keyCode == BACKSPACE){  // x
+        this.setCurrentTile(0);
+      } 
+      // console.log(key, keyCode, BACKSPACE, DELETE, keyIsDown(DELETE));
     }
   }
 
@@ -529,24 +663,12 @@ class Board3D {
         // console.log('  ', {mouseColor, isClickedUI, isClickedGrid})
 
         if (isClickedUI &&  c >= 0 && c < 8 && cValid){
-          // Get the button clicked
-          let sideClicked = this.getTileSide(c);
-          // console.log('  side clicked', c, this.lastClicked);
-          if (this.lastClicked.side == "front"){
-            this.front.toggleSide(c, this.lastClicked);
-          } else {
-            this.back.toggleSide(
-              sideClicked, 
-              {c: (params.cols - 1) - this.lastClicked.c,
-              r: this.lastClicked.r,
-              side: this.lastClicked.side
-            });
-          }
+          this.toggleSide(c, this.lastClicked);
         }
         else if (isClickedGrid 
           && r >= 0 && r < params.rows && rValid
           && c >= 0 && c < params.cols && cValid){
-          if (side == "front"){
+          if (this.isFront()){
             this.setLastClicked({c, r, side});
           } else {
             this.setLastClicked({c, r, side});      
@@ -579,16 +701,5 @@ class Board3D {
 
   mouseReleased(){
     this.drag = false;
-  }
-
-  processDrag(){
-    let rotDelta = (this.drag.eX - this.drag.sX) * this.rotSpeed;
-    let newRotY = (360 + this.drag.sRot + rotDelta) % 360;
-    // let newSide =  this.getSide(newRotY);
-    // let currSide = this.getSide();
-    // if (newSide !== currSide){
-    //   sideChanged(newSide, false);
-    // }
-    this.rotY = newRotY;
   }
 }

@@ -52,10 +52,10 @@ function setup(){
 
   front = new Board(
     Parameters.defaults.MAX_ROWS,
-    Parameters.defaults.MAX_COLS).fill(0); // fillRandomly();
+    Parameters.defaults.MAX_COLS);
   back = new Board(
     Parameters.defaults.MAX_ROWS,
-    Parameters.defaults.MAX_COLS).fill(0); // fillRandomly();
+    Parameters.defaults.MAX_COLS);
 
   // Listen for changes in the front and back tiles
   front.registerListener(showJSON);
@@ -88,14 +88,13 @@ function setup(){
     .parent(buttonRow)
     .class("btn");
 
-  let btnX = width - btn["showBack"].width - uiParams.margin;
-  let btnY = height - btn["showBack"].height - uiParams.margin;
+  btn["fillRandom"] = createButton("Randomize")
+    .parent(buttonRow)
+    .mousePressed(fillRandom);
 
-  // btn["showBack"].position(btnX, btnY);    
-
-  btnX -= btn["showFront"].width + uiParams.margin;
-
-  // btn["showFront"].position(btnX, btnY);
+  btn["clear"] = createButton("Clear")
+    .parent(buttonRow)
+    .mousePressed(clearBoard);
 
 
   // Set up the electron server to serve json to network
@@ -143,6 +142,16 @@ function showFront(){
 // Event handler for 'show back' button
 function showBack(){
   board3D.setRotY(180);
+}
+
+// Event handler for 'fill random' button
+function fillRandom(){
+  board3D.getCurrentBoard().fillRandomly();
+}
+
+// Event handler for 'clear' button
+function clearBoard(){
+  board3D.getCurrentBoard().fill(0);
 }
 
 /////////////////////////////////////////////////

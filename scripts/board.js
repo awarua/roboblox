@@ -17,8 +17,77 @@ class Board {
   }
 
   // Set the tile number at the provided col, row
-  setTile(c, r, n){
+  setTile(c, r, n, skipNeighbors){
     this._data[r][c] = n;
+
+    // console.log('setTile()', c, r, n, skipNeighbors);
+
+    // Only check the neighbours if asked
+    if (!skipNeighbors){
+      let thisTile = tiles[n];
+      let tileSides = tiles[n].sides;
+
+      // Correct top neighbour if present
+      if (r > 0){
+        let topNum = this.getTile(c, r - 1);
+        let topTile = tiles[topNum];
+        let [tbl, tbr] = [topTile.sides[5], topTile.sides[4]];
+        let [tl, tr] = [thisTile.sides[0], thisTile.sides[1]];
+
+        if (tbl !== tl){
+          this.toggleNeighborSide(0, {c, r});
+        } 
+        if (tbr !== tr){
+          this.toggleNeighborSide(1, {c, r});
+        }
+      }
+
+      // Correct bottom neighbor if present
+      if (r < this.rows - 1){
+        let bottomNum = this.getTile(c, r + 1);
+        let bottomTile = tiles[bottomNum];
+        let [btl, btr] = [bottomTile.sides[0], bottomTile.sides[1]];
+        let [bl, br] = [thisTile.sides[5], thisTile.sides[4]];
+
+        if (btl !== bl){
+          this.toggleNeighborSide(5, {c, r});
+        } 
+        if (btr !== br){
+          this.toggleNeighborSide(4, {c, r});
+        }
+      } 
+
+      // Correct left neighbor if present
+      if (c > 0){
+        let leftNum = this.getTile(c - 1, r);
+        let leftTile = tiles[leftNum];
+        let [lrt, lrb] = [leftTile.sides[2], leftTile.sides[3]];
+        let [lt, lb] = [thisTile.sides[7], thisTile.sides[6]];
+
+        if (lrt !== lt){
+          this.toggleNeighborSide(7, {c, r});
+        } 
+        if (lrb !== lb){
+          this.toggleNeighborSide(6, {c, r});
+        }
+      } 
+
+      // Correct right neighbor if present
+      if (c < this.cols - 1){
+        let rightNum = this.getTile(c + 1, r);
+        let rightTile = tiles[rightNum];
+        let [rlt, rlb] = [rightTile.sides[7], rightTile.sides[6]];
+        let [rt, rb] = [thisTile.sides[2], thisTile.sides[3]];
+
+        if (rlt !== rt){
+          this.toggleNeighborSide(2, {c, r});
+        } 
+        if (rlb !== rb){
+          this.toggleNeighborSide(3, {c, r});
+        }
+      } 
+    }
+
     // Alert any listeners that the data has changed.
     this.alertListeners();
   }
@@ -42,10 +111,10 @@ class Board {
   }
 
   // Fill the board with the specified tile (don't care about neighbors)
-  fill(tileNum) {
+  fill(tileNum, skipNeighbors) {
     for (let c = 0; c < this.cols; c++){
       for (let r = 0; r < this.rows; r++){
-        this.setTile(c, r, tileNum);
+        this.setTile(c, r, tileNum, skipNeighbors);
       }
     }   
     return this;   
@@ -55,10 +124,11 @@ class Board {
   fillRandomly() {
     for (let c = 0; c < this.cols; c++){
       for (let r = 0; r < this.rows; r++){
-        for (let i = 0; i < 8; i++){
-          let sideNum = Math.floor(Math.random() * 8);
-          this.toggleSide(sideNum, {c, r});
-        }
+        this.setTile(c, r, floor(random(256)));
+        // for (let i = 0; i < 8; i++){
+        //   let sideNum = Math.floor(Math.random() * 8);
+        //   this.toggleSide(sideNum, {c, r});
+        // }
       }
     }
     return this;
@@ -89,6 +159,13 @@ class Board {
       n = this.getTile(position.c, position.r);
     }
 
+    // Toggle the tile side and the neighbor tile's side
+    let newN = tiles[n].toggleSide(sideNum);
+    this.setTile(position.c, position.r, newN, true);
+    this.toggleNeighborSide(sideNum, position);
+  }
+
+  toggleNeighborSide(sideNum, position){
     // This maps the side clicked to the relevant neighbor
     // Order is important. The index corresponds to the side
     // that was clicked.
@@ -101,10 +178,6 @@ class Board {
       {dc:  0, dr:  1, sideNum: 1}, {dc:  0, dr:  1, sideNum: 0},
       {dc: -1, dr:  0, sideNum: 3}, {dc: -1, dr:  0, sideNum: 2},
     ];
-
-    // Toggle the tile side and the neighbor tile's side
-    let newN = tiles[n].toggleSide(sideNum);
-    this.setTile(position.c, position.r, newN);
 
     // Check that the neighbor is on the board
     let neighbor = neighbors[sideNum];
