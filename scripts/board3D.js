@@ -226,8 +226,7 @@ class Board3D {
         // size is the size of the tile
         let size = frontTile.size;
 
-        this.bricks[c][r] = new Brick(frontTile, backTile, center, this.g,
-          uiParams.brickSteps);
+        this.bricks[c][r] = new Brick(frontTile, backTile, center, this.g);
       }
     }
   }

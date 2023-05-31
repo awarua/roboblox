@@ -85,29 +85,11 @@ class Board {
         if (rlb !== rb){
           this.toggleNeighborSide(3, {c, r});
         }
-      } 
+      }
     }
 
     // Alert any listeners that the data has changed.
     this.alertListeners();
-  }
-
-  // Return a copy of the internal data for this array
-  // copyData(){
-  //   return [...this._data];
-  // }
-
-  // Register a listener that will be called when the board changes
-  // cbk, the callback. Should send a copy of the data
-  registerListener(cbk){
-    this.listeners.push(cbk);
-  }
-
-  // Alerts any listeners that the data has changed
-  alertListeners(lineNo){
-    for (let cbk of this.listeners){
-      cbk(lineNo);
-    }
   }
 
   // Fill the board with the specified tile (don't care about neighbors)
@@ -116,53 +98,54 @@ class Board {
       for (let r = 0; r < this.rows; r++){
         this.setTile(c, r, tileNum, skipNeighbors);
       }
-    }   
+    }
     return this;   
   }
 
   // Fill the board with random tiles (making sure they all fit)
   fillRandomly() {
+    this.fill(0, true);
     for (let c = 0; c < this.cols; c++){
       for (let r = 0; r < this.rows; r++){
-        this.setTile(c, r, floor(random(256)));
-        // for (let i = 0; i < 8; i++){
-        //   let sideNum = Math.floor(Math.random() * 8);
-        //   this.toggleSide(sideNum, {c, r});
-        // }
+        // Toggle the top and left sides
+        for (let sideNum of [0, 1, 6, 7]){
+          if (random() < 0.5){
+            this.toggleSide(sideNum, {c, r});
+          }
+        }
+
+        // On the last column, toggle right side
+        if (c == this.cols - 1){
+          for (let sideNum of [2, 3]){
+            if (random() < 0.5){
+              this.toggleSide(sideNum, {c, r});
+            }
+          }  
+        }
+
+        // On the last row, toggle bottom side
+        if (r == this.rows - 1){
+          for (let sideNum of [5, 4]){
+            if (random() < 0.5){
+              this.toggleSide(sideNum, {c, r});
+            }
+          }  
+        }
       }
     }
     return this;
   }
 
-  // Adjust tiles so they can stand up!
-  // This is an attempt to apply a simple heuristic to ensure that the
-  // board will stand up. At least one of either side 4 or 5 must be present
-  stabilize(){
-    for (let r = 0; r < this.rows; r++){
-      for (let c = 0; c < this.cols; c++){
-        let t = tiles[this.getTile(c, r)]; 
-        if (t.sides[4] && t.sides[5]){
-          let sideNum = (Math.random() < 0.5) ? 4 : 5;
-          this.toggleSide(sideNum, {c, r});
-        }
-      }
-    }
-  }
-
-  getTileNumber(position) {
-    return this.getTile(position.c, position.r);
-  }    
-
-  toggleSide(sideNum, position) {
-    let n = this.getTileNumber(position);
-    if (position){
-      n = this.getTile(position.c, position.r);
-    }
+  toggleSide(sideNum, position, skipNeighbors) {
+    let n = this.getTile(position.c, position.r);
 
     // Toggle the tile side and the neighbor tile's side
     let newN = tiles[n].toggleSide(sideNum);
     this.setTile(position.c, position.r, newN, true);
-    this.toggleNeighborSide(sideNum, position);
+
+    if (!skipNeighbors){
+      this.toggleNeighborSide(sideNum, position);
+    }
   }
 
   toggleNeighborSide(sideNum, position){
@@ -188,7 +171,22 @@ class Board {
       let neighborN = this.getTile(nc, nr);
       let newNeighborN = tiles[neighborN].toggleSide(
         neighbor.sideNum);   
-      this.setTile(nc, nr, newNeighborN);      
+      this.setTile(nc, nr, newNeighborN, true);      
+    }
+  }
+
+  // Adjust tiles so they can stand up!
+  // This is an attempt to apply a simple heuristic to ensure that the
+  // board will stand up. At least one of either side 4 or 5 must be present
+  stabilize(){
+    for (let r = 0; r < this.rows; r++){
+      for (let c = 0; c < this.cols; c++){
+        let t = tiles[this.getTile(c, r)]; 
+        if (t.sides[4] && t.sides[5]){
+          let sideNum = (Math.random() < 0.5) ? 4 : 5;
+          this.toggleSide(sideNum, {c, r});
+        }
+      }
     }
   }
 
@@ -202,4 +200,17 @@ class Board {
     }
     return json;
   }   
+
+  // Register a listener that will be called when the board changes
+  // cbk, the callback. Should send a copy of the data
+  registerListener(cbk){
+    this.listeners.push(cbk);
+  }
+
+  // Alerts any listeners that the data has changed
+  alertListeners(lineNo){
+    for (let cbk of this.listeners){
+      cbk(lineNo);
+    }
+  }
 }

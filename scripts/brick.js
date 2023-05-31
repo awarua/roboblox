@@ -1,10 +1,9 @@
 class Brick {
-  constructor(fTile, bTile, center, g, steps) {
+  constructor(fTile, bTile, center, g) {
     this.fTile = fTile;
     this.bTile = bTile;
     this.center = center;
     this.g = g;
-    this.steps = steps;
 
     this.loftColor = color(120, 120, 120);
     this.loftStroke = color(20, 20, 20);
@@ -243,8 +242,8 @@ class Brick {
         // stores front points under the index number of the parent path
 
         // finds x and y points on line
-        for (let u = 0; u <= this.steps; u++) {
-          let t = u / this.steps;
+        for (let u = 0; u <= params.detail; u++) {
+          let t = u / params.detail;
 
           let a = drawingData[i].start.x;
           let b = drawingData[i].pathParts[0].params[0];
@@ -263,9 +262,9 @@ class Brick {
         && drawingData[i].pathParts.length == 1) {
 
         // finds points for curve 
-        for (let u = 0; u <= this.steps; u++) {
+        for (let u = 0; u <= params.detail; u++) {
 
-          let t = u / this.steps;
+          let t = u / params.detail;
           let a = drawingData[i].start.x;
           let b = drawingData[i].pathParts[0].params[0];
           let c = drawingData[i].pathParts[0].params[2];
@@ -289,15 +288,15 @@ class Brick {
           && drawingData[i].pathParts.length == 2) {
 
         let a = drawingData[i].pathParts.length;
-        this.splitSteps = this.steps / a;
+        let splitSteps = params.detail / a;
 
         //for every pathPart in a path
         for (let j = 0; j < drawingData[i].pathParts.length; j++) {
 
           if (j == 0) {
-            for (let u = 0; u <= this.splitSteps; u++) {
+            for (let u = 0; u <= splitSteps; u++) {
 
-              let t = u / this.splitSteps;
+              let t = u / splitSteps;
               let a = drawingData[i].start.x
               let b = drawingData[i].pathParts[j].params[0]
               let c = drawingData[i].pathParts[j].params[2]
@@ -317,8 +316,8 @@ class Brick {
           }
           if (j == 1) {
             // finds points for curve 
-            for (let u = 0; u <= this.splitSteps; u++) {
-              let t = u / this.splitSteps;
+            for (let u = 0; u <= splitSteps; u++) {
+              let t = u / splitSteps;
               let a = drawingData[i].pathParts[0].params[4]
               let b = drawingData[i].pathParts[j].params[0]
               let c = drawingData[i].pathParts[j].params[2]
@@ -350,7 +349,7 @@ class Brick {
       }
 
       // this loop takes the first 2 segment points so they can be added to the front of the reversed array
-      let t = (this.steps + 1) * 2
+      let t = (params.detail + 1) * 2
       for (let j = 0; j < t; j++) {
         hold.push(points.shift(j))
       }

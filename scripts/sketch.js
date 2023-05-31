@@ -2,7 +2,6 @@ var app;
 let params;
 let uiParams = {
   margin: 10,
-  brickSteps: 6,
   masterTileSize: 1,
   btnSpaceX: 80,
   sldSpaceY: 30,
@@ -90,7 +89,7 @@ function setup(){
 
   btn["fillRandom"] = createButton("Randomize")
     .parent(buttonRow)
-    .mousePressed(fillRandom);
+    .mousePressed(fillRandomly);
 
   btn["clear"] = createButton("Clear")
     .parent(buttonRow)
@@ -145,13 +144,13 @@ function showBack(){
 }
 
 // Event handler for 'fill random' button
-function fillRandom(){
+function fillRandomly(){
   board3D.getCurrentBoard().fillRandomly();
 }
 
 // Event handler for 'clear' button
 function clearBoard(){
-  board3D.getCurrentBoard().fill(0);
+  board3D.getCurrentBoard().fill(0, true);
 }
 
 /////////////////////////////////////////////////

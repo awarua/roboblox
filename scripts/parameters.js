@@ -14,6 +14,9 @@ class Parameters {
     MIN_SIDE_PULL:      0,
     MAX_SIDE_PULL:     60,
     SIDE_PULL:         50,
+    MIN_DETAIL:         1,
+    MAX_DETAIL:        20,
+    DETAIL:             6,
     MIN_ROWS:           1,
     MAX_ROWS:          12,
     ROWS:               2,
@@ -22,13 +25,14 @@ class Parameters {
     COLS:               2,
   };
 
-  constructor({x, y, rotation, mag, pull, sidePull, cols, rows}) {
+  constructor({x, y, rotation, mag, pull, sidePull, detail, cols, rows}) {
     this.x = x;
     this.y = y;
     this.rotation = rotation || Parameters.defaults.ROTATION;
     this.mag = mag           || Parameters.defaults.MAG;
     this.pull = pull         || Parameters.defaults.PULL;
     this.sidePull = sidePull || Parameters.defaults.SIDE_PULL;
+    this.detail = detail     || Parameters.defaults.DETAIL;
     this.cols = cols         || Parameters.defaults.COLS;
     this.rows = rows         || Parameters.defaults.ROWS;
 
@@ -101,6 +105,15 @@ class Parameters {
       mouseMoved: () => this.sldSidePullChanged(),
     });
 
+    this.sldDetail = new LabelSlider({
+      parent: this.parent,
+      min: Parameters.defaults.MIN_DETAIL, 
+      max: Parameters.defaults.MAX_DETAIL, 
+      val: this.detail,
+      label: "Detail",
+      mouseMoved: () => this.sldDetailChanged(),
+    });
+
     this.sldNumCols = new LabelSlider({
       parent: this.parent,
       min: Parameters.defaults.MIN_COLS, 
@@ -124,17 +137,10 @@ class Parameters {
    * Event handler for slider that adjusts central rotation
    */
   sldRotationChanged() {
-    // console.log('mm sld');
     if (this.sldRotation.value() != this.rotation) {
       this.rotation = this.sldRotation.value();
-      // this.txtRotation.html(this.rotation);
       this.hasChanges = true;
-      // loop();
-      event.preventDefault();
-      event.stopPropagation();
-      return false;
     }
-    return false;
   }
 
   /**
@@ -143,9 +149,7 @@ class Parameters {
   sldMagChanged() {
     if (this.sldMag.value() != this.mag) {
       this.mag = this.sldMag.value();
-      // this.txtMag.html(this.mag);
       this.hasChanges = true;
-      // loop();
     }
   }
 
@@ -155,9 +159,7 @@ class Parameters {
   sldPullChanged() {
     if (this.sldPull.value() != this.pull) {
       this.pull = this.sldPull.value();
-      // this.txtPull.html(this.pull);
       this.hasChanges = true;
-      // loop();
     }
   }
 
@@ -167,9 +169,17 @@ class Parameters {
   sldSidePullChanged() {
     if (this.sldSidePull.value() != this.sidePull) {
       this.sidePull = this.sldSidePull.value();
-      // this.txtSidePull.html(this.sidePull);
       this.hasChanges = true;
-      // loop();
+    }
+  }
+
+  /**
+   * Event handler for slider that adjusts detail
+   */
+  sldDetailChanged() {
+    if (this.sldDetail.value() != this.detail) {
+      this.detail = this.sldDetail.value();
+      this.hasChanges = true;
     }
   }
 
@@ -177,11 +187,9 @@ class Parameters {
    * Event handler for slider that adjusts the number of cols
    */
   sldNumColsChanged() {
-    // console.log(this.sldNumCols.value());
     if (this.sldNumCols.value() != this.cols){
       this.cols = this.sldNumCols.value();
       board3D.clearLastClicked();
-      // this.txtNumCols.html(this.cols);
       this.hasChanges = true;
     }
   }
@@ -190,11 +198,9 @@ class Parameters {
    * Event handler for slider that adjusts the number of rows
    */
   sldNumRowsChanged() {
-    // console.log(this.sldNumRows.value());
     if (this.sldNumRows.value() != this.rows){
       this.rows = this.sldNumRows.value();
       board3D.clearLastClicked();
-      // this.txtNumRows.html(this.rows);
       this.hasChanges = true;
     }
   }
