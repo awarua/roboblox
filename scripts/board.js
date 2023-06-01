@@ -191,10 +191,10 @@ class Board {
   }
 
   toJSON(){
-    let json = new Array(this.cols);
-    for (let c = 0; c < this.cols; c++){
-      json[c] = new Array(this.rows);
-      for (let r = 0; r < this.rows; r++){
+    let json = new Array(params.cols);
+    for (let c = 0; c < params.cols; c++){
+      json[c] = new Array(params.rows);
+      for (let r = 0; r < params.rows; r++){
         json[c][r] = this.getTile(c, r);
       }
     }
