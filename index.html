@@ -8,11 +8,8 @@
   <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
   <meta
     http-equiv="Content-Security-Policy"
-    content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline';"
-  />
-  <meta
-    http-equiv="X-Content-Security-Policy"
-    content="default-src 'self'; script-src 'self'"
+  content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src
+  'self' 'unsafe-inline';"
   />
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -21,162 +18,19 @@
 
   <link rel="stylesheet" href="styles/style.css">
 
-  <!-- <script src="scripts/libs/jQuery.js"></script> -->
   <script src="scripts/libs/p5.js"></script>
-  <!-- <script src="scripts/libs/p5.dom.js"></script>
-  <script src="scripts/libs/p5.easycam.js"></script> -->
   <script src="scripts/drawing_data.js"></script>
+  <script src="scripts/labelSlider.js"></script>
   <script src="scripts/parameters.js"></script>
   <script src="scripts/tile.js"></script>
   <script src="scripts/brick.js"></script>
   <script src="scripts/board.js"></script>
-  <script src="scripts/2d_board.js"></script>
-  <script src="scripts/3d_board.js"></script>
+  <script src="scripts/board3D.js"></script>
   <script src="scripts/sketch.js"></script>
 
 </head>
 
 <body>
-  <main role="main" class="container">
-    <div id="top-menu">
-      <div class="row mt1rem">
-        <button class="col-2 ml1rem bg-secondary hidden" 
-                id="btn-show-front">Show Front</button>
-        <button class="col-2 ml1rem bg-secondary" 
-                id="btn-show-back">Show Back</button>
-        <button class="col-2 ml1rem bg-secondary" 
-                id="btn-show-settings">Settings</button>
-        <button class="col-2 ml1rem bg-secondary" 
-                id="btn-save-file">Save</button>
-        <!-- <span id="file-input-holder"></span> -->
-        <!-- <button class="col-2 ml1rem bg-secondary"
-                id="btn-projector">Projector</button> -->
-      </div>
-    </div>
-
-    <div id="main-area">
-      <div class="row mt1rem">
-        <div class="col-6">
-          <div id="front-row">
-            <!-- <h4 id="front-canvas-title">Click to Change Front Side</h4> -->
-            <div id="front-div">
-              <div  id="canvas-holder-front"></div>
-            </div>  
-          </div>
-          <div id="back-row">
-            <!-- <h4 id="back-canvas-title">Click to Change Back Side</h4>  -->
-            <div id="back-div">
-              <div  id="canvas-holder-back"></div>
-            </div>    
-          </div>
-        </div>
-        <div class="col-6">
-          <div id="threed-row">
-            <!-- <h4 id="3d-canvas-title">Drag to See 3D</h4> -->
-            <div id="3d-div">
-              <div id="canvas-holder-3d"></div>
-            </div>
-          </div>    
-        </div>
-      </div>
-    </div>
-
-    <div class="row" id="settings-row">
-      <div id="settings-bg"></div>
-      <div id="controls-holder">
-        <button id="btn-close-params" class="bg-secondary">X</button>
-        <!-- <div class="row">
-          <div class="col-6">
-            <h4>Shape Parameters</h4>
-          </div>
-          <div class="col-6">  
-            <h4>Example Tile</h4>
-          </div>
-        </div> -->
-        <div class="row full-height">
-          <div class="col-6">
-            <h4>Shape Parameters</h4>
-            <table>
-              <tr>
-                <td class="first-col">
-                  <strong>Rotation:</strong>
-                  <span id="txtRotation-holder"></span>
-                </td>
-                <td>
-                  <span id="sldRotation-holder"></span>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <strong>Mag:</strong>
-                  <span id="txtMag-holder"></span>
-                </td>
-                <td>
-                  <span id="sldMag-holder"></span>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <strong>Pull:</strong>
-                  <span id="txtPull-holder"></span>
-                </td>
-                <td>
-                  <span id="sldPull-holder"></span>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <strong>Side Pull:</strong>
-                  <span id="txtSidePull-holder"></span>
-                </td>
-                <td>
-                  <span id="sldSidePull-holder"></span>
-                </td>
-              </tr>
-            </table>
-          </div>
-          <div class="col-6">
-            <div id="example-tile-holder"></div>
-          </div>  
-        </div>
-      </div>
-    </div>
-
-    <div class="row hidden">
-      <h4>Allowed Tiles</h4>
-      <div id="allowedTiles-holder"></div>
-    </div>
-
-    <div id="server-url">JSON&nbsp;Server:&nbsp;<a id="server-url-link" target="_blank" href="">loading...</a></div>
-
-  </main>
-
-    <!--
-    
-    <div class="grid-div">
-
-
-        
-      
-    <div class="container mt1rem">
-        <div class="row">
-          <div class="col-9">
-  
-          </div>
-          
-          
-  <! --         <div class="col-sm">
-            
-          </div> -- >
-        </div>
-      </div>
-
-  <! --       
-      <div class="container" class="mt1rem">
-      </div>
-        -- >
-      
-    -->
 </body>
 
 </html>
