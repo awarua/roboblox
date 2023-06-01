@@ -83,17 +83,21 @@ function setup(){
     .parent(buttonRow)
     .mousePressed(showBack);
 
-  serverLink = createA("#", "JSON", "_blank")
-    .parent(buttonRow)
-    .class("btn");
-
   btn["fillRandom"] = createButton("Randomize")
     .parent(buttonRow)
     .mousePressed(fillRandomly);
 
+  btn["stabilize"] = createButton("Stabilize")
+    .parent(buttonRow)
+    .mousePressed(stabilize);
+
   btn["clear"] = createButton("Clear")
     .parent(buttonRow)
     .mousePressed(clearBoard);
+
+  serverLink = createA("#", "JSON", "_blank")
+    .parent(buttonRow)
+    .class("btn");
 
 
   // Set up the electron server to serve json to network
@@ -146,6 +150,11 @@ function showBack(){
 // Event handler for 'fill random' button
 function fillRandomly(){
   board3D.getCurrentBoard().fillRandomly();
+}
+
+// Event handler for 'fill random' button
+function stabilize(){
+  board3D.getCurrentBoard().stabilize();
 }
 
 // Event handler for 'clear' button
